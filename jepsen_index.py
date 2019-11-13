@@ -2,8 +2,12 @@
 # Jepsen, P.U. J Infrared Milli Terahz Waves (2019) 40: 395. https://doi.org/10.1007/s10762-019-00578-0
 
 
-from numpy import array, unwrap, pi, argmax, abs, exp, log10, angle, amax, polyfit, where
+from numpy import array, unwrap, pi, argmax, abs, exp, log10, angle, amax, polyfit, where, ones, log
 from numpy.fft import rfft, rfftfreq
+
+# Constant definitions
+c = 299792458  # m/s
+n_aire = 1.00026  # air refraction index
 
 
 def toDb(x):
@@ -27,21 +31,40 @@ def centre_loc(E_data):  # finds the centre of the pulse based on
 
 
 def fourier_analysis(t_data, E_data, nSamp):
-    samp_int = (t_data[1] - t_data[0])*1e-12  # seconds
+    samp_int = (t_data[1] - t_data[0])  # seconds
     E_data_w = rfft(E_data, n=nSamp)
     f_data = rfftfreq(nSamp, d=samp_int)  # Hz
+    # print('Samping interval in seconds: ', samp_int)
+    # print('Frequency in Hz: ', f_data[1] - f_data[0])
+    # print('Samples: ', nSamp)
     return f_data, E_data_w
 
 
-def refractive_index():
-    return 0
+def refractive_index(frq, delta_phi, thick):
+    n = ones(delta_phi.size)
+    for i in range(delta_phi.size):
+        if frq[i] == 0:
+            continue
+        n[i] += c * delta_phi[i] / (2 * pi * frq[i] * thick)
+    return n
 
-def alpha_w():
-    return 0
+
+def n_quocient(ref_ind):
+    n_quo = list()
+    for i in range(ref_ind.size):
+        n_quo.append((4 * ref_ind[i] * n_aire) / (ref_ind[i] + n_aire) ** 2)
+    return array(n_quo)
 
 
-def jepsen_index(t_ref, E_ref, t_sam, E_sam):  # returns f_ref, E_ref_w, f_sam, E_sam_w, H_w, delta_phi_0_red,
-                                               # delta_phi_0_red_notunw
+def alpha_w(ref_ind, H_0, thick):
+    n_quo = n_quocient(ref_ind)
+    alf = list()
+    for i in range(ref_ind.size):
+        alf.append(- 2 * log(H_0[i] * n_quo[i]) / thick)
+    return array(alf)
+
+
+def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # TODO only return what is needed
 
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)
@@ -51,14 +74,15 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam):  # returns f_ref, E_ref_w, f_sam, 
     t_0ref = t_ref[pos_t_0ref]
     pos_t_0sam = centre_loc(E_ref)
     t_0sam = t_ref[pos_t_0sam]
+    print(t_0ref, t_0sam)
 
     # Step 2: Fourier transform of measures
     f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
     f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
-    H_w = list()  # transfer function initialisation
+    H_w = list()  # complex transfer function initialisation
     nFFT = f_ref.size
     for i in range(nFFT):
-        H_w.append(E_ref_w[i] - E_sam_w[i])
+        H_w.append(E_sam_w[i] / E_ref_w[i])
     H_w = array(H_w)
 
     # Step 3: Calculate reduced phases
@@ -80,17 +104,30 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam):  # returns f_ref, E_ref_w, f_sam, 
     phi_0_sam_red = angle(phi_0_sam_red)
 
     # Step 4: Unwrap the reduced phase difference
-    delta_phi_0_red = unwrap(phi_0_sam_red - phi_0_ref_red)
+    delta_phi_0_red = abs(unwrap(phi_0_sam_red - phi_0_ref_red))
 
     # Step 5: Fit the unwrapped phase to a linear function
+    f_min_idx = 1
+    f_max_idx = 100
+    f_min = f_ref[f_min_idx]
+    f_max = f_ref[f_max_idx]
     for frq in f_ref:
-        if frq*1e-12 <= 0.12:
+        if frq <= 1e11:  # 0.1 THz
             f_min = frq
-        if frq*1e-12 <= 1:
+        if frq <= 1e12:  # 1 THz
             f_max = frq
-    f_min_index = where(f_ref == f_min)
-    f_min_index = where(f_ref == f_min)
-    coefs = polyfit(f_ref, delta_phi_0_red, 2)
+    f_min_idx = where(f_ref == f_min)[0][0]
+    f_max_idx = where(f_ref == f_max)[0][0]
+    coefs = polyfit(f_ref[f_min_idx:f_max_idx], delta_phi_0_red[f_min_idx:f_max_idx], 2)
 
-    return f_ref, prettyfy(E_ref_w, amax(E_ref_w)), f_sam, prettyfy(E_sam_w, amax(E_ref_w)),\
-           H_w / amax(H_w), delta_phi_0_red, coefs
+    delta_phi_0 = delta_phi_0_red - 2 * pi * ones(delta_phi_0_red.size) * int(coefs[2] / (2 * pi))
+    delta_phi = abs(delta_phi_0)  # + (phi_0_sam - phi_0_ref))
+    # delta_phi = abs(unwrap(angle(H_w)))
+
+    # Step X 1: Obtaining the refractive index
+    n = refractive_index(f_ref, delta_phi, thickness)
+
+    # Step X 2: Obtaining the absorption coefficient
+    alpha_f = alpha_w(n, H_w, thickness)
+
+    return f_ref, f_min_idx, f_max_idx, n, alpha_f
