@@ -2,7 +2,7 @@
 # Jepsen, P.U. J Infrared Milli Terahz Waves (2019) 40: 395. https://doi.org/10.1007/s10762-019-00578-0
 
 
-from numpy import array, unwrap, pi, argmax, abs, exp, log10, angle, amax
+from numpy import array, unwrap, pi, argmax, abs, exp, log10, angle, amax, polyfit, where
 from numpy.fft import rfft, rfftfreq
 
 
@@ -33,7 +33,15 @@ def fourier_analysis(t_data, E_data, nSamp):
     return f_data, E_data_w
 
 
-def jepsen_index(t_ref, E_ref, t_sam, E_sam):  # returns
+def refractive_index():
+    return 0
+
+def alpha_w():
+    return 0
+
+
+def jepsen_index(t_ref, E_ref, t_sam, E_sam):  # returns f_ref, E_ref_w, f_sam, E_sam_w, H_w, delta_phi_0_red,
+                                               # delta_phi_0_red_notunw
 
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)
@@ -47,7 +55,7 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam):  # returns
     # Step 2: Fourier transform of measures
     f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
     f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
-    H_w = list()  # transfer function
+    H_w = list()  # transfer function initialisation
     nFFT = f_ref.size
     for i in range(nFFT):
         H_w.append(E_ref_w[i] - E_sam_w[i])
@@ -74,4 +82,15 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam):  # returns
     # Step 4: Unwrap the reduced phase difference
     delta_phi_0_red = unwrap(phi_0_sam_red - phi_0_ref_red)
 
-    return f_ref, prettyfy(E_ref_w, amax(E_ref_w)), f_sam, prettyfy(E_sam_w, amax(E_ref_w)), H_w / amax(H_w), delta_phi_0_red
+    # Step 5: Fit the unwrapped phase to a linear function
+    for frq in f_ref:
+        if frq*1e-12 <= 0.12:
+            f_min = frq
+        if frq*1e-12 <= 1:
+            f_max = frq
+    f_min_index = where(f_ref == f_min)
+    f_min_index = where(f_ref == f_min)
+    coefs = polyfit(f_ref, delta_phi_0_red, 2)
+
+    return f_ref, prettyfy(E_ref_w, amax(E_ref_w)), f_sam, prettyfy(E_sam_w, amax(E_ref_w)),\
+           H_w / amax(H_w), delta_phi_0_red, coefs
