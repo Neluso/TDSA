@@ -7,7 +7,7 @@ from jepsen_index import jepsen_index
 from DPS_functions import *
 from aux_functions import *
 from numpy import amax
-from shutil import copy, move
+from shutil import move, copy  # TODO only move
 
 Tk().withdraw()
 ref_file_path = askopenfilename(initialdir='./data', title='Select reference data')
@@ -38,14 +38,24 @@ sam_file = sam_file_path.split('/')[-1]
 sam_file = sam_file.replace('.', '_')
 sam_file = sam_file.replace(' ', '_')
 save_path = write_data(f_ref, E_ref_w, f_sam, E_sam_w, sam_file)
-move(ref_file_path, save_path)
-move(sam_file_path, save_path)
+copy(ref_file_path, save_path)  # TODO only move
+copy(sam_file_path, save_path)
 
 
 print('Creating plots')
 
 
-figure()
+figure(1)  # THz time domain pulses
+fig_name = 'Pulses'
+plot(t_ref, E_ref, label='Reference')
+plot(t_sam, E_sam, label='Sample')
+xlabel(r'$t delay (ps)$')
+title(fig_name)
+# legend()
+savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
+
+
+figure(2)  # Spectra
 fig_name = "Spectra"
 plot(f_ref[f_min_idx:2*f_max_idx], prettyfy(E_ref_w, amax(E_ref_w))[f_min_idx:2*f_max_idx], label='Reference')
 plot(f_sam[f_min_idx:2*f_max_idx], prettyfy(E_sam_w, amax(E_ref_w))[f_min_idx:2*f_max_idx], label='Sample')
