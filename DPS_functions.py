@@ -1,5 +1,6 @@
 from numpy.fft import rfft, rfftfreq
-from numpy import argmax
+from numpy import argmax, where, ones  # array functions
+from numpy import polyfit
 
 
 def fourier_analysis(t_data, E_data, nSamp):
@@ -14,5 +15,7 @@ def centre_loc(E_data):  # finds the centre of the pulse based on
     return t_0_pos
 
 
-def noise_floor():
-    return 0
+def noise_floor(freq, E_data, f_lim):
+    f_lim_idx = where(freq >= f_lim)[0][0]
+    p = polyfit(freq[f_lim_idx:], E_data[f_lim_idx:], 1)
+    return p[1] * ones(freq.size)

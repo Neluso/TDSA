@@ -11,6 +11,4 @@ Instructions:
  
 3.- Select sample data file
 
-Results:
-
-1.- 
+Results: Puts in a new 'output/sample file name' the data, the spectra and the plots

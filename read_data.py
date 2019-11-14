@@ -2,6 +2,9 @@ from numpy import array
 
 
 def read_data(filename):
+    if filename == '':
+        print('No file selected. Quitting...')
+        quit()
     try:
         print('Opening ' + filename.split('/')[-1])
         fh = open(filename)
