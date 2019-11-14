@@ -1,4 +1,5 @@
-# THz-TDS_spectrum_retriever
+# TDSA
+THz- Time Domain Spectroscopy Analizer
 
 Requirements: Anaconda 3.7+
 
