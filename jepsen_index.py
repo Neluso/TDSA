@@ -4,10 +4,8 @@
 
 from numpy import array, unwrap, pi, argmax, abs, exp, log10, angle, amax, polyfit, where, ones, log
 from numpy.fft import rfft, rfftfreq
-
-# Constant definitions
-c = 299792458  # m/s
-n_aire = 1.00026  # air refraction index
+from DPS_functions import fourier_analysis
+from TDS_constants import *
 
 
 def toDb(x):
@@ -34,9 +32,6 @@ def fourier_analysis(t_data, E_data, nSamp):
     samp_int = (t_data[1] - t_data[0])  # seconds
     E_data_w = rfft(E_data, n=nSamp)
     f_data = rfftfreq(nSamp, d=samp_int)  # Hz
-    # print('Samping interval in seconds: ', samp_int)
-    # print('Frequency in Hz: ', f_data[1] - f_data[0])
-    # print('Samples: ', nSamp)
     return f_data, E_data_w
 
 
@@ -45,23 +40,24 @@ def refractive_index(frq, delta_phi, thick):
     for i in range(delta_phi.size):
         if frq[i] == 0:
             continue
-        n[i] += c * delta_phi[i] / (2 * pi * frq[i] * thick)
+        n[i] += c_0 * delta_phi[i] / (2 * pi * frq[i] * thick)
     return n
 
 
 def n_quocient(ref_ind):
     n_quo = list()
     for i in range(ref_ind.size):
-        n_quo.append((4 * ref_ind[i] * n_aire) / (ref_ind[i] + n_aire) ** 2)
+        n_quo.append(((ref_ind[i] + n_aire) ** 2) / (4 * ref_ind[i] * n_aire))
     return array(n_quo)
 
 
 def alpha_w(ref_ind, H_0, thick):
     n_quo = n_quocient(ref_ind)
     alf = list()
+    thick = - (2 / thick)  # m^-1
     for i in range(ref_ind.size):
-        alf.append(- 2 * log(H_0[i] * n_quo[i]) / thick)
-    return array(alf)
+        alf.append(log(H_0[i] * n_quo[i]))
+    return thick * array(alf)
 
 
 def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # TODO only return what is needed
@@ -74,7 +70,6 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # TODO only return wha
     t_0ref = t_ref[pos_t_0ref]
     pos_t_0sam = centre_loc(E_ref)
     t_0sam = t_ref[pos_t_0sam]
-    print(t_0ref, t_0sam)
 
     # Step 2: Fourier transform of measures
     f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
@@ -121,13 +116,12 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # TODO only return wha
     coefs = polyfit(f_ref[f_min_idx:f_max_idx], delta_phi_0_red[f_min_idx:f_max_idx], 2)
 
     delta_phi_0 = delta_phi_0_red - 2 * pi * ones(delta_phi_0_red.size) * int(coefs[2] / (2 * pi))
-    delta_phi = abs(delta_phi_0)  # + (phi_0_sam - phi_0_ref))
-    # delta_phi = abs(unwrap(angle(H_w)))
+    delta_phi = abs(delta_phi_0 + (phi_0_sam - phi_0_ref))
 
-    # Step X 1: Obtaining the refractive index
+    # Step 6.1: Obtaining the refractive index
     n = refractive_index(f_ref, delta_phi, thickness)
 
-    # Step X 2: Obtaining the absorption coefficient
+    # Step 6.2: Obtaining the absorption coefficient
     alpha_f = alpha_w(n, H_w, thickness)
 
     return f_ref, f_min_idx, f_max_idx, n, alpha_f
