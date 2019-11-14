@@ -1,11 +1,7 @@
-from numpy import unwrap, pi, linspace
-from matplotlib.pyplot import plot, show
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 
 
-n = 10
-phase = linspace(0, pi, num=n)
-x = linspace(0, n, num=n)
-phase[5:] += 2 * pi
-plot(x, phase)
-plot(x, unwrap(unwrap(phase)))
-show()
+Tk().withdraw()
+filename = askopenfilename(initialdir='./data',title='Selecciona fichero de referencia')
+print(filename.split('/')[-1])

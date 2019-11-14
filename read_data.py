@@ -1,14 +1,15 @@
 from numpy import array
 
 
-def read_data(namefile):
+def read_data(filename):
     try:
-        print('Opening ' + namefile)
-        fh = open('./data/' + namefile)
+        print('Opening ' + filename.split('/')[-1])
+        fh = open(filename)
     except:
-        print('Error opening ' + namefile)
+        print('Error opening ' + filename.split('/')[-1])
+        print('Operation terminated. Please check if files exist.')
         quit()
-    print(namefile + ' opened successfully')
+    print(filename.split('/')[-1] + ' opened successfully')
     data = fh.read()
     data = data.split('\n')
     x = list()
