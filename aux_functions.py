@@ -32,3 +32,12 @@ def nextpow2(i):
     return n
 
 
+def f_range(freq, f_lim_min, f_lim_max):
+    for frq in freq:
+        if frq <= f_lim_min:
+            f_min = frq
+        if frq <= f_lim_max:
+            f_max = frq
+    f_min_idx = where(freq == f_min)[0][0]
+    f_max_idx = where(freq == f_max)[0][0]
+    return f_min_idx, f_max_idx

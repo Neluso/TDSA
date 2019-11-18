@@ -1,5 +1,5 @@
 from numpy.fft import rfft, rfftfreq
-from numpy import argmax, where, ones  # array functions
+from numpy import argmax, where, ones, abs  # array functions
 from numpy import polyfit
 
 
@@ -10,7 +10,7 @@ def fourier_analysis(t_data, E_data, nSamp):
     return f_data, E_data_w
 
 
-def centre_loc(E_data):  # finds the centre of the pulse based on
+def centre_loc(E_data):  # finds the centre of the pulse based on... TODO improve algorithm
     t_0_pos = argmax(abs(E_data))
     return t_0_pos
 
