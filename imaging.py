@@ -69,7 +69,7 @@ print('Plotting')
 row_length = row_max * resolution  # mm
 col_length = col_max * resolution  # mm
 figure(1)
-imshow(data, extent=(0, col_length, row_length, 0))  # TODO add resolution to the data visualization
+imshow(data, extent=(0, col_length, row_length, 0))
 xlabel('mm')
 ylabel('mm')
 colorbar()
