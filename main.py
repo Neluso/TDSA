@@ -27,8 +27,8 @@ nSamp_pow = nextpow2(nSamp)
 
 
 n, alpha_f = jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness)
-f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp)
-f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp)
+f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
+f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
 f_min_idx, f_max_idx = f_min_max_idx(f_ref)
 noisefloor = noise_floor(f_ref, E_ref_w, 4e12)
 
@@ -44,16 +44,14 @@ copy(sam_file_path, save_path)
 
 print('Creating plots')
 
-
 figure(1)  # THz time domain pulses
 fig_name = 'Pulses'
 plot(t_ref, E_ref, label='Reference')
 plot(t_sam, E_sam, label='Sample')
 xlabel(r'$t delay (ps)$')
 title(fig_name)
-# legend()
+legend()
 savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
-
 
 figure(2)  # Spectra
 fig_name = "Spectra"
@@ -66,6 +64,21 @@ title(fig_name)
 legend()
 savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
 
+figure(3)  # Alpha_f
+fig_name = 'Absortion'
+plot(f_ref[f_min_idx:2*f_max_idx], 0.01 * alpha_f[f_min_idx:2*f_max_idx])
+xlabel(r'$f (THz)$')
+ylabel(r'$\alpha (cm^{-1})$')
+title(fig_name)
+savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
+
+
+figure(4)  # Refractive Index
+fig_name = 'Index'
+plot(f_ref[f_min_idx:2*f_max_idx], n[f_min_idx:2*f_max_idx])
+xlabel(r'$f (THz)$')
+title(fig_name)
+savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
 
 print('Plotting data')
 show()
