@@ -6,14 +6,14 @@ from numpy import array
 
 def read_data(filename):
     if filename == '':
-        print('No file selected. Quitting...')
+        print('No file selected')
         quit()
     try:
         print('Opening ' + filename.split('/')[-1])
         fh = open(filename)
     except:
         print('Error opening ' + filename.split('/')[-1])
-        print('Operation terminated. Please check if files exist.')
+        print('Operation terminated. Please check if files exist and relaunch.')
         quit()
     print(filename.split('/')[-1] + ' opened successfully')
     data = fh.read()

@@ -1,5 +1,11 @@
 from numpy import where  # array functions
 from numpy import log10  # mathematical functions
+from tkinter import *
+
+
+def print_to_GUI(text, window):
+    print_label = Label(window, text=text)
+    print_label.pack()
 
 
 def f_min_max_idx(freq):
