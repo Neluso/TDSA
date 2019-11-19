@@ -18,4 +18,4 @@ def centre_loc(E_data):  # finds the centre of the pulse based on... TODO improv
 def noise_floor(freq, E_data, f_lim):
     f_lim_idx = where(freq >= f_lim)[0][0]
     p = polyfit(freq[f_lim_idx:], E_data[f_lim_idx:], 1)
-    return p[1] * ones(freq.size)
+    return p[1] * ones(freq.size) + p[0] * freq

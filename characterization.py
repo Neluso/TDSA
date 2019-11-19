@@ -30,7 +30,7 @@ def characterization(show_plots, thickness):
 
     t_ref *= 1e-12  # seconds
     t_sam *= 1e-12  # seconds
-    thickness *=1e-3  # 1.95e-3  # m
+    thickness *= 1e-3  # 1.95e-3  # m
 
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)
@@ -39,7 +39,7 @@ def characterization(show_plots, thickness):
     f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
     f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
     f_min_idx, f_max_idx = f_min_max_idx(f_ref)
-    noisefloor = noise_floor(f_ref, E_ref_w, 4e12)
+    noisefloor = noise_floor(f_ref, prettyfy(E_ref_w, amax(E_ref_w)), 4e12)
 
     # print('Writting data')
     
@@ -63,9 +63,12 @@ def characterization(show_plots, thickness):
 
     figure(2)  # Spectra
     fig_name = "Spectra"
-    plot(f_ref[f_min_idx:2 * f_max_idx], prettyfy(E_ref_w, amax(E_ref_w))[f_min_idx:2 * f_max_idx], label='Reference')
-    plot(f_sam[f_min_idx:2 * f_max_idx], prettyfy(E_sam_w, amax(E_ref_w))[f_min_idx:2 * f_max_idx], label='Sample')
-    plot(f_ref[f_min_idx:2 * f_max_idx], prettyfy(noisefloor, amax(E_ref_w))[f_min_idx:2 * f_max_idx], 'r--',
+    plot_length = 6
+    plot(f_ref[f_min_idx:plot_length * f_max_idx], prettyfy(E_ref_w, amax(E_ref_w))[f_min_idx:plot_length * f_max_idx],
+         label='Reference')
+    plot(f_sam[f_min_idx:plot_length * f_max_idx], prettyfy(E_sam_w, amax(E_ref_w))[f_min_idx:plot_length * f_max_idx],
+         label='Sample')
+    plot(f_ref[f_min_idx:plot_length * f_max_idx], noisefloor[f_min_idx:plot_length * f_max_idx], 'r--',
          label='Noise Floor')
     xlabel(r'$f (THz)$')
     ylabel(r'$E_{\omega} (dB)$')
@@ -74,11 +77,11 @@ def characterization(show_plots, thickness):
     savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
 
     figure(3)  # Alpha_f
-    fig_name = 'Absortion'
+    fig_name = 'Absorption'
     plot(f_ref[f_min_idx:2 * f_max_idx], 0.01 * real(alpha_f[f_min_idx:2 * f_max_idx]))
     xlabel(r'$f (THz)$')
     ylabel(r'$\alpha (cm^{-1})$')
-    title(fig_name)
+    title(fig_name + ' coefficient')
     savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
 
     figure(4)  # Refractive Index
@@ -97,6 +100,3 @@ def characterization(show_plots, thickness):
     messagebox.showinfo('Process ended correctly', 'Output saved in ' + save_path)
     
     return 0
-
-
-
