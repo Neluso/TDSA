@@ -5,7 +5,7 @@
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
-from matplotlib.pyplot import plot, show, legend, xlabel, ylabel, figure, title, savefig, close
+from matplotlib.pyplot import plot, show, legend, xlabel, ylabel, figure, title, savefig, close, xlim
 from read_data import read_data
 from write_data import write_data
 from jepsen_index import jepsen_index
@@ -54,9 +54,10 @@ def characterization(show_plots, thickness):
 
     figure(1)  # THz time domain pulses
     fig_name = 'Pulses'
-    plot(t_ref, E_ref, label='Reference')
-    plot(t_sam, E_sam, label='Sample')
+    plot(t_ref, E_ref, label='Reference', linewidth=1)
+    plot(t_sam, E_sam, label='Sample', linewidth=1)
     xlabel(r'$t delay (ps)$')
+    xlim([t_ref[0], t_ref[-1]])
     title(fig_name)
     legend()
     savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
@@ -65,29 +66,34 @@ def characterization(show_plots, thickness):
     fig_name = "Spectra"
     plot_length = 6
     plot(f_ref[f_min_idx:plot_length * f_max_idx], prettyfy(E_ref_w, amax(E_ref_w))[f_min_idx:plot_length * f_max_idx],
-         label='Reference')
+         label='Reference', linewidth=1)
     plot(f_sam[f_min_idx:plot_length * f_max_idx], prettyfy(E_sam_w, amax(E_ref_w))[f_min_idx:plot_length * f_max_idx],
-         label='Sample')
+         label='Sample', linewidth=1)
     plot(f_ref[f_min_idx:plot_length * f_max_idx], noisefloor[f_min_idx:plot_length * f_max_idx], 'r--',
-         label='Noise Floor')
+         label='Noise Floor', linewidth=1)
     xlabel(r'$f (THz)$')
     ylabel(r'$E_{\omega} (dB)$')
+    xlim([f_ref[f_min_idx], f_ref[plot_length * f_max_idx]])
     title(fig_name)
     legend()
     savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
 
     figure(3)  # Alpha_f
     fig_name = 'Absorption'
-    plot(f_ref[f_min_idx:2 * f_max_idx], 0.01 * real(alpha_f[f_min_idx:2 * f_max_idx]))
+    plot_length = 2
+    plot(f_ref[f_min_idx:plot_length * f_max_idx], 0.01 * real(alpha_f[f_min_idx:plot_length * f_max_idx]), linewidth=1)
     xlabel(r'$f (THz)$')
     ylabel(r'$\alpha (cm^{-1})$')
+    xlim([f_ref[f_min_idx], f_ref[plot_length * f_max_idx]])
     title(fig_name + ' coefficient')
     savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
 
     figure(4)  # Refractive Index
     fig_name = 'Index'
-    plot(f_ref[f_min_idx:2 * f_max_idx], n[f_min_idx:2 * f_max_idx])
+    plot_length = 2
+    plot(f_ref[f_min_idx:plot_length * f_max_idx], n[f_min_idx:plot_length * f_max_idx], linewidth=1)
     xlabel(r'$f (THz)$')
+    xlim([f_ref[f_min_idx], f_ref[plot_length * f_max_idx]])
     title(fig_name)
     savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
 
