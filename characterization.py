@@ -4,24 +4,29 @@
 
 from tkinter import *
 from tkinter.filedialog import askopenfilename
-from matplotlib.pyplot import plot, show, legend, xlabel, ylabel, figure, title, savefig
+from tkinter import messagebox
+from matplotlib.pyplot import plot, show, legend, xlabel, ylabel, figure, title, savefig, close
 from read_data import read_data
 from write_data import write_data
 from jepsen_index import jepsen_index
 from DPS_functions import *
 from aux_functions import *
-from numpy import amax
+from numpy import amax, real
 from shutil import copy
 
 
-def characterization(window, log_label):
+def characterization(show_plots):
+    
     Tk().withdraw()
     ref_file_path = askopenfilename(initialdir='./data', title='Select reference data')
     Tk().withdraw()
     sam_file_path = askopenfilename(initialdir='./data', title='Select sample data')
     
-    t_ref, E_ref = read_data(ref_file_path)
-    t_sam, E_sam = read_data(sam_file_path)
+    t_ref, E_ref, is_error = read_data(ref_file_path)
+    t_sam, E_sam, is_error = read_data(sam_file_path)
+    
+    if is_error:
+        return 0
 
     t_ref *= 1e-12  # seconds
     t_sam *= 1e-12  # seconds
@@ -36,7 +41,8 @@ def characterization(window, log_label):
     f_min_idx, f_max_idx = f_min_max_idx(f_ref)
     noisefloor = noise_floor(f_ref, E_ref_w, 4e12)
 
-    print('Writting data')
+    # print('Writting data')
+    
     sam_file = sam_file_path.split('/')[-1]
     sam_file = sam_file.replace('.', '_')
     sam_file = sam_file.replace(' ', '_')
@@ -44,7 +50,7 @@ def characterization(window, log_label):
     copy(ref_file_path, save_path)
     copy(sam_file_path, save_path)
 
-    print('Creating plots')
+    # print('Creating plots')
 
     figure(1)  # THz time domain pulses
     fig_name = 'Pulses'
@@ -69,7 +75,7 @@ def characterization(window, log_label):
 
     figure(3)  # Alpha_f
     fig_name = 'Absortion'
-    plot(f_ref[f_min_idx:2 * f_max_idx], 0.01 * alpha_f[f_min_idx:2 * f_max_idx])
+    plot(f_ref[f_min_idx:2 * f_max_idx], 0.01 * real(alpha_f[f_min_idx:2 * f_max_idx]))
     xlabel(r'$f (THz)$')
     ylabel(r'$\alpha (cm^{-1})$')
     title(fig_name)
@@ -82,7 +88,15 @@ def characterization(window, log_label):
     title(fig_name)
     savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
 
-    print('Plotting data')
-    show()
-
+    # print('Plotting data')
+    
+    if show_plots:
+        show()
+    
+    close('all')
+    messagebox.showinfo('Information', 'Output saved in ' + save_path)
+    
     return 0
+
+
+

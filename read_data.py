@@ -1,4 +1,5 @@
 from numpy import array
+from tkinter import messagebox
 
 
 # TODO improve data reading: read more sample data to perform statistical analysis
@@ -6,16 +7,13 @@ from numpy import array
 
 def read_data(filename):
     if filename == '':
-        print('No file selected')
-        quit()
+        messagebox.showinfo('Error', 'No file selected')
+        return 0, 0, True
     try:
-        print('Opening ' + filename.split('/')[-1])
         fh = open(filename)
     except:
-        print('Error opening ' + filename.split('/')[-1])
-        print('Operation terminated. Please check if files exist and relaunch.')
-        quit()
-    print(filename.split('/')[-1] + ' opened successfully')
+        messagebox.showinfo('Error', 'Error opening ' + filename.split('/')[-1])
+        return 0, 0, True
     data = fh.read()
     data = data.split('\n')
     x = list()
@@ -28,4 +26,4 @@ def read_data(filename):
         y.append(float(item[1]))
     x = array(x)
     y = array(y)
-    return x, y
+    return x, y, False

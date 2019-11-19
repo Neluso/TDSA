@@ -9,13 +9,15 @@ from DPS_functions import *
 from numpy import zeros, sum, abs
 from aux_functions import *
 import os
-from matplotlib.pyplot import show, imshow, figure, colorbar, xlabel, ylabel
+from matplotlib.pyplot import show, imshow, figure, colorbar, xlabel, ylabel, close, savefig
 from tqdm import tqdm
 
 
-def imaging(window):
+def imaging(show_plots):
     files = os.listdir('./imaging_data/')
-    t_ref, E_ref = read_data('./imaging_data/ref.txt')  # support/matrix without T-Ink (THz-Ink: i.e. lactose)
+    t_ref, E_ref, is_error = read_data('./imaging_data/ref.txt')  # support/matrix without T-Ink (THz-Ink: i.e. lactose)
+    if is_error:
+        return 0
     t_ref *= 1e-12  # seconds
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)
@@ -31,10 +33,12 @@ def imaging(window):
     E_ref_w_range = sum(E_ref_w[f_min_idx:f_max_idx])
     
     pixel_data = list()
-    print('Reading data')
+    # print('Reading data')
     for file in tqdm(files):
         if file != 'ref.txt':
-            t_sam, E_sam = read_data('./imaging_data/' + file)
+            t_sam, E_sam, is_error = read_data('./imaging_data/' + file)
+            if is_error:
+                return 0
             t_sam *= 1e-12  # seconds
             f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
             E_sam_w = abs(E_sam_w)
@@ -50,18 +54,18 @@ def imaging(window):
                 col_max = col_pos
             alpha = E_sam_w_range / E_ref_w_range  # adimensional
             pixel_data.append((row_pos, col_pos, alpha))
-    print('Data has been read')
+    # print('Data has been read')
     
-    print('Building image')
+    # print('Building image')
     data = zeros((row_max, col_max))
     for items in tqdm(pixel_data):
         row_pos = int(items[0]) - 1
         col_pos = int(items[1]) - 1
         alpha = 100 * float(items[2])
         data[row_pos, col_pos] = alpha
-    print('Image has been built')
+    # print('Image has been built')
     
-    print('Plotting')
+    # print('Plotting')
     row_length = row_max * resolution  # mm
     col_length = col_max * resolution  # mm
     figure(1)
@@ -69,6 +73,14 @@ def imaging(window):
     xlabel('mm')
     ylabel('mm')
     colorbar()
-    show()
+    
+    if not os.path.exists('./output/imaging/'):
+        os.mkdir('./output/imaging/')
+    savefig('./output/imaging/image.svg', format='svg')
+    
+    if show_plots:
+        show()
+    
+    close('all')
     
     return 0
