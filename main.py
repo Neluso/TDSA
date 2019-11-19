@@ -1,5 +1,6 @@
 from characterization import characterization
 from imaging import imaging
+from paintmeter import paintmeter
 from tkinter import *
 from tkinter import messagebox
 
@@ -15,6 +16,10 @@ def characterize():
 
 def image():
     imaging(bool(show_plots.get()))
+
+
+def paintmeasure():
+    paintmeter(bool(show_plots.get()), )
 
 
 char_text = 'Characterization: browses for the data for reference and sample and performs the refractive index '
@@ -35,13 +40,15 @@ btn_char = Button(master_window, text='Characterization', command=characterize)
 btn_char.grid(column=0, row=0)
 btn_imag = Button(master_window, text='Imaging', command=image)
 btn_imag.grid(column=1, row=0)
+btn_imag = Button(master_window, text='Paintmeter', command=paintmeasure)
+btn_imag.grid(column=2, row=0)
 btn_quit = Button(master_window, text='Quit', command=quit)
-btn_quit.grid(column=2, row=0, sticky='w')
+btn_quit.grid(column=3, row=0, sticky='w')
 
 thick_label = Label(master_window, text='Sample thickness (mm)')
-thick_label.grid(column=0, row=1, sticky='w', columnspan=2)
+thick_label.grid(column=0, row=1, sticky='w', columnspan=20)
 thick_entry = Entry(master_window, textvariable=thickness)
-thick_entry.grid(column=2, row=1)
+thick_entry.grid(column=2, row=1, columnspan=20)
 
 rad_lbl = Label(master_window, text='Show plots?')
 rad_lbl.grid(column=0, row=2, sticky='w')

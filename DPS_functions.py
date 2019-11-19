@@ -19,3 +19,7 @@ def noise_floor(freq, E_data, f_lim):
     f_lim_idx = where(freq >= f_lim)[0][0]
     p = polyfit(freq[f_lim_idx:], E_data[f_lim_idx:], 1)
     return p[1] * ones(freq.size)
+
+
+def deconv():
+    return 0
