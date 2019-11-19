@@ -1,4 +1,4 @@
-# TODO to deprecate main.py as 'caracterization', to use it as main launch
+# TODO to deprecate main.py as 'characterization.py', to use it as main launch
 
 
 from tkinter import Tk
