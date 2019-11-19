@@ -1,6 +1,9 @@
 from numpy import array
 
 
+# TODO improve data reading: read more sample data to perform statistical analysis
+
+
 def read_data(filename):
     if filename == '':
         print('No file selected. Quitting...')

@@ -42,7 +42,7 @@ sam_file = sam_file_path.split('/')[-1]
 sam_file = sam_file.replace('.', '_')
 sam_file = sam_file.replace(' ', '_')
 save_path = write_data(f_ref, E_ref_w, f_sam, E_sam_w, sam_file)
-copy(ref_file_path, save_path)  # TODO only move
+copy(ref_file_path, save_path)
 copy(sam_file_path, save_path)
 
 

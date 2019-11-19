@@ -15,7 +15,7 @@ from tqdm import tqdm
 
 thick = 1.95e-3  # mm to m
 files = os.listdir('./imaging_data/')
-t_ref, E_ref = read_data('./imaging_data/ref.txt')  # suport/matrix without T-Ink (THz-Ink: i.e. lactose)
+t_ref, E_ref = read_data('./imaging_data/ref.txt')  # support/matrix without T-Ink (THz-Ink: i.e. lactose)
 t_ref *= 1e-12  # seconds
 nSamp = E_ref.size
 nSamp_pow = nextpow2(nSamp)
