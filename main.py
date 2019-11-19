@@ -1,3 +1,6 @@
+# TODO to deprecate main.py as 'caracterization', to use it as main launch
+
+
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 from matplotlib.pyplot import plot, show, legend, xlabel, ylabel, figure, title, savefig
@@ -7,7 +10,8 @@ from jepsen_index import jepsen_index
 from DPS_functions import *
 from aux_functions import *
 from numpy import amax
-from shutil import move, copy  # TODO only move
+from shutil import copy
+
 
 Tk().withdraw()
 ref_file_path = askopenfilename(initialdir='./data', title='Select reference data')

@@ -1,5 +1,5 @@
-# This script uses  the time domain mapping from a Reference pulse and the Sample pulse to perform spectroscopical analysis
-# of the sample.
+# This script uses  the time domain mapping from a Reference pulse and the Sample pulse to perform spectroscopic
+# analysis of the sample.
 
 
 from tkinter import Tk
@@ -11,7 +11,7 @@ from jepsen_index import jepsen_index
 from DPS_functions import *
 from aux_functions import *
 from numpy import amax
-from shutil import move, copy  # TODO only move
+from shutil import move
 
 
 Tk().withdraw()
@@ -43,8 +43,8 @@ sam_file = sam_file_path.split('/')[-1]
 sam_file = sam_file.replace('.', '_')
 sam_file = sam_file.replace(' ', '_')
 save_path = write_data(f_ref, E_ref_w, f_sam, E_sam_w, sam_file)
-copy(ref_file_path, save_path)  # TODO only move
-copy(sam_file_path, save_path)
+move(ref_file_path, save_path)  # TODO only move
+move(sam_file_path, save_path)
 
 
 print('Creating plots')
