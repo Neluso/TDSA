@@ -3,7 +3,7 @@ THz- Time Domain Spectroscopy Analizer
 
 Requirements: Anaconda 3.7+
 
-Instructions: 
+Instructions: (building)
 
 1.- Execute main.py script
 

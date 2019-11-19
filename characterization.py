@@ -15,22 +15,22 @@ from numpy import amax, real
 from shutil import copy
 
 
-def characterization(show_plots):
+def characterization(show_plots, thickness):
     
     Tk().withdraw()
     ref_file_path = askopenfilename(initialdir='./data', title='Select reference data')
+    t_ref, E_ref, is_error = read_data(ref_file_path)
+    if is_error:
+        return 0
     Tk().withdraw()
     sam_file_path = askopenfilename(initialdir='./data', title='Select sample data')
-    
-    t_ref, E_ref, is_error = read_data(ref_file_path)
     t_sam, E_sam, is_error = read_data(sam_file_path)
-    
     if is_error:
         return 0
 
     t_ref *= 1e-12  # seconds
     t_sam *= 1e-12  # seconds
-    thickness = 1.95e-3  # m
+    thickness *=1e-3  # 1.95e-3  # m
 
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)
@@ -94,7 +94,7 @@ def characterization(show_plots):
         show()
     
     close('all')
-    messagebox.showinfo('Information', 'Output saved in ' + save_path)
+    messagebox.showinfo('Process ended correctly', 'Output saved in ' + save_path)
     
     return 0
 

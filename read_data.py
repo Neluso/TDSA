@@ -7,12 +7,12 @@ from tkinter import messagebox
 
 def read_data(filename):
     if filename == '':
-        messagebox.showinfo('Error', 'No file selected')
+        messagebox.showerror('Error', 'No file selected')
         return 0, 0, True
     try:
         fh = open(filename)
     except:
-        messagebox.showinfo('Error', 'Error opening ' + filename.split('/')[-1])
+        messagebox.showerror('Error', 'Error opening ' + filename.split('/')[-1])
         return 0, 0, True
     data = fh.read()
     data = data.split('\n')
