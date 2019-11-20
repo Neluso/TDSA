@@ -15,7 +15,13 @@ def characterize():
 
 
 def image():
-    imaging(bool(show_plots.get()))
+    try:
+        hoff = float(hoffset.get())
+        voff = float(voffset.get())
+    except:
+        messagebox.showerror('Error', 'Offset values must be real numbers')
+        return 0
+    imaging(bool(show_plots.get()), hoff, voff)
 
 
 def paint_measure():
@@ -29,7 +35,7 @@ imag_text = 'Imaging: uses the data in "imaging_data" directory to perform an im
 
 master_window = Tk()
 master_window.title('Time Domain Spectroscopy Analyzer (TDSA)')
-master_window.geometry('450x200')
+master_window.geometry('450x300')
 
 
 show_plots = BooleanVar()
@@ -56,12 +62,18 @@ rad_yes = Radiobutton(master_window, text='Yes', variable=show_plots, value=True
 rad_yes.grid(column=1, row=1)
 rad_yes.select()
 
+spacer_1 = Label(master_window, text='')
+spacer_1.grid(column=0, row=3, sticky='w')
+
 char_label = Label(master_window, text='Characterization tweaks')
 char_label.grid(column=0, row=4, sticky='w', columnspan=20)
 thick_label = Label(master_window, text='Sample thickness (mm)')
 thick_label.grid(column=0, row=5, sticky='w', columnspan=20)
 thick_entry = Entry(master_window, textvariable=thickness)
 thick_entry.grid(column=2, row=5, columnspan=20)
+
+spacer_1 = Label(master_window, text='')
+spacer_1.grid(column=0, row=6, sticky='w')
 
 imag_label = Label(master_window, text='Imaging tweaks')
 imag_label.grid(column=0, row=7, sticky='w', columnspan=20)
