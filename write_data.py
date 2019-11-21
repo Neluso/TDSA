@@ -19,14 +19,8 @@ def write_spectra(freq, E_ref_w, freq_sam, E_sam_w, sam_file):
     return dir_path
 
 
-def write_data(x, y, file_name):
-    dir_path = './output'
-    if not os.path.exists(dir_path):
-        os.mkdir(dir_path)
-    dir_path = './output/' + file_name + '/'
-    if not os.path.exists(dir_path):
-        os.mkdir(dir_path)
-    wh = open(dir_path + file_name + '.txt', 'w')
+def write_data(x, y, file_name, file_path):
+    wh = open(file_path + file_name + '.txt', 'w')
     for i in range(x.size):
         wh.write(str(x[i]) + ',' + str(y[i]) + '\n')
     wh.close()
