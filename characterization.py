@@ -5,7 +5,7 @@
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
-from matplotlib.pyplot import plot, show, legend, xlabel, ylabel, figure, title, savefig, close, xlim
+from matplotlib.pyplot import plot, show, legend, xlabel, ylabel, figure, title, savefig, close, xlim, axvline
 from read_data import read_data
 from write_data import *
 from jepsen_index import jepsen_index
@@ -77,6 +77,10 @@ def characterization(show_plots, thickness):
     xlim([f_ref[f_min_idx], f_ref[plot_length * f_max_idx]])
     title(fig_name)
     legend()
+    f_tol = 0.3e12  # Hz
+    f_min = 1.376e12 - f_tol  # Hz possible peaks at 0.53e12, and 1.376e12
+    f_max = 1.376e12 + f_tol  # Hz
+    axvline()
     savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
 
     figure(3)  # Alpha_f

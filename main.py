@@ -43,7 +43,7 @@ show_plots = BooleanVar()
 thickness = StringVar(master_window, value='1')  # mm
 hoffset = StringVar(master_window, value='0')  # mm
 voffset = StringVar(master_window, value='20')  # mm
-resolution = StringVar(master_window, value='0.1')  # delta_mm
+resolution = StringVar(master_window, value='0.5')  # delta_mm
 
 
 btn_char = Button(master_window, text='Characterization', command=characterize)
