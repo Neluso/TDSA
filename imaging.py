@@ -11,12 +11,23 @@ from numpy import zeros, sum, abs, array, linspace, transpose
 from aux_functions import *
 import os
 from matplotlib.pyplot import show, imshow, figure, colorbar, xlabel, ylabel, close, savefig, plot, title
-from tqdm import tqdm
+from tkinter.ttk import *
+from tkinter import *
+from tkinter import messagebox
 
 
-def imaging(show_plots, hor_offset, ver_offset, resolution):
+def imaging(show_plots, hor_offset, ver_offset, resolution, master_window):
     
     files = os.listdir('./imaging_data/')
+    popup = Toplevel()
+    popup.geometry('390x65')
+    popup.title('TDSA Building image')
+    Label(popup).grid(row=0, column=0)
+    Label(popup).grid(row=1, column=0)
+    progress_bar = Progressbar(popup, orient="horizontal", length=380, mode="determinate", maximum=len(files), value=0)
+    progress_bar.grid(row=1, column=1)
+    popup.pack_slaves()
+
     t_ref, E_ref, is_error = read_data('./imaging_data/ref.txt')  # support/matrix without T-Ink (THz-Ink: i.e. lactose)
     if is_error:
         return 0
@@ -35,11 +46,13 @@ def imaging(show_plots, hor_offset, ver_offset, resolution):
     f_min_idx, f_max_idx = f_range(f_ref, f_min, f_max)
     
     pixel_data = list()
-    for file in tqdm(files):
+    for file in files:
+        popup.update()
+        progress_bar['value'] += 1
         if file != 'ref.txt':
             t_sam, E_sam, is_error = read_data('./imaging_data/' + file)
             if is_error:
-                print('Error opening ' + file)
+                messagebox.showerror('Error opening ' + file)
                 return 0
             t_sam *= 1e-12  # seconds
             f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
@@ -81,6 +94,7 @@ def imaging(show_plots, hor_offset, ver_offset, resolution):
     xlabel('mm')
     ylabel('mm')
     colorbar()
+    popup.destroy()
     
     if False:  # TODO remove after debugging
         data = transpose(array(data))[:][0]

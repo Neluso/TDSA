@@ -22,7 +22,7 @@ def image():
     except:
         messagebox.showerror('Error', 'Offset values must be real numbers')
         return 0
-    imaging(bool(show_plots.get()), hoff, voff, resol)
+    imaging(bool(show_plots.get()), hoff, voff, resol, master_window)
 
 
 def paint_measure():
