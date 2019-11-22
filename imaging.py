@@ -68,7 +68,7 @@ def imaging(show_plots, hor_offset, ver_offset, resolution, master_window):
             col_pos = int(round((float(file.split('_')[3]) - offset[1]) / resolution))  # column position
             if col_pos > col_max:
                 col_max = col_pos
-            alpha = sum(H_w[f_min_idx:f_max_idx])  # adimensional
+            alpha = sum(abs(E_sam)) / sum(abs(E_ref))  # sum(H_w[f_min_idx:f_max_idx])  # adimensional
             pixel_data.append((row_pos, col_pos, alpha))
     
     if row_max > 1:
@@ -89,7 +89,7 @@ def imaging(show_plots, hor_offset, ver_offset, resolution, master_window):
     imshow(data,
            cmap='bone',  # 'gray'
            origin='lower',
-           extent=(col_length + offset[1], offset[1], offset[0], row_length + offset[0])
+           extent=(col_length + offset[0] + offset[1], offset[1], offset[0], row_length + offset[0])
            )
     xlabel('mm')
     ylabel('mm')

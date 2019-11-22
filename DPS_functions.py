@@ -1,6 +1,7 @@
 from numpy.fft import rfft, rfftfreq
-from numpy import argmax, where, ones, abs  # array functions
+from numpy import argmax, where, ones, abs, zeros, concatenate  # array functions
 from numpy import polyfit
+from scipy import signal
 
 
 def fourier_analysis(t_data, E_data, nSamp):
@@ -21,5 +22,30 @@ def noise_floor(freq, E_data, f_lim):
     return p[1] * ones(freq.size)
 
 
-def deconv():
+def deconv():  # TODO make function
+    return 0
+
+
+def zero_padding(t_val, E_val, n0_l, n0_r):
+    t_zpd = concatenate((zeros(n0_l), t_val, zeros(n0_r)))
+    E_zpd = concatenate((zeros(n0_l), E_val, zeros(n0_r)))
+    return t_zpd, E_zpd
+
+
+def force_exp_windowing():  # TODO return
+    return 0
+
+
+def bh_windowing(t_val, E_val):
+    win = signal.blackmanharris(E_val.size)
+    center_val = centre_loc(E_val)
+    center_win = centre_loc(win)
+    delta_center = center_win - center_val
+    t_win, E_win = zero_padding(t_val, E_val, delta_center, 0)
+    t_win = t_win[:E_val.size]
+    E_win = E_win[:E_val.size] * win
+    return t_win, E_win
+
+
+def hann_windowing():
     return 0
