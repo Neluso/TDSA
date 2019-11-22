@@ -26,25 +26,23 @@ def deconv():  # TODO make function
     return 0
 
 
-def zero_padding(t_val, E_val, n0_l, n0_r):
-    t_zpd = concatenate((zeros(n0_l), t_val, zeros(n0_r)))
-    E_zpd = concatenate((zeros(n0_l), E_val, zeros(n0_r)))
-    return t_zpd, E_zpd
+def zero_padding(E_val, n0_l, n0_r):
+    E_val = concatenate((zeros(n0_l), E_val, zeros(n0_r)))
+    return E_val
 
 
 def force_exp_windowing():  # TODO return
     return 0
 
 
-def bh_windowing(t_val, E_val):
+def bh_windowing(E_val):
     win = signal.blackmanharris(E_val.size)
     center_val = centre_loc(E_val)
     center_win = centre_loc(win)
     delta_center = center_win - center_val
-    t_win, E_win = zero_padding(t_val, E_val, delta_center, 0)
-    t_win = t_win[:E_val.size]
+    E_win = zero_padding(E_val, delta_center, 0)
     E_win = E_win[:E_val.size] * win
-    return t_win, E_win
+    return E_win, win
 
 
 def hann_windowing():

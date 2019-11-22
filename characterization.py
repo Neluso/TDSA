@@ -33,11 +33,12 @@ def characterization(show_plots, thickness):
     thickness *= 1e-3  # 1.95e-3  # m
     
     if True:  #blackman_harris = True:
-        t_ref, E_ref = bh_windowing(t_ref, E_ref)
-        t_sam, E_sam = bh_windowing(t_sam, E_sam)
-    plot(t_ref, E_ref)  # TODO review
-    plot(t_sam, E_sam)
+        E_ref_win, win = bh_windowing(E_ref)
+    plot(t_ref, E_ref_win)  # TODO review
+    plot(t_ref, E_ref)
+    plot(t_ref, win)
     show()
+    quit()
 
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)

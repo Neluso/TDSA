@@ -40,7 +40,7 @@ master_window.geometry('450x300')
 
 
 show_plots = BooleanVar()
-thickness = StringVar(master_window, value='1')  # mm
+thickness = StringVar(master_window, value='1.95')  # mm
 hoffset = StringVar(master_window, value='0')  # mm
 voffset = StringVar(master_window, value='20')  # mm
 resolution = StringVar(master_window, value='0.5')  # delta_mm
