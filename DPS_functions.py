@@ -61,6 +61,9 @@ def force_exp_windowing(t_val, E_val, t_sub, E_sub):
     E_val *= force_exp_func(E_val.size, int(center_val_idx / 2), int(center_val_idx / 4))
     E_sub *= force_exp_func(E_sub.size, int(center_val_idx / 2), int(center_val_idx / 4))
     E_sub = zero_padding(E_sub, left_padd_idxs, 0)
+    plot(t_val, E_val)
+    plot(t_val, force_exp_func(E_val.size, int(center_val_idx / 2), int(center_val_idx / 4)))
+    show()
     return t_val, E_val, t_sub, E_sub
 
 

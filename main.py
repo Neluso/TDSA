@@ -39,7 +39,7 @@ imag_text = 'Imaging: uses the data in "imaging_data" directory to perform an im
 
 master_window = Tk()
 master_window.title('Time Domain Spectroscopy Analyzer (TDSA)')
-master_window.geometry('450x300')
+master_window.geometry('475x325')
 
 
 show_plots = BooleanVar()
@@ -81,15 +81,15 @@ rad_bh = Radiobutton(master_window, text='Blackman-Harris', variable=temporal_wi
 rad_bh.grid(column=4, row=at_row, sticky='w')
 rad_bh.select()
 at_row += 1  #row 3
-rad_cheb = Radiobutton(master_window, text='Chebishev', variable=show_plots, value='chebisehev', command='')
+rad_cheb = Radiobutton(master_window, text='Chebishev', variable=temporal_window, value='chebisehev', command='')
 rad_cheb.grid(column=4, row=at_row, sticky='w')
 rad_cheb.deselect()
 at_row += 1  # row 4
-rad_hann = Radiobutton(master_window, text='Hann', variable=show_plots, value='hann', command='')
+rad_hann = Radiobutton(master_window, text='Hann', variable=temporal_window, value='hann', command='')
 rad_hann.grid(column=4, row=at_row, sticky='w')
 rad_hann.deselect()
 at_row += 1  # row 5
-rad_fexp = Radiobutton(master_window, text='Force-Exp', variable=show_plots, value='force_exp', command='')
+rad_fexp = Radiobutton(master_window, text='Force-Exp', variable=temporal_window, value='force_exp', command='')
 rad_fexp.grid(column=4, row=at_row, sticky='w')
 rad_fexp.deselect()
 
@@ -119,7 +119,7 @@ hoff_entry.grid(column=2, row=10, columnspan=20)
 voff_label = Label(master_window, text='Vertical offset (mm)')
 voff_label.grid(column=0, row=11, sticky='w', columnspan=20)
 voff_entry = Entry(master_window, textvariable=voffset)
-voff_entry.grid(column=2, row=12, columnspan=20)
+voff_entry.grid(column=2, row=11, columnspan=20)
 resol_label = Label(master_window, text='Resolution (mm)')
 resol_label.grid(column=0, row=12, sticky='w', columnspan=20)
 resol_entry = Entry(master_window, textvariable=resolution)

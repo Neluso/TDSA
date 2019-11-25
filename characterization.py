@@ -38,10 +38,8 @@ def characterization(show_plots, thickness, temp_window):  # , temp_window):
         t_ref, E_ref, t_sam, E_sam= force_exp_windowing(t_ref, E_ref, t_sam, E_sam)
         # t_sam, E_sam = bh_windowing(t_sam, E_sam)
     
-    
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)
-
 
     n, alpha_f = jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness)
     f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
@@ -109,3 +107,6 @@ def characterization(show_plots, thickness, temp_window):  # , temp_window):
     # messagebox.showinfo('Process ended correctly', 'Output saved in ' + save_path) TODO uncomment
     
     return 0
+
+
+characterization(True, 1.95, 'blackman_harris')
