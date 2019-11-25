@@ -18,19 +18,11 @@ def refractive_index(frq, delta_phi, thick):
 
 
 def n_quocient(ref_ind):
-    n_quo = list()
-    for i in range(ref_ind.size):
-        n_quo.append(((ref_ind[i] + n_aire) ** 2) / (4 * ref_ind[i] * n_aire))
-    return array(n_quo)
+    return ((ref_ind + n_aire) ** 2) / (4 * ref_ind * n_aire)
 
 
 def alpha_w(ref_ind, H_0, thick):
-    n_quo = n_quocient(ref_ind)
-    alf = list()
-    thick = - (2 / thick)  # m^-1
-    for i in range(ref_ind.size):
-        alf.append(log(H_0[i] * n_quo[i]))
-    return thick * array(alf)
+    return - (2 / thick) * log(H_0 * n_quocient(ref_ind))  # m^-1
 
 
 def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # Returns refractive index 'n' and absortion coeficient 'alpha_r'
@@ -47,27 +39,13 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # Returns refractive i
     # Step 2: Fourier transform of measures
     f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
     f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
-    H_w = list()  # complex transfer function initialisation
-    nFFT = f_ref.size
-    for i in range(nFFT):
-        H_w.append(E_sam_w[i] / E_ref_w[i])
-    H_w = array(H_w)
+    H_w = E_sam_w / E_ref_w  # complex transfer function
 
     # Step 3: Calculate reduced phases
-    phi_0_ref = list()
-    phi_0_sam = list()
-    for i in range(nFFT):
-        phi_0_ref.append(2 * pi * f_ref[i] * t_0ref)
-        phi_0_sam.append(2 * pi * f_sam[i] * t_0sam)
-    phi_0_ref = array(phi_0_ref)
-    phi_0_sam = array(phi_0_sam)
-    phi_0_ref_red = list()
-    phi_0_sam_red = list()
-    for i in range(nFFT):
-        phi_0_ref_red.append(E_ref_w[i] * exp(- 1j * phi_0_ref[i]))
-        phi_0_sam_red.append(E_sam_w[i] * exp(- 1j * phi_0_sam[i]))
-    phi_0_ref_red = array(phi_0_ref_red)
-    phi_0_sam_red = array(phi_0_sam_red)
+    phi_0_ref = 2 * pi * f_ref * t_0ref
+    phi_0_sam = 2 * pi * f_sam * t_0sam
+    phi_0_ref_red = E_ref_w * exp(- 1j * phi_0_ref)
+    phi_0_sam_red = E_sam_w * exp(- 1j * phi_0_sam)
     phi_0_ref_red = angle(phi_0_ref_red)
     phi_0_sam_red = angle(phi_0_sam_red)
 

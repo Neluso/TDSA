@@ -15,15 +15,17 @@ from numpy import amax, real
 from shutil import copy
 
 
-def characterization(show_plots, thickness):
+def characterization(show_plots, thickness, temp_window):  # , temp_window):
     
-    Tk().withdraw()
-    ref_file_path = askopenfilename(initialdir='./data', title='Select reference data')
+    # Tk().withdraw()
+    # ref_file_path = askopenfilename(initialdir='./data', title='Select reference data')
+    ref_file_path = './data/demo_data/test_ref.txt'
     t_ref, E_ref, is_error = read_data(ref_file_path)
     if is_error:
         return 0
-    Tk().withdraw()
-    sam_file_path = askopenfilename(initialdir=ref_file_path, title='Select sample data')
+    # Tk().withdraw()
+    # sam_file_path = askopenfilename(initialdir=ref_file_path, title='Select sample data')
+    sam_file_path = './data/demo_data/test_sam.txt'
     t_sam, E_sam, is_error = read_data(sam_file_path)
     if is_error:
         return 0
@@ -32,24 +34,20 @@ def characterization(show_plots, thickness):
     t_sam *= 1e-12  # seconds
     thickness *= 1e-3  # 1.95e-3  # m
     
-    if True:  #blackman_harris = True:
-        E_ref_win, win = bh_windowing(E_ref)
-    plot(t_ref, E_ref_win)  # TODO review
-    plot(t_ref, E_ref)
-    plot(t_ref, win)
-    show()
-    quit()
-
+    if True:  #temp_window is 'blackman_harris':
+        t_ref, E_ref, t_sam, E_sam= force_exp_windowing(t_ref, E_ref, t_sam, E_sam)
+        # t_sam, E_sam = bh_windowing(t_sam, E_sam)
+    
+    
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)
+
 
     n, alpha_f = jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness)
     f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
     f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
     f_min_idx, f_max_idx = f_min_max_idx(f_ref)
     noisefloor = noise_floor(f_ref, prettyfy(E_ref_w, amax(E_ref_w)), 4e12)
-
-    # print('Writting data')
     
     sam_file = sam_file_path.split('/')[-1]
     sam_file = sam_file.replace('.', '_')
@@ -58,8 +56,6 @@ def characterization(show_plots, thickness):
     write_data(f_ref, n, 'refractive_index', save_path)
     copy(ref_file_path, save_path)
     copy(sam_file_path, save_path)
-
-    # print('Creating plots')
 
     figure(1)  # THz time domain pulses
     fig_name = 'Pulses'
@@ -74,10 +70,10 @@ def characterization(show_plots, thickness):
     figure(2)  # Spectra
     fig_name = "Spectra"
     plot_length = 6
-    plot(f_ref[f_min_idx:plot_length * f_max_idx], prettyfy(E_ref_w, amax(E_ref_w))[f_min_idx:plot_length * f_max_idx],
-         label='Reference', linewidth=1)
-    plot(f_sam[f_min_idx:plot_length * f_max_idx], prettyfy(E_sam_w, amax(E_ref_w))[f_min_idx:plot_length * f_max_idx],
-         label='Sample', linewidth=1)
+    plot(f_ref[f_min_idx:plot_length * f_max_idx],
+         prettyfy(E_ref_w, amax(E_ref_w))[f_min_idx:plot_length * f_max_idx], label='Reference', linewidth=1)
+    plot(f_sam[f_min_idx:plot_length * f_max_idx],
+         prettyfy(E_sam_w, amax(E_ref_w))[f_min_idx:plot_length * f_max_idx], label='Sample', linewidth=1)
     plot(f_ref[f_min_idx:plot_length * f_max_idx], noisefloor[f_min_idx:plot_length * f_max_idx], 'r--',
          label='Noise Floor', linewidth=1)
     xlabel(r'$f \ (THz)$')
@@ -85,10 +81,6 @@ def characterization(show_plots, thickness):
     xlim([f_ref[f_min_idx], f_ref[plot_length * f_max_idx]])
     title(fig_name)
     legend()
-    f_tol = 0.3e12  # Hz
-    f_min = 1.376e12 - f_tol  # Hz possible peaks at 0.53e12, and 1.376e12
-    f_max = 1.376e12 + f_tol  # Hz
-    axvline()
     savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
 
     figure(3)  # Alpha_f
@@ -109,13 +101,11 @@ def characterization(show_plots, thickness):
     xlim([f_ref[f_min_idx], f_ref[plot_length * f_max_idx]])
     title(fig_name)
     savefig(save_path + fig_name + '_' + sam_file + '.svg', format='svg')
-
-    # print('Plotting data')
     
     if show_plots:
         show()
     
     close('all')
-    messagebox.showinfo('Process ended correctly', 'Output saved in ' + save_path)
+    # messagebox.showinfo('Process ended correctly', 'Output saved in ' + save_path) TODO uncomment
     
     return 0
