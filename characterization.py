@@ -15,17 +15,17 @@ from numpy import amax, real
 from shutil import copy
 
 
-def characterization(show_plots, thickness, temp_window):  # , temp_window):
+def characterization(show_plots, thickness, temp_window, noise_floor_freq):
     
-    # Tk().withdraw()
-    # ref_file_path = askopenfilename(initialdir='./data', title='Select reference data')
-    ref_file_path = './data/demo_data/test_ref.txt'
+    Tk().withdraw()
+    ref_file_path = askopenfilename(initialdir='./data', title='Select reference data')
+    # ref_file_path = './data/demo_data/test_ref.txt'
     t_ref, E_ref, is_error = read_data(ref_file_path)
     if is_error:
         return 0
-    # Tk().withdraw()
-    # sam_file_path = askopenfilename(initialdir=ref_file_path, title='Select sample data')
-    sam_file_path = './data/demo_data/test_sam.txt'
+    Tk().withdraw()
+    sam_file_path = askopenfilename(initialdir=ref_file_path, title='Select sample data')
+    # sam_file_path = './data/demo_data/test_sam.txt'
     t_sam, E_sam, is_error = read_data(sam_file_path)
     if is_error:
         return 0
@@ -33,10 +33,19 @@ def characterization(show_plots, thickness, temp_window):  # , temp_window):
     t_ref *= 1e-12  # seconds
     t_sam *= 1e-12  # seconds
     thickness *= 1e-3  # 1.95e-3  # m
+    noise_floor_freq *= 1e12  # to THz
     
-    if True:  #temp_window is 'blackman_harris':
-        t_ref, E_ref, t_sam, E_sam= force_exp_windowing(t_ref, E_ref, t_sam, E_sam)
-        # t_sam, E_sam = bh_windowing(t_sam, E_sam)
+    if temp_window == 'blackman_harris':
+        t_ref, E_ref, t_sam, E_sam = bh_windowing(t_ref, E_ref, t_sam, E_sam)
+    if temp_window == 'chebisehev':
+        t_ref, E_ref, t_sam, E_sam = cheb_windowing(t_ref, E_ref, t_sam, E_sam)
+    if temp_window == 'hann':
+        t_ref, E_ref, t_sam, E_sam = hann_windowing(t_ref, E_ref, t_sam, E_sam)
+    if temp_window == 'force_exp':
+        t_ref, E_ref, t_sam, E_sam = force_exp_windowing(t_ref, E_ref, t_sam, E_sam)
+    if temp_window == 'tukey':
+        t_ref, E_ref, t_sam, E_sam = tukey_windowing(t_ref, E_ref, t_sam, E_sam)
+
     
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)
@@ -45,7 +54,7 @@ def characterization(show_plots, thickness, temp_window):  # , temp_window):
     f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
     f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
     f_min_idx, f_max_idx = f_min_max_idx(f_ref)
-    noisefloor = noise_floor(f_ref, prettyfy(E_ref_w, amax(E_ref_w)), 4e12)
+    noisefloor = noise_floor(f_ref, prettyfy(E_ref_w, amax(E_ref_w)), noise_floor_freq)
     
     sam_file = sam_file_path.split('/')[-1]
     sam_file = sam_file.replace('.', '_')
@@ -104,9 +113,6 @@ def characterization(show_plots, thickness, temp_window):  # , temp_window):
         show()
     
     close('all')
-    # messagebox.showinfo('Process ended correctly', 'Output saved in ' + save_path) TODO uncomment
+    messagebox.showinfo('Process ended correctly', 'Output saved in ' + save_path)
     
     return 0
-
-
-characterization(True, 1.95, 'blackman_harris')

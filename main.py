@@ -8,10 +8,11 @@ from tkinter import messagebox
 def characterize():
     try:
         thick = float(thickness.get())
+        n_f_f = float(noise_floor_freq.get())
     except:
-        messagebox.showerror('Error', 'Thickness mus be a real number')
+        messagebox.showerror('Error', 'Thickness and noise floor frequency must be a real number')
         return 0
-    characterization(bool(show_plots.get()), thick, temporal_window)
+    characterization(bool(show_plots.get()), thick, temporal_window.get(), n_f_f)
     return 0
 
 
@@ -23,7 +24,7 @@ def image():
     except:
         messagebox.showerror('Error', 'Offset values must be real numbers')
         return 0
-    imaging(bool(show_plots.get()), hoff, voff, resol, master_window)
+    imaging(bool(show_plots.get()), hoff, voff, resol, temporal_window.get())
     return 0
 
 
@@ -39,7 +40,6 @@ imag_text = 'Imaging: uses the data in "imaging_data" directory to perform an im
 
 master_window = Tk()
 master_window.title('Time Domain Spectroscopy Analyzer (TDSA)')
-master_window.geometry('475x325')
 
 
 show_plots = BooleanVar()
@@ -47,7 +47,8 @@ thickness = StringVar(master_window, value='1.95')  # mm
 hoffset = StringVar(master_window, value='0')  # mm
 voffset = StringVar(master_window, value='20')  # mm
 resolution = StringVar(master_window, value='0.5')  # delta_mm
-temporal_window = StringVar(master_window, value='blackman_harris')
+temporal_window = StringVar(master_window, value='tukey')
+noise_floor_freq = StringVar(master_window, value='4')  # THz
 
 at_row = 0
 
@@ -77,21 +78,29 @@ rad_no.deselect()
 at_row -= 1  # row 2
 rad_lbl2 = Label(master_window, text='Temporal window: ')
 rad_lbl2.grid(column=3, row=at_row, sticky='w')
-rad_bh = Radiobutton(master_window, text='Blackman-Harris', variable=temporal_window, value='blackman_harris', command='')
-rad_bh.grid(column=4, row=at_row, sticky='w')
-rad_bh.select()
 at_row += 1  #row 3
+rad_tuk = Radiobutton(master_window, text='Tukey', variable=temporal_window, value='tukey', command='')
+rad_tuk.grid(column=3, row=at_row, sticky='w')
+rad_tuk.select()
 rad_cheb = Radiobutton(master_window, text='Chebishev', variable=temporal_window, value='chebisehev', command='')
 rad_cheb.grid(column=4, row=at_row, sticky='w')
 rad_cheb.deselect()
 at_row += 1  # row 4
 rad_hann = Radiobutton(master_window, text='Hann', variable=temporal_window, value='hann', command='')
-rad_hann.grid(column=4, row=at_row, sticky='w')
+rad_hann.grid(column=3, row=at_row, sticky='w')
 rad_hann.deselect()
-at_row += 1  # row 5
+# at_row += 1  # row 5
 rad_fexp = Radiobutton(master_window, text='Force-Exp', variable=temporal_window, value='force_exp', command='')
 rad_fexp.grid(column=4, row=at_row, sticky='w')
 rad_fexp.deselect()
+at_row += 1  # row 5
+rad_bh = Radiobutton(master_window, text='Blackman-Harris', variable=temporal_window, value='blackman_harris', command='')
+rad_bh.grid(column=4, row=at_row, sticky='w')
+rad_bh.deselect()
+# at_row += 1  # row 5
+rad_none = Radiobutton(master_window, text='None', variable=temporal_window, value='None', command='')
+rad_none.grid(column=3, row=at_row, sticky='w')
+rad_none.deselect()
 
 at_row += 1  # row 6
 spacer_1 = Label(master_window, text='')
@@ -105,25 +114,36 @@ thick_label = Label(master_window, text=' Sample thickness (mm)')
 thick_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
 thick_entry = Entry(master_window, textvariable=thickness)
 thick_entry.grid(column=2, row=at_row, columnspan=20)
+at_row += 1
+noise_label = Label(master_window, text=' Noise floor (THz)')
+noise_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
+noise_entry = Entry(master_window, textvariable=noise_floor_freq)
+noise_entry.grid(column=2, row=at_row, columnspan=20)
 
 at_row += 1  # row 9
 spacer_1 = Label(master_window, text='')
-spacer_1.grid(column=0, row=8, sticky='w')
+spacer_1.grid(column=0, row=at_row, sticky='w')
 
+at_row += 1  # row 10
 imag_label = Label(master_window, text='Imaging tweaks', font='Helvetica 12 bold')
-imag_label.grid(column=0, row=9, sticky='w', columnspan=20)
+imag_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
+at_row += 1  # row 11
 hoff_label = Label(master_window, text='Horizontal offset (mm)')
-hoff_label.grid(column=0, row=10, sticky='w', columnspan=20)
+hoff_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
 hoff_entry = Entry(master_window, textvariable=hoffset)
-hoff_entry.grid(column=2, row=10, columnspan=20)
+hoff_entry.grid(column=2, row=at_row, columnspan=20)
+at_row += 1  # row 12
 voff_label = Label(master_window, text='Vertical offset (mm)')
-voff_label.grid(column=0, row=11, sticky='w', columnspan=20)
+voff_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
 voff_entry = Entry(master_window, textvariable=voffset)
-voff_entry.grid(column=2, row=11, columnspan=20)
+voff_entry.grid(column=2, row=at_row, columnspan=20)
+at_row += 1  # row 13
 resol_label = Label(master_window, text='Resolution (mm)')
-resol_label.grid(column=0, row=12, sticky='w', columnspan=20)
+resol_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
 resol_entry = Entry(master_window, textvariable=resolution)
-resol_entry.grid(column=2, row=12, columnspan=20)
+resol_entry.grid(column=2, row=at_row, columnspan=20)
 
+dims = '500x' + str(at_row * 25 + 25)
+master_window.geometry(dims)
 
 master_window.mainloop()

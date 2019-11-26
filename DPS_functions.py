@@ -53,54 +53,79 @@ def force_exp_func(data_size, top_half_size, decay_length, decay_minimum=1):  # 
 
 def force_exp_windowing(t_val, E_val, t_sub, E_sub):
     center_val_idx = centre_loc(E_val)
+    center_sub_idx = centre_loc(E_sub)
     left_padd_idxs = E_val.size - 2 * center_val_idx
+    left_padd_idxs_sub = E_sub.size - 2 * center_sub_idx
     E_val = zero_padding(E_val, left_padd_idxs, 0)
+    E_sub = zero_padding(E_sub, left_padd_idxs_sub, 0)
     t_val_rev = - flip(t_val[1:left_padd_idxs + 1])
     t_val = concatenate((t_val_rev, t_val))
     t_sub = concatenate((t_val_rev, t_sub))
     E_val *= force_exp_func(E_val.size, int(center_val_idx / 2), int(center_val_idx / 4))
-    E_sub *= force_exp_func(E_sub.size, int(center_val_idx / 2), int(center_val_idx / 4))
-    E_sub = zero_padding(E_sub, left_padd_idxs, 0)
-    plot(t_val, E_val)
-    plot(t_val, force_exp_func(E_val.size, int(center_val_idx / 2), int(center_val_idx / 4)))
-    show()
+    E_sub *= force_exp_func(E_sub.size, int(center_sub_idx / 2), int(center_sub_idx / 4))
+    E_sub = zero_padding(E_sub, left_padd_idxs - left_padd_idxs_sub, 0)
     return t_val, E_val, t_sub, E_sub
 
 
 def bh_windowing(t_val, E_val, t_sub, E_sub):
     center_val_idx = centre_loc(E_val)
+    center_sub_idx = centre_loc(E_sub)
     left_padd_idxs = E_val.size - 2 * center_val_idx
+    left_padd_idxs_sub = E_sub.size - 2 * center_sub_idx
     E_val = zero_padding(E_val, left_padd_idxs, 0)
+    E_sub = zero_padding(E_sub, left_padd_idxs_sub, 0)
     t_val_rev = - flip(t_val[1:left_padd_idxs + 1])
     t_val = concatenate((t_val_rev, t_val))
     t_sub = concatenate((t_val_rev, t_sub))
     E_val *= signal.blackmanharris(E_val.size)
     E_sub *= signal.blackmanharris(E_sub.size)
-    E_sub = zero_padding(E_sub, left_padd_idxs, 0)
+    E_sub = zero_padding(E_sub, left_padd_idxs - left_padd_idxs_sub, 0)
     return t_val, E_val, t_sub, E_sub
 
 
 def cheb_windowing(t_val, E_val, t_sub, E_sub):
     center_val_idx = centre_loc(E_val)
+    center_sub_idx = centre_loc(E_sub)
     left_padd_idxs = E_val.size - 2 * center_val_idx
+    left_padd_idxs_sub = E_sub.size - 2 * center_sub_idx
     E_val = zero_padding(E_val, left_padd_idxs, 0)
+    E_sub = zero_padding(E_sub, left_padd_idxs_sub, 0)
     t_val_rev = - flip(t_val[1:left_padd_idxs + 1])
     t_val = concatenate((t_val_rev, t_val))
     t_sub = concatenate((t_val_rev, t_sub))
     E_val *= signal.chebwin(E_val.size, 80)
     E_sub *= signal.chebwin(E_sub.size, 80)
-    E_sub = zero_padding(E_sub, left_padd_idxs, 0)
+    E_sub = zero_padding(E_sub, left_padd_idxs - left_padd_idxs_sub, 0)
     return t_val, E_val, t_sub, E_sub
 
 
 def hann_windowing(t_val, E_val, t_sub, E_sub):
     center_val_idx = centre_loc(E_val)
+    center_sub_idx = centre_loc(E_sub)
     left_padd_idxs = E_val.size - 2 * center_val_idx
+    left_padd_idxs_sub = E_sub.size - 2 * center_sub_idx
     E_val = zero_padding(E_val, left_padd_idxs, 0)
+    E_sub = zero_padding(E_sub, left_padd_idxs_sub, 0)
     t_val_rev = - flip(t_val[1:left_padd_idxs + 1])
     t_val = concatenate((t_val_rev, t_val))
     t_sub = concatenate((t_val_rev, t_sub))
     E_val *= signal.hann(E_val.size)
     E_sub *= signal.hann(E_sub.size)
-    E_sub = zero_padding(E_sub, left_padd_idxs, 0)
+    E_sub = zero_padding(E_sub, left_padd_idxs - left_padd_idxs_sub, 0)
+    return t_val, E_val, t_sub, E_sub
+
+
+def tukey_windowing(t_val, E_val, t_sub, E_sub):
+    center_val_idx = centre_loc(E_val)
+    center_sub_idx = centre_loc(E_sub)
+    left_padd_idxs = E_val.size - 2 * center_val_idx
+    left_padd_idxs_sub = E_sub.size - 2 * center_sub_idx
+    E_val = zero_padding(E_val, left_padd_idxs, 0)
+    E_sub = zero_padding(E_sub, left_padd_idxs_sub, 0)
+    t_val_rev = - flip(t_val[1:left_padd_idxs + 1])
+    t_val = concatenate((t_val_rev, t_val))
+    t_sub = concatenate((t_val_rev, t_sub))
+    E_val *= signal.tukey(E_val.size)
+    E_sub *= signal.tukey(E_sub.size)
+    E_sub = zero_padding(E_sub, left_padd_idxs - left_padd_idxs_sub, 0)
     return t_val, E_val, t_sub, E_sub
