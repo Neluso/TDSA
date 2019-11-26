@@ -2,7 +2,7 @@
 # Jepsen, P.U. J Infrared Milli Terahz Waves (2019) 40: 395. https://doi.org/10.1007/s10762-019-00578-0
 
 
-from numpy import array, unwrap, pi, abs, exp, angle, polyfit, ones, log
+from numpy import array, unwrap, pi, abs, exp, angle, polyfit, ones, log, diff, mean
 from aux_functions import *
 from DPS_functions import *
 from TDS_constants import *
@@ -25,7 +25,7 @@ def alpha_w(ref_ind, H_0, thick):
     return - (2 / thick) * log(H_0 * n_quocient(ref_ind))  # m^-1
 
 
-def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # Returns refractive index 'n' and absortion coeficient 'alpha_r'
+def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness, dispersive_media):  # Returns refractive index 'n' and absortion coeficient 'alpha_r'
 
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)
@@ -35,6 +35,7 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # Returns refractive i
     t_0ref = t_ref[pos_t_0ref]
     pos_t_0sam = centre_loc(E_ref)
     t_0sam = t_ref[pos_t_0sam]
+    n_avg = 1 + (t_0sam - t_0ref) * c_0 / thickness
 
     # Step 2: Fourier transform of measures
     f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
@@ -48,10 +49,10 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # Returns refractive i
     phi_0_sam_red = E_sam_w * exp(- 1j * phi_0_sam)
     phi_0_ref_red = angle(phi_0_ref_red)
     phi_0_sam_red = angle(phi_0_sam_red)
-
+    
     # Step 4: Unwrap the reduced phase difference
     delta_phi_0_red = abs(unwrap(phi_0_sam_red - phi_0_ref_red))
-
+    
     # Step 5: Fit the unwrapped phase to a linear function
     f_min_idx, f_max_idx = f_min_max_idx(f_ref)
 
@@ -59,9 +60,19 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # Returns refractive i
 
     delta_phi_0 = delta_phi_0_red - 2 * pi * ones(delta_phi_0_red.size) * int(coefs[2] / (2 * pi))
     delta_phi = abs(delta_phi_0 + (phi_0_sam - phi_0_ref))
-
+    
     # Step 6.1: Obtaining the refractive index
     n = refractive_index(f_ref, delta_phi, thickness)
+    T_fk = zeros(n.size)
+    T_fk[-1] = (2 * thickness / c_0) * abs(n[0] - n_avg)
+    for i in range(n.size - 1):
+        T_fk[i] = (2 * thickness / c_0) * abs(n[i] - n_avg + i * (n[i + 1] - n[i]))
+    plot(f_ref, T_fk)
+    delta_fs = concatenate((zeros(1), diff(f_ref)))
+    delta_fs = ones(delta_fs.size) / delta_fs
+    plot(f_ref, delta_fs)
+    show()
+    quit()
 
     # Step 6.2: Obtaining the absorption coefficient in m^-1
     alpha_f = alpha_w(n, H_w, thickness)

@@ -12,7 +12,7 @@ def characterize():
     except:
         messagebox.showerror('Error', 'Thickness and noise floor frequency must be a real number')
         return 0
-    characterization(bool(show_plots.get()), thick, temporal_window.get(), n_f_f)
+    characterization(bool(show_plots.get()), thick, temporal_window.get(), n_f_f, bool(dispersive_media.get()))
     return 0
 
 
@@ -43,12 +43,13 @@ master_window.title('Time Domain Spectroscopy Analyzer (TDSA)')
 
 
 show_plots = BooleanVar()
-thickness = StringVar(master_window, value='1.95')  # mm
+thickness = StringVar(master_window, value='2')  # mm
 hoffset = StringVar(master_window, value='0')  # mm
 voffset = StringVar(master_window, value='20')  # mm
 resolution = StringVar(master_window, value='0.5')  # delta_mm
 temporal_window = StringVar(master_window, value='tukey')
 noise_floor_freq = StringVar(master_window, value='4')  # THz
+dispersive_media = BooleanVar()
 
 at_row = 0
 
@@ -114,6 +115,15 @@ thick_label = Label(master_window, text=' Sample thickness (mm)')
 thick_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
 thick_entry = Entry(master_window, textvariable=thickness)
 thick_entry.grid(column=2, row=at_row, columnspan=20)
+at_row += 1  # row 2
+rad_disp = Label(master_window, text='Dispersive media?')
+rad_disp.grid(column=0, row=at_row, sticky='w')
+disp_yes = Radiobutton(master_window, text='Yes', variable=dispersive_media, value=True, command='')
+disp_yes.grid(column=1, row=at_row)
+disp_yes.deselect()
+disp_no = Radiobutton(master_window, text='No', variable=dispersive_media, value=False, command='')
+disp_no.grid(column=2, row=at_row)
+disp_no.select()
 at_row += 1
 noise_label = Label(master_window, text=' Noise floor (THz)')
 noise_label.grid(column=0, row=at_row, sticky='w', columnspan=20)

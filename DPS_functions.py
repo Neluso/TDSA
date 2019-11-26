@@ -1,5 +1,5 @@
 from numpy.fft import rfft, rfftfreq
-from numpy import exp, log  # numerical function
+from numpy import exp, log, mean, diff  # numerical function
 from numpy import argmax, where, abs, concatenate, flip  # array functions
 from numpy import ones, zeros, linspace  # array creation functions
 from matplotlib.pyplot import *
@@ -8,7 +8,7 @@ from scipy import signal
 
 
 def fourier_analysis(t_data, E_data, nSamp):
-    samp_int = (t_data[1] - t_data[0])  # seconds
+    samp_int = mean(diff(t_data))  # seconds
     E_data_w = rfft(E_data, n=nSamp)
     f_data = rfftfreq(nSamp, d=samp_int)  # Hz
     return f_data, E_data_w

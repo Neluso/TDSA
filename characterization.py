@@ -15,17 +15,15 @@ from numpy import amax, real
 from shutil import copy
 
 
-def characterization(show_plots, thickness, temp_window, noise_floor_freq):
+def characterization(show_plots, thickness, temp_window, noise_floor_freq, dispersive_media):
     
     Tk().withdraw()
     ref_file_path = askopenfilename(initialdir='./data', title='Select reference data')
-    # ref_file_path = './data/demo_data/test_ref.txt'
     t_ref, E_ref, is_error = read_data(ref_file_path)
     if is_error:
         return 0
     Tk().withdraw()
     sam_file_path = askopenfilename(initialdir=ref_file_path, title='Select sample data')
-    # sam_file_path = './data/demo_data/test_sam.txt'
     t_sam, E_sam, is_error = read_data(sam_file_path)
     if is_error:
         return 0
@@ -50,7 +48,7 @@ def characterization(show_plots, thickness, temp_window, noise_floor_freq):
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)
 
-    n, alpha_f = jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness)
+    n, alpha_f = jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness, dispersive_media)
     f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
     f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
     f_min_idx, f_max_idx = f_min_max_idx(f_ref)
