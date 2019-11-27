@@ -3,6 +3,7 @@ from imaging import imaging
 from paintmeter import paint_meter
 from tkinter import *
 from tkinter import messagebox
+from spectra_plot import spectra_plot
 
 
 def characterize():
@@ -12,7 +13,7 @@ def characterize():
     except:
         messagebox.showerror('Error', 'Thickness and noise floor frequency must be a real number')
         return 0
-    characterization(bool(show_plots.get()), thick, temporal_window.get(), n_f_f, bool(dispersive_media.get()))
+    characterization(bool(show_plots.get()), thick, temporal_window.get(), n_f_f)  #, bool(dispersive_media.get()))
     return 0
 
 
@@ -25,6 +26,11 @@ def image():
         messagebox.showerror('Error', 'Offset values must be real numbers')
         return 0
     imaging(bool(show_plots.get()), hoff, voff, resol, temporal_window.get())
+    return 0
+
+
+def spectrum():
+    spectra_plot()
     return 0
 
 
@@ -43,7 +49,7 @@ master_window.title('Time Domain Spectroscopy Analyzer (TDSA)')
 
 
 show_plots = BooleanVar()
-thickness = StringVar(master_window, value='2')  # mm
+thickness = StringVar(master_window, value='0.2')  # mm
 hoffset = StringVar(master_window, value='0')  # mm
 voffset = StringVar(master_window, value='20')  # mm
 resolution = StringVar(master_window, value='0.5')  # delta_mm
@@ -59,8 +65,10 @@ btn_imag = Button(master_window, text='Imaging', command=image)
 btn_imag.grid(column=1, row=at_row)
 btn_imag = Button(master_window, text='Paintmeter', command=paint_measure)
 btn_imag.grid(column=2, row=at_row)
+btn_imag = Button(master_window, text='Spectra', command=spectrum)
+btn_imag.grid(column=3, row=at_row)
 btn_quit = Button(master_window, text='Quit', command=quit)
-btn_quit.grid(column=3, row=at_row, sticky='w')
+btn_quit.grid(column=4, row=at_row, sticky='w')
 
 at_row += 1  # row 1
 gen_label = Label(master_window, text='General tweaks', font='Helvetica 12 bold')

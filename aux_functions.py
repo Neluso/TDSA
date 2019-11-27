@@ -2,15 +2,15 @@ from numpy import where  # array functions
 from numpy import log10  # mathematical functions
 
 
-def f_min_max_idx(freq):
+def f_min_max_idx(freq, fmin=0.1, fmax=1):
     f_min_idx = 1
     f_max_idx = 100
     f_min = freq[f_min_idx]
     f_max = freq[f_max_idx]
     for frq in freq:
-        if frq <= 1e11:  # 0.1 THz
+        if frq <= fmin * 1e12:  # 0.1 THz default
             f_min = frq
-        if frq <= 1e12:  # 1 THz
+        if frq <= fmax * 1e12:  # 1 THz default
             f_max = frq
     f_min_idx = where(freq == f_min)[0][0]
     f_max_idx = where(freq == f_max)[0][0]

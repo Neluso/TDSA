@@ -25,7 +25,7 @@ def alpha_w(ref_ind, H_0, thick):
     return - (2 / thick) * log(H_0 * n_quocient(ref_ind))  # m^-1
 
 
-def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness, dispersive_media):  # Returns refractive index 'n' and absortion coeficient 'alpha_r'
+def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # Returns refractive index 'n' and absortion coeficient 'alpha_r'
 
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)
@@ -67,12 +67,6 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness, dispersive_media):  # Re
     T_fk[-1] = (2 * thickness / c_0) * abs(n[0] - n_avg)
     for i in range(n.size - 1):
         T_fk[i] = (2 * thickness / c_0) * abs(n[i] - n_avg + i * (n[i + 1] - n[i]))
-    plot(f_ref, T_fk)
-    delta_fs = concatenate((zeros(1), diff(f_ref)))
-    delta_fs = ones(delta_fs.size) / delta_fs
-    plot(f_ref, delta_fs)
-    show()
-    quit()
 
     # Step 6.2: Obtaining the absorption coefficient in m^-1
     alpha_f = alpha_w(n, H_w, thickness)
