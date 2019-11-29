@@ -2,7 +2,7 @@
 # Jepsen, P.U. J Infrared Milli Terahz Waves (2019) 40: 395. https://doi.org/10.1007/s10762-019-00578-0
 
 
-from numpy import array, unwrap, pi, abs, exp, angle, polyfit, ones, log, diff, mean
+from numpy import *
 from aux_functions import *
 from DPS_functions import *
 from TDS_constants import *

@@ -1,9 +1,6 @@
 from numpy.fft import rfft, rfftfreq
-from numpy import exp, log, mean, diff  # numerical function
-from numpy import argmax, where, abs, concatenate, flip  # array functions
-from numpy import ones, zeros, linspace  # array creation functions
+from numpy import *
 from matplotlib.pyplot import *
-from numpy import polyfit
 from scipy import signal
 
 
@@ -125,3 +122,19 @@ def tukey_windowing(t_val, E_val, t_sub, E_sub):
     E_sub *= signal.tukey(E_sub.size)
     E_sub = zero_padding(E_sub, left_padd_idxs - left_padd_idxs_sub, 0)
     return t_val, E_val, t_sub, E_sub
+
+
+def rect_low_filter(E_val_w, signal_percent):
+    band_lim_idx = int(round(E_val_w.size * signal_percent))
+    pass_band = ones(band_lim_idx)
+    att_band = zeros(E_val_w.size - band_lim_idx)
+    filt = concatenate((pass_band, att_band))
+    return E_val_w * filt
+
+
+def lin_low_filter(E_val_w, signal_percent, slope):  # slope = dB/octave
+    band_lim_idx = int(round(E_val_w.size * signal_percent))
+    pass_band = ones(band_lim_idx)
+    att_band = zeros(E_val_w.size - band_lim_idx)
+    filt = concatenate((pass_band, att_band))
+    return E_val_w * filt
