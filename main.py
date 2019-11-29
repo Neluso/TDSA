@@ -57,111 +57,95 @@ temporal_window = StringVar(master_window, value='tukey')
 noise_floor_freq = StringVar(master_window, value='4')  # THz
 dispersive_media = BooleanVar()
 
-at_row = 0
 
 btn_char = Button(master_window, text='Characterization', command=characterize)
-btn_char.grid(column=0, row=at_row)
+btn_char.place(width=100)
 btn_imag = Button(master_window, text='Imaging', command=image)
-btn_imag.grid(column=1, row=at_row)
+btn_imag.place(width=70, x=100)
 btn_imag = Button(master_window, text='Paintmeter', command=paint_measure)
-btn_imag.grid(column=2, row=at_row)
+btn_imag.place(width=90, x=170)
 btn_imag = Button(master_window, text='Spectra', command=spectrum)
-btn_imag.grid(column=3, row=at_row)
+btn_imag.place(width=70, x=260)
 btn_quit = Button(master_window, text='Quit', command=quit)
-btn_quit.grid(column=4, row=at_row, sticky='w')
+btn_quit.place(width=70, x=330)
 
-at_row += 1  # row 1
+
+# General Tweaks block
+block_x = 0
+block_y = 50
 gen_label = Label(master_window, text='General tweaks', font='Helvetica 12 bold')
-gen_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
-at_row += 1  # row 2
+gen_label.place(x=block_x, y=block_y, anchor='w')
+# Show plots? sub-block
+sub_block_x = block_x
+sub_block_y = block_y+25
 rad_lbl = Label(master_window, text='Show plots?')
-rad_lbl.grid(column=0, row=at_row, sticky='w')
+rad_lbl.place(x=sub_block_x, y=sub_block_y, anchor='w')
 rad_yes = Radiobutton(master_window, text='Yes', variable=show_plots, value=True, command='')
-rad_yes.grid(column=1, row=at_row)
+rad_yes.place(x=sub_block_x, y=sub_block_y+25, anchor='w')
 rad_yes.select()
-at_row += 1  # row 3
 rad_no = Radiobutton(master_window, text='No', variable=show_plots, value=False, command='')
-rad_no.grid(column=1, row=at_row)
+rad_no.place(x=sub_block_x, y=sub_block_y+50, anchor='w')
 rad_no.deselect()
-
-at_row -= 1  # row 2
+# Temporal window sub-block
+sub_block_x = block_x+100
+sub_block_y = block_y+25
 rad_lbl2 = Label(master_window, text='Temporal window: ')
-rad_lbl2.grid(column=3, row=at_row, sticky='w')
-at_row += 1  #row 3
+rad_lbl2.place(x=sub_block_x, y=sub_block_y, anchor='w')
+sub_block_x -= 125
+sub_block_y += 25
 rad_tuk = Radiobutton(master_window, text='Tukey', variable=temporal_window, value='tukey', command='')
-rad_tuk.grid(column=3, row=at_row, sticky='w')
+rad_tuk.place(x=sub_block_x+125, y=sub_block_y, anchor='w')
 rad_tuk.select()
-rad_cheb = Radiobutton(master_window, text='Chebishev', variable=temporal_window, value='chebisehev', command='')
-rad_cheb.grid(column=4, row=at_row, sticky='w')
-rad_cheb.deselect()
-at_row += 1  # row 4
-rad_hann = Radiobutton(master_window, text='Hann', variable=temporal_window, value='hann', command='')
-rad_hann.grid(column=3, row=at_row, sticky='w')
-rad_hann.deselect()
-# at_row += 1  # row 5
-rad_fexp = Radiobutton(master_window, text='Force-Exp', variable=temporal_window, value='force_exp', command='')
-rad_fexp.grid(column=4, row=at_row, sticky='w')
-rad_fexp.deselect()
-at_row += 1  # row 5
-rad_bh = Radiobutton(master_window, text='Blackman-Harris', variable=temporal_window, value='blackman_harris', command='')
-rad_bh.grid(column=4, row=at_row, sticky='w')
-rad_bh.deselect()
-# at_row += 1  # row 5
 rad_none = Radiobutton(master_window, text='None', variable=temporal_window, value='None', command='')
-rad_none.grid(column=3, row=at_row, sticky='w')
+rad_none.place(x=sub_block_x+125, y=sub_block_y+25, anchor='w')
 rad_none.deselect()
+rad_fexp = Radiobutton(master_window, text='Force-Exp', variable=temporal_window, value='force_exp', command='')
+rad_fexp.place(x=sub_block_x+195, y=sub_block_y, anchor='w')
+rad_fexp.deselect()
+rad_hann = Radiobutton(master_window, text='Hann', variable=temporal_window, value='hann', command='')
+rad_hann.place(x=sub_block_x+195, y=sub_block_y+25, anchor='w')
+rad_hann.deselect()
+rad_bh = Radiobutton(master_window, text='Blackman-Harris', variable=temporal_window, value='blackman_harris', command='')
+rad_bh.place(x=sub_block_x+275, y=sub_block_y+25, anchor='w')
+rad_bh.deselect()
+rad_cheb = Radiobutton(master_window, text='Chebishev', variable=temporal_window, value='chebisehev', command='')
+rad_cheb.place(x=sub_block_x+275, y=sub_block_y, anchor='w')
+rad_cheb.deselect()
 
-at_row += 1  # row 6
-spacer_1 = Label(master_window, text='')
-spacer_1.grid(column=0, row=at_row, sticky='w')
-
-at_row += 1  # row 7
+# Characterization tweaks block
+block_x = 0
+block_y = 150
 char_label = Label(master_window, text='Characterization tweaks', font='Helvetica 12 bold')
-char_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
-at_row += 1  # row 8
+char_label.place(x=block_x, y=block_y)
 thick_label = Label(master_window, text=' Sample thickness (mm)')
-thick_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
+thick_label.place(x=block_x, y=block_y+25)
 thick_entry = Entry(master_window, textvariable=thickness)
-thick_entry.grid(column=2, row=at_row, columnspan=20)
-at_row += 1  # row 2
-rad_disp = Label(master_window, text='Dispersive media?')
-rad_disp.grid(column=0, row=at_row, sticky='w')
-disp_yes = Radiobutton(master_window, text='Yes', variable=dispersive_media, value=True, command='')
-disp_yes.grid(column=1, row=at_row)
-disp_yes.deselect()
-disp_no = Radiobutton(master_window, text='No', variable=dispersive_media, value=False, command='')
-disp_no.grid(column=2, row=at_row)
-disp_no.select()
-at_row += 1
+thick_entry.place(x=block_x+200, y=block_y+25)
 noise_label = Label(master_window, text=' Noise floor (THz)')
-noise_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
+noise_label.place(x=block_x, y=block_y+50)
 noise_entry = Entry(master_window, textvariable=noise_floor_freq)
-noise_entry.grid(column=2, row=at_row, columnspan=20)
+noise_entry.place(x=block_x+200, y=block_y+50)
 
-at_row += 1  # row 9
-spacer_1 = Label(master_window, text='')
-spacer_1.grid(column=0, row=at_row, sticky='w')
-
-at_row += 1  # row 10
+# Imaging tweaks block
+block_x = 0
+block_y = 250
 imag_label = Label(master_window, text='Imaging tweaks', font='Helvetica 12 bold')
-imag_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
-at_row += 1  # row 11
+imag_label.place(x=block_x, y=block_y)
 hoff_label = Label(master_window, text='Horizontal offset (mm)')
-hoff_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
+hoff_label.place(x=block_x, y=block_y+25)
 hoff_entry = Entry(master_window, textvariable=hoffset)
-hoff_entry.grid(column=2, row=at_row, columnspan=20)
-at_row += 1  # row 12
+hoff_entry.place(x=block_x+200, y=block_y+25)
 voff_label = Label(master_window, text='Vertical offset (mm)')
-voff_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
+voff_label.place(x=block_x, y=block_y+50)
 voff_entry = Entry(master_window, textvariable=voffset)
-voff_entry.grid(column=2, row=at_row, columnspan=20)
-at_row += 1  # row 13
+voff_entry.place(x=block_x+200, y=block_y+50)
 resol_label = Label(master_window, text='Resolution (mm)')
-resol_label.grid(column=0, row=at_row, sticky='w', columnspan=20)
+resol_label.place(x=block_x, y=block_y+75)
 resol_entry = Entry(master_window, textvariable=resolution)
-resol_entry.grid(column=2, row=at_row, columnspan=20)
+resol_entry.place(x=block_x+200, y=block_y+75)
 
-dims = '500x' + str(at_row * 25 + 25)
+
+dims = '400x375'
 master_window.geometry(dims)
 
 master_window.mainloop()
