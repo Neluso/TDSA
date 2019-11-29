@@ -14,7 +14,7 @@ def fourier_analysis(t_data, E_data, nSamp):
     return f_data, E_data_w
 
 
-def centre_loc(E_data):  # finds the centre of the pulse based on... TODO improve algorithm
+def centre_loc(E_data):  # finds the pulse centre  based on pulse maximum of absolute signal TODO improve algorithm
     t_0_pos = argmax(abs(E_data))
     return t_0_pos
 
@@ -23,10 +23,6 @@ def noise_floor(freq, E_data, f_lim):
     f_lim_idx = where(freq >= f_lim)[0][0]
     p = polyfit(freq[f_lim_idx:], E_data[f_lim_idx:], 1)
     return p[1] * ones(freq.size)
-
-
-def deconv():  # TODO make function
-    return 0
 
 
 def zero_padding(val, n0_l, n0_r):

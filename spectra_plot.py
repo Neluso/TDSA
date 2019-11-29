@@ -6,7 +6,7 @@ from tkinter.filedialog import askopenfilenames
 from matplotlib.pyplot import *
 
 
-def spectra_plot():  # TODO finish fucntionality
+def spectra_plot():
     Tk().withdraw()
     filenames = askopenfilenames(initialdir='./data', title='Select reference data')
     t_s, E_s, is_error = read_data(filenames)

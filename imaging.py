@@ -1,8 +1,5 @@
-# TODO not exactly, review...
-# This script takes the data from imaging_data directory named as 'X_Y.txt', where X is the row position and Y the
-# column position. Also a 'ref.txt' must be measured and left in the same directory.
-# X and Y are just position indicators, spatial resolution must be added to the script in the data visualization.
-# They must be labeled from 1 to N.
+# This script takes the data from imaging_data directory named as 'PosV_X_PosH_Y.txt', where X is the row position and
+# Y the column position. Also a 'ref.txt' must be measured and left in the same directory.
 
 
 from read_data import read_data
@@ -123,22 +120,6 @@ def imaging(show_plots, hor_offset, ver_offset, resolution, temp_window):
     ylabel('mm')
     colorbar()
     popup.destroy()
-    
-    if False:  # TODO remove after debugging
-        data = transpose(array(data))[:][0]
-        x_data = linspace(1, data.size, data.size)
-        p1 = polyfit(x_data, data, 1)
-        y_data = p1[0] * x_data + p1[1]
-        
-        figure(2)
-        plot(x_data, y_data - data, '.', lw=0.5)
-        plot(x_data, zeros(x_data.size), '--')
-        title('Dispersion')
-    
-        figure(3)
-        plot(x_data, data, '.', lw=0.5)
-        plot(x_data, y_data, '--')
-        title('Fit')
     
     if not os.path.exists('./output/'):
         os.mkdir('./output/')

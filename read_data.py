@@ -2,9 +2,6 @@ from numpy import array
 from tkinter import messagebox
 
 
-# TODO improve data reading: read more sample data to perform statistical analysis
-
-
 def read_data(filenames):
     if filenames == None:
         messagebox.showerror('Error', 'No file selected')
