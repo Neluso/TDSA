@@ -1,4 +1,4 @@
-from DPS_functions import *
+from DSP_functions import *
 from aux_functions import *
 from read_data import read_data
 from tkinter import *
@@ -24,12 +24,12 @@ def spectra_plot():
         
         figure(1)
         xlabel(r'$\Delta t \  (ps)$')
-        xlim([0, t_s_i[-1]])
+        # xlim([0, t_s_i[-1]])
         plot(t_s_i, E_s_i, lw=1)
         figure(2)
         plot(f_i[f_min_idx:plot_length * f_max_idx], E_w_i[f_min_idx:plot_length * f_max_idx], lw=1)
         xlabel(r'$f \ (THz)$')
         ylabel(r'$E_{\omega} \ (dB)$')
-        xlim([f_i[f_min_idx], f_i[plot_length * f_max_idx]])
+        # xlim([f_i[f_min_idx], f_i[plot_length * f_max_idx]])
     show()
     return 0

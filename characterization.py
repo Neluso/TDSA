@@ -7,7 +7,7 @@ from tkinter.filedialog import askopenfilenames
 from tkinter import messagebox
 from read_data import read_data
 from jepsen_index import jepsen_index
-from DPS_functions import *
+from DSP_functions import *
 from aux_functions import *
 from numpy import *
 from matplotlib.pyplot import *

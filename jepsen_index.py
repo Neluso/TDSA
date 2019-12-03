@@ -4,7 +4,7 @@
 
 from numpy import *
 from aux_functions import *
-from DPS_functions import *
+from DSP_functions import *
 from TDS_constants import *
 
 

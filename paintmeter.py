@@ -3,7 +3,7 @@ from tkinter.filedialog import askopenfilenames
 from tkinter import messagebox
 from read_data import read_data
 from numpy import *
-from DPS_functions import *
+from DSP_functions import *
 from TDS_constants import *
 from aux_functions import *
 

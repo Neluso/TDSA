@@ -3,7 +3,7 @@
 
 from read_data import read_data
 from numpy import *
-from DPS_functions import *
+from DSP_functions import *
 from aux_functions import *
 from matplotlib.pyplot import *
 from tkinter import *

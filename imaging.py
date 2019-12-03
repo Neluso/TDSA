@@ -3,7 +3,7 @@
 
 
 from read_data import read_data
-from DPS_functions import *
+from DSP_functions import *
 from numpy import zeros, sum, abs, array, linspace, transpose
 from aux_functions import *
 import os
