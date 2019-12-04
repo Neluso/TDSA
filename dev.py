@@ -3,6 +3,7 @@
 
 from read_data import read_data
 from numpy import *
+from numpy.fft import *
 from DSP_functions import *
 from aux_functions import *
 from matplotlib.pyplot import *
@@ -88,44 +89,50 @@ f_ref_win, E_ref_w_win = fourier_analysis(t_ref, E_ref_win, nSamp_pow)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
 f_sam_win, E_sam_w_win = fourier_analysis(t_sam, E_sam_win, nSamp_pow)
 
-E_ref_w = abs(E_ref_w)
-E_sam_w = abs(E_sam_w)
-E_ref_w_win= abs(E_ref_w_win)
-E_sam_w_win= abs(E_sam_w_win)
+# E_ref_w = abs(E_ref_w)
+# E_sam_w = abs(E_sam_w)
+# E_ref_w_win = abs(E_ref_w_win)
+# E_sam_w_win = abs(E_sam_w_win)
+#
+# n, alpha_f, = jepsen_index(t_ref, E_ref, t_sam, E_sam, 0.97e-3)
+# n_win, alpha_f_win = jepsen_index(t_ref, E_ref_win, t_sam, E_sam_win, 0.97e-3)
 
-n, alpha_f, = jepsen_index(t_ref, E_ref, t_sam, E_sam, 0.97e-3)
-n_win, alpha_f_win = jepsen_index(t_ref, E_ref_win, t_sam, E_sam_win, 0.97e-3)
 
 f_min_idx, f_max_idx = f_min_max_idx(f_ref)
 
-for i in n_win:
-    print(i)
-
 plot_length = 1  # from 0.1 to plot_length THz
 
-figure(1)
-plot(f_ref[f_min_idx:plot_length * f_max_idx], n[f_min_idx:plot_length * f_max_idx], '-', label='no_win')
-plot(f_ref[f_min_idx:plot_length * f_max_idx], n_win[f_min_idx:plot_length * f_max_idx], '-', label='win')
-title('n')
-legend()
+# figure(1)
+# plot(f_ref[f_min_idx:plot_length * f_max_idx], n[f_min_idx:plot_length * f_max_idx], '-', label='no_win')
+# plot(f_ref[f_min_idx:plot_length * f_max_idx], n_win[f_min_idx:plot_length * f_max_idx], '-', label='win')
+# title('n')
+# legend()
+#
+# figure(2)
+# plot(f_ref[f_min_idx:plot_length * f_max_idx], 0.01 * alpha_f[f_min_idx:plot_length * f_max_idx], label='no_win')
+# plot(f_ref[f_min_idx:plot_length * f_max_idx], 0.01 * alpha_f_win[f_min_idx:plot_length * f_max_idx], label='win')
+# title(r'$\alpha$')
+# legend()
+#
+# figure(3)
+# plot(t_ref, E_ref)
+# plot(t_ref, E_ref_win)
+# plot(t_sam, E_sam)
+# plot(t_sam, E_sam_win)
+#
+# figure(4)
+# plot(f_ref[f_min_idx:plot_length * f_max_idx], E_ref_w[f_min_idx:plot_length * f_max_idx])
+# plot(f_ref[f_min_idx:plot_length * f_max_idx], E_ref_w_win[f_min_idx:plot_length * f_max_idx])
+# plot(f_sam[f_min_idx:plot_length * f_max_idx], E_sam_w[f_min_idx:plot_length * f_max_idx])
+# plot(f_sam[f_min_idx:plot_length * f_max_idx], E_sam_w_win[f_min_idx:plot_length * f_max_idx])
 
-figure(2)
-plot(f_ref[f_min_idx:plot_length * f_max_idx], 0.01 * alpha_f[f_min_idx:plot_length * f_max_idx], label='no_win')
-plot(f_ref[f_min_idx:plot_length * f_max_idx], 0.01 * alpha_f_win[f_min_idx:plot_length * f_max_idx], label='win')
-title(r'$\alpha$')
-legend()
-
-figure(3)
-plot(t_ref, E_ref)
-plot(t_ref, E_ref_win)
-plot(t_sam, E_sam)
-plot(t_sam, E_sam_win)
-
-figure(4)
-plot(f_ref[f_min_idx:plot_length * f_max_idx], E_ref_w[f_min_idx:plot_length * f_max_idx])
-plot(f_ref[f_min_idx:plot_length * f_max_idx], E_ref_w_win[f_min_idx:plot_length * f_max_idx])
-plot(f_sam[f_min_idx:plot_length * f_max_idx], E_sam_w[f_min_idx:plot_length * f_max_idx])
-plot(f_sam[f_min_idx:plot_length * f_max_idx], E_sam_w_win[f_min_idx:plot_length * f_max_idx])
+figure(5)
+E_recon = irfft(E_sam_w / E_ref_w, n=t_ref.size)
+max_idx = E_recon.size - argmax(abs(E_ref))
+E_recon = concatenate((E_recon[max_idx:], E_recon[:max_idx]))
+plot(t_ref, E_ref, lw=1)
+plot(t_sam, E_sam, lw=1)
+plot(t_ref, E_recon, lw=1)
 
 
 show()

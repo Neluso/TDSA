@@ -4,26 +4,27 @@ from TDS_constants import *
 from aux_functions import *
 from DSP_functions import *
 from matplotlib.pyplot import *
-from matplotlib.axes import *
-from mpl_toolkits.mplot3d import Axes3D
 from tqdm import trange
 
 
-def fp_m(f, m, n, k, L):
+# function definitions
+
+def fp_m(n, k, L, f, m):
     n_cplx = n - 1j * k
     rho_term = (n_cplx - n_aire) / (n_cplx + n_aire)
     return (rho_term**2 * exp(-2j * n_cplx * f * 2 * pi * L / c_0))**m
 
 
-def fp_full(f, n, k, L):
-    return 1 / (1 - fp_m(f, 1, n, k, L))
+def fp_full(n, k, L, f):
+    return 1 / (1 - fp_m(n, k, L, f, 1))
 
 
-def fp_first_der_m(f, m, n, k, ):
+def fp_first_der_m(n, k, L, f, m):
     n_cplx = n - 1j * k
     rho_prima_rho_term = (2 * n_aire) / (n_cplx ** 2 - n_aire ** 2)
     fp_val = 2 * m * (rho_prima_rho_term - 1j * 2 * pi * L / c_0)
-    fp_val *= fp_m(f, m, n, k, L)
+    fp_val *= fp_m(n, k, L, f, m)
+    # fp_val *= fp_full(n, k, L, f)
     return fp_val
 
 
@@ -40,47 +41,42 @@ def transfer_function(f, n, k, L, fp_echo):
     n_cplx = n - 1j * k
     n_quo = 4 * n_cplx * n_aire / (n_cplx + n_aire)**2
     exp_term = exp(- 1j * (n_cplx - n_aire) * (2 * pi * L) / c_0)
-    fp_val = 0
-    for i in range(fp_echo + 1):
-        fp_val += fp_m(f, i, n, k, L)
+    full_echos = False
+    if full_echos:
+        fp_val = fp_full(n, k, L, f)
+    else:
+        fp_val = 0
+        for i in range(fp_echo + 1):
+            fp_val += fp_m(f, i, n, k, L)
     return n_quo * exp_term * fp_val  # n_quo * exp_term * fp_full(f, n, k, L)
 
 
-def delta_min(n, k, L, f, H_w):  # f and H_w are sigle value. Frequency and measured measured H_w at f
-    delta_min_val = ones([n.size, k.size])
-    for n_idx in range(n.size):
-        for k_idx in range(k.size):
-            delta_min_val[n_idx][k_idx] = (log(abs(transfer_function(f, n[n_idx], k[k_idx], L, 1))) - log(abs(H_w)))**2
-            delta_min_val[n_idx][k_idx] += (angle(transfer_function(f, n[n_idx], k[k_idx], L, 1)) - angle(H_w))**2
+def delta_min(params, *data):  # f and H_w are single value. Frequency and measured measured H_w at f
+    n, k = params
+    L, f, H_w = data
+    delta_min_val = (log(abs(transfer_function(f, n, k, L, 1))) - log(abs(H_w)))**2
+    delta_min_val += (angle(transfer_function(f, n, k, L, 1)) - angle(H_w))**2
     return delta_min_val
 
 
-# def grad_delta_min(n, k, L, f, H_w):
-#     gradient()
-#     return 0
-#
-#
-# def hessian_delta_min(n, k, L, f, H_w):  # f and H_w are sigle value
-#     hess = zeros([n.size, k.size])  # row, column
-#     for n_idx in range(n.size):
-#         for k_idx in range(k.size):
-#             hess[n_idx][k_idx] = delta_min(n[n_idx], k[k_idx], L, f, H_w)
-#     return 0
+# Constraints definition
+
+def n_cons(x):  # to be used as ineq in the minimize routine
+    n = x[0]
+    return n - 1
 
 
-delta_x = 0.5
-x_max = 10
-n_x = delta_x * arange(delta_x, x_max / delta_x)
-k_x = delta_x * arange(delta_x, x_max / delta_x)
-L_x = delta_x * arange(delta_x, x_max / delta_x)
-n_0 = 1
-k_0 = delta_x
-L = delta_x
+def k_cons(x):  # to be used as ineq in the minimize routine
+    k = x[1]
+    return k
 
 
-# ----------------
-# testing purposes
-# ----------------
+def L_cons(x):  # to be used as ineq in the minimize routine
+    L = x[2]
+    return L
+
+
+# main script
 
 fh = open('./data/marca_autodestructiva/ref.txt')
 data = fh.read()
@@ -126,10 +122,35 @@ f_ref = f_ref[f_min_idx:f_max_idx]
 H_w = H_w[f_min_idx:f_max_idx]
 
 
-delta_min_matrix = ones((f_ref.size, n_x.size, k_x.size))
+n_0 = 1.1
+k_0 = 0.1
+L_0 = 1 * 1e-3
+
+
+n_opt = zeros(f_ref.size)
+k_opt = zeros(f_ref.size)
+L_opt = zeros(f_ref.size)
+
+tl = 0.0000001  # tolerance
+bnds = ((1, None), (tl, None))  #, (tl, None))
+cons = ({'type': 'ineq', 'fun': n_cons}, {'type': 'ineq', 'fun': k_cons})  # , {'type': 'ineq', 'fun': L_cons})
 
 for f_idx in trange(f_ref.size):
-    delta_min_matrix[f_idx] = delta_min(n_x, k_x, 1, f_ref[f_idx], H_w[f_idx])
+    res = minimize(delta_min, array((n_0, k_0)), args=(L_0, f_ref[f_idx], H_w[f_idx]), tol=tl, bounds=bnds)
+    n_opt[f_idx] = res.x[0]
+    k_opt[f_idx] = res.x[1]
+    # L_opt[f_idx] = res.x[2]
 
-
-print(delta_min_matrix.shape)
+figure(1)
+plot(f_ref, n_opt)
+xlabel(r'$f\ (Hz)$')
+ylabel(r'$n$')
+figure(2)
+plot(f_ref, k_opt)
+xlabel(r'$f\ (Hz)$')
+ylabel(r'$k$')
+# figure(3)
+# plot(f_ref, L_opt)
+# xlabel(r'$f\ (Hz)$')
+# ylabel(r'$L$')
+show()
