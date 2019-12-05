@@ -1,0 +1,2 @@
+Grosor celofan medido con OCT:
+270+-8 micras
