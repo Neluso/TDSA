@@ -11,6 +11,7 @@ from tkinter import *
 from tkinter.filedialog import askopenfilenames
 from scipy import signal
 from jepsen_index import jepsen_index
+from tqdm import *
 
 
 def bh_windowing_dev(t_val, E_val, t_sub, E_sub):
@@ -125,14 +126,33 @@ plot_length = 1  # from 0.1 to plot_length THz
 # plot(f_ref[f_min_idx:plot_length * f_max_idx], E_ref_w_win[f_min_idx:plot_length * f_max_idx])
 # plot(f_sam[f_min_idx:plot_length * f_max_idx], E_sam_w[f_min_idx:plot_length * f_max_idx])
 # plot(f_sam[f_min_idx:plot_length * f_max_idx], E_sam_w_win[f_min_idx:plot_length * f_max_idx])
+# plot(f_ref[f_min_idx:plot_length * f_max_idx], abs(rfft(signal.unit_impulse(E_ref.size, 'mid'), n=nSamp_pow))[f_min_idx:plot_length * f_max_idx])
 
 figure(5)
-E_recon = irfft(E_sam_w / E_ref_w, n=t_ref.size)
+H_w = E_sam_w / E_ref_w
+
+E_recon = 15 * irfft(H_w, n=t_ref.size)
 max_idx = E_recon.size - argmax(abs(E_ref))
 E_recon = concatenate((E_recon[max_idx:], E_recon[:max_idx]))
 plot(t_ref, E_ref, lw=1)
-plot(t_sam, E_sam, lw=1)
-plot(t_ref, E_recon, lw=1)
+E_delta = zeros(E_ref.size)
+E_delta += signal.unit_impulse(E_ref.size, int(E_ref.size / 2))
+E_delta += signal.unit_impulse(E_ref.size, int(1.05 * E_ref.size / 2.05)) / 2
+plot(t_ref, E_delta, lw=1)
+plot(t_ref, convolve(E_ref, E_delta, mode='same'), lw=1)
 
+
+figure(6)
+H_w = E_sam_w / E_ref_w
+f_ref = f_ref[f_min_idx:plot_length * f_max_idx]
+
+max_idx = E_recon.size - argmax(abs(E_ref))
+E_recon = concatenate((E_recon[max_idx:], E_recon[:max_idx]))
+plot(f_ref, abs(E_ref_w[f_min_idx:plot_length * f_max_idx]), lw=1)
+E_delta = zeros(E_ref.size)
+E_delta += signal.unit_impulse(E_ref.size, int(E_ref.size / 2))
+E_delta += signal.unit_impulse(E_ref.size, int(1.05 * E_ref.size / 2.05)) / 2
+plot(f_ref, abs(rfft(E_delta, n=nSamp_pow)[f_min_idx:plot_length * f_max_idx]), lw=1)
+plot(f_ref, abs(rfft(convolve(E_ref, E_delta, mode='same'), n=nSamp_pow)[f_min_idx:plot_length * f_max_idx]), lw=1)
 
 show()

@@ -1,6 +1,6 @@
 from characterization import characterization
 from imaging import imaging
-from paintmeter import paint_meter
+from multilayer_meter import paint_meter
 from tkinter import *
 from tkinter import messagebox
 from spectra_plot import spectra_plot
