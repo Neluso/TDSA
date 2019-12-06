@@ -5,6 +5,7 @@ from aux_functions import *
 from DSP_functions import *
 from matplotlib.pyplot import *
 from tqdm import trange
+from pyswarm import pso
 
 
 # function definitions
@@ -52,8 +53,8 @@ def transfer_function(f, n, k, L, fp_echo):
 
 
 def delta_min(params, *data):  # f and H_w are single value. Frequency and measured measured H_w at f
-    n, k = params
-    L, f, H_w = data
+    n, k, L = params
+    f, H_w = data
     delta_min_val = (log(abs(transfer_function(f, n, k, L, 1))) - log(abs(H_w)))**2
     delta_min_val += (angle(transfer_function(f, n, k, L, 1)) - angle(H_w))**2
     return delta_min_val
@@ -78,7 +79,7 @@ def L_cons(x):  # to be used as ineq in the minimize routine
 
 # main script
 
-fh = open('./data/marca_autodestructiva/ref.txt')
+fh = open('./data/demo_data/test_ref.txt')
 data = fh.read()
 data = data.split('\n')
 t_ref = list()
@@ -92,7 +93,7 @@ for item in data:
 t_ref = array(t_ref) * 1e-12
 E_ref = array(E_ref)
 
-fh = open('./data/marca_autodestructiva/sam.txt')
+fh = open('./data/demo_data/test_sam.txt')
 data = fh.read()
 data = data.split('\n')
 t_sam = list()
@@ -136,9 +137,16 @@ bnds = ((1, None), (tl, None))  #, (tl, None))
 cons = ({'type': 'ineq', 'fun': n_cons}, {'type': 'ineq', 'fun': k_cons})  # , {'type': 'ineq', 'fun': L_cons})
 
 for f_idx in trange(f_ref.size):
-    res = minimize(delta_min, array((n_0, k_0)), args=(L_0, f_ref[f_idx], H_w[f_idx]), tol=tl, bounds=bnds)
-    n_opt[f_idx] = res.x[0]
-    k_opt[f_idx] = res.x[1]
+    # res = minimize(delta_min, array((n_0, k_0)), args=(L_0, f_ref[f_idx], H_w[f_idx]), tol=tl, bounds=bnds)
+    xopt, fopt = pso(delta_min, [1, tl, tl], [1000, 1000, 1000], args=(f_ref[f_idx], H_w[f_idx]),
+                     swarmsize=250,
+                     maxiter=500,
+                     minstep=1e-12,
+                     minfunc=1e-12,
+                     debug=False
+                     )
+    n_opt[f_idx] = xopt[0]  # res.x[0]
+    k_opt[f_idx] = xopt[1]  # res.x[1]
     # L_opt[f_idx] = res.x[2]
 
 figure(1)
@@ -153,4 +161,5 @@ ylabel(r'$k$')
 # plot(f_ref, L_opt)
 # xlabel(r'$f\ (Hz)$')
 # ylabel(r'$L$')
+print(Lxopt[2])
 show()

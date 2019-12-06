@@ -30,3 +30,18 @@ def read_data(filenames):
         x_data.append(array(x))
         y_data.append(array(y))
     return array(x_data), array(y_data), False
+
+
+def read_1file(file_path):
+    fh = open(file_path)
+    data = fh.read()
+    data = data.split('\n')
+    t_ref = list()
+    E_ref = list()
+    for item in data:
+        item = item.split(',')
+        if item == ['']:
+            break
+        t_ref.append(float(item[0]))
+        E_ref.append(float(item[1]))
+    return array(t_ref), array(E_ref)
