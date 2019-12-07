@@ -138,7 +138,7 @@ cons = ({'type': 'ineq', 'fun': n_cons}, {'type': 'ineq', 'fun': k_cons})  # , {
 
 for f_idx in trange(f_ref.size):
     # res = minimize(delta_min, array((n_0, k_0)), args=(L_0, f_ref[f_idx], H_w[f_idx]), tol=tl, bounds=bnds)
-    xopt, fopt = pso(delta_min, [1, tl, tl], [1000, 1000, 1000], args=(f_ref[f_idx], H_w[f_idx]),
+    xopt, fopt = pso(delta_min, [1, tl, tl], [100, 100, 1000], args=(f_ref[f_idx], H_w[f_idx]),
                      swarmsize=250,
                      maxiter=500,
                      minstep=1e-12,
