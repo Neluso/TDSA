@@ -1,2 +1,3 @@
 Grosor celofan medido con OCT:
-270+-8 micras
+270+-8 micras / 6 capas
+45+-8 micras / 1 capa

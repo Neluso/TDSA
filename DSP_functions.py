@@ -132,9 +132,9 @@ def rect_low_filter(E_val_w, signal_percent):
     return E_val_w * filt
 
 
-def lin_low_filter(E_val_w, signal_percent, slope):  # slope = dB/octave
+def lin_low_filter(E_val_w, signal_percent, slope):  # todo: slope = dB/octave
     band_lim_idx = int(round(E_val_w.size * signal_percent))
     pass_band = ones(band_lim_idx)
-    att_band = zeros(E_val_w.size - band_lim_idx)
-    filt = concatenate((pass_band, att_band))
+    att_band = arange(E_val_w.size - band_lim_idx) / (E_val_w.size - band_lim_idx)
+    filt = concatenate((pass_band, flip(att_band)))
     return E_val_w * filt

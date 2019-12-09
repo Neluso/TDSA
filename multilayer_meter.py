@@ -5,6 +5,9 @@ from read_data import read_1file
 from tqdm import trange
 from tkinter.ttk import *
 from tkinter import *
+from aux_functions import *
+from numpy.fft import *
+from scipy import signal
 
 
 def objective_function(k, *args):
@@ -22,19 +25,36 @@ def min_function(k, *args):
 
 def constraints(k, *args):
     k0, k1, k2, k3 = k
-    return [k0, abs(k0) - abs(k2), - k0 - k2 + 1, k3 - k1]
+    return [k0, abs(k0) - abs(k2), - k0 - k2 + 1, k3 - k1, abs(k2)]
 
 
+t_ref, E_ref = read_1file('./data/Paintmeter/Trazas/6 capas celofan en metal/ref metal celofan.txt')
+t_sam, E_sam = read_1file('./data/Paintmeter/Trazas/6 capas celofan en metal/sam metal celofan.txt')
 
-t_ref, E_ref = read_1file('./data/Paintmeter/Trazas/1 capa de celofan en vidrio/ref metal.txt')
-t_sam, E_sam = read_1file('./data/Paintmeter/Trazas/1 capa de celofan en vidrio/ref vidrio.txt')
+nSamp = E_ref.size
+nSampPow = t_ref.size  # nextpow2(nSamp)
+f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSampPow)
+f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSampPow)
+H_w = E_sam_w / E_ref_w
+H_w_filt = lin_low_filter(H_w, 1/25, 1)
+irf = ifft(H_w, t_ref.size)
+irf_filt = ifft(H_w_filt, t_ref.size)
+
+
+# figure(10)
+# plot(f_ref, E_ref_w)
+# plot(f_sam, E_sam_w)
+# figure(20)
+# plot(t_ref, irf)
+# plot(t_ref, irf_filt)
+# show()
 
 
 ref_pulse_idx = centre_loc(E_ref)
 # lower bounds for k0, k1, k2, k3 respectively
 k_min = [0, t_ref[0], -1, t_ref[ref_pulse_idx]]
 # upper bounds for k0, k1, k2, k3 respectively
-k_max = [1, t_ref[ref_pulse_idx], 0, t_ref[-1]]
+k_max = [1, t_ref[ref_pulse_idx], 1, t_ref[-1]]
 
 k0 = list()
 k1 = list()
@@ -42,29 +62,22 @@ k2 = list()
 k3 = list()
 
 thick = list()
+error_func = list()
 repetitions = 100
-popup = Toplevel()
-popup.geometry('390x65')
-popup.title('Working')
-Label(popup).grid(row=0, column=0)
-Label(popup).grid(row=1, column=0)
-progress_bar = Progressbar(popup, orient="horizontal", length=380, mode="determinate", maximum=repetitions, value=0)
-progress_bar.grid(row=1, column=1)
-popup.pack_slaves()
 
 for i in range(repetitions):
-    popup.update()
-    progress_bar['value'] += 1
+    
+    print('Iteration', i + 1, 'of', repetitions)
 
     k, fopt = pso(min_function, k_min, k_max,
                   args=(E_ref, E_sam, t_ref),
-                  swarmsize=5000,
-                  maxiter=200,
+                  swarmsize=1000,
+                  maxiter=2000,
                   f_ieqcons=constraints,
-                  phig=2,
-                  phip=2,
-                  minstep=1e-15,
-                  minfunc=1e-15,
+                  phig=0.1,
+                  phip=0.1,
+                  minstep=1e-10,
+                  minfunc=1e-10,
                   debug=False)
 
 
@@ -78,6 +91,7 @@ for i in range(repetitions):
     thickness = c_0 * delta_t * 1e-12 / (2 * 2.6)  # m
     thickness *= 1e3  # mm
     thick.append(thickness)
+    error_func.append(fopt)
     k0.append(k[0])
     k1.append(k[1])
     k2.append(k[2])
@@ -92,11 +106,5 @@ for i in range(repetitions):
 figure(1)
 plot(arange(repetitions), array(thick))
 figure(2)
-plot(arange(repetitions), array(k0))
-figure(3)
-plot(arange(repetitions), array(k1))
-figure(4)
-plot(arange(repetitions), array(k2))
-figure(5)
-plot(arange(repetitions), array(k3))
+plot(arange(repetitions), array(error_func))
 show()
