@@ -1,6 +1,5 @@
 from characterization import characterization
 from imaging import imaging
-from multilayer_meter import paint_meter
 from tkinter import *
 from tkinter import messagebox
 from spectra_plot import spectra_plot
@@ -35,7 +34,6 @@ def spectrum():
 
 
 def paint_measure():
-    paint_meter(bool(show_plots.get()))
     return 0
 
 

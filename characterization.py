@@ -122,7 +122,7 @@ def characterization(show_plots, thickness, temp_window, noise_floor_freq):
     xlim([0, t_ref[-1]])
     title(fig_name)
     legend()
-    savefig('./output/' + fig_name + '_' + '.svg', format='svg')
+    savefig('./output/' + fig_name + '_' + '.png', format='png')
 
     figure(2)  # Spectra
     fig_name = "Spectra"
@@ -138,7 +138,7 @@ def characterization(show_plots, thickness, temp_window, noise_floor_freq):
     xlim([f_ref[f_min_idx], f_ref[plot_length * f_max_idx]])
     title(fig_name)
     legend()
-    savefig('./output/' + fig_name + '_' + '.svg', format='svg')
+    savefig('./output/' + fig_name + '_' + '.png', format='png')
 
     figure(3)  # Alpha_f
     fig_name = 'Absorption'
@@ -150,7 +150,7 @@ def characterization(show_plots, thickness, temp_window, noise_floor_freq):
     ylabel(r'$\alpha \ (cm^{-1})$')
     xlim([f_ref[f_min_idx], f_ref[plot_length * f_max_idx]])
     title(fig_name + ' coefficient')
-    savefig('./output/' + fig_name + '_' + '.svg', format='svg')
+    savefig('./output/' + fig_name + '_' + '.png', format='png')
     
     figure(4)  # Refractive Index
     fig_name = 'Index'
@@ -161,7 +161,7 @@ def characterization(show_plots, thickness, temp_window, noise_floor_freq):
     xlabel(r'$f \ (THz)$')
     xlim([f_ref[f_min_idx], f_ref[plot_length * f_max_idx]])
     title(fig_name)
-    savefig('./output/' + fig_name + '_' + '.svg', format='svg')
+    savefig('./output/' + fig_name + '_' + '.png', format='png')
     
     if show_plots:
         show()

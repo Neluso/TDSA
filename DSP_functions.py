@@ -70,8 +70,8 @@ def bh_windowing(t_val, E_val, t_sub, E_sub):
     t_val_rev = - flip(t_val[1:left_padd_idxs + 1])
     t_val = concatenate((t_val_rev, t_val))
     t_sub = concatenate((t_val_rev, t_sub))
-    E_val *= signal.blackmanharris(E_val.size)
-    E_sub *= signal.blackmanharris(E_sub.size)
+    E_val *= signal.windows.blackmanharris(E_val.size)
+    E_sub *= signal.windows.blackmanharris(E_sub.size)
     E_sub = zero_padding(E_sub, left_padd_idxs - left_padd_idxs_sub, 0)
     return t_val, E_val, t_sub, E_sub
 
@@ -86,8 +86,8 @@ def cheb_windowing(t_val, E_val, t_sub, E_sub):
     t_val_rev = - flip(t_val[1:left_padd_idxs + 1])
     t_val = concatenate((t_val_rev, t_val))
     t_sub = concatenate((t_val_rev, t_sub))
-    E_val *= signal.chebwin(E_val.size, 80)
-    E_sub *= signal.chebwin(E_sub.size, 80)
+    E_val *= signal.windows.chebwin(E_val.size, 80)
+    E_sub *= signal.windows.chebwin(E_sub.size, 80)
     E_sub = zero_padding(E_sub, left_padd_idxs - left_padd_idxs_sub, 0)
     return t_val, E_val, t_sub, E_sub
 
@@ -102,8 +102,8 @@ def hann_windowing(t_val, E_val, t_sub, E_sub):
     t_val_rev = - flip(t_val[1:left_padd_idxs + 1])
     t_val = concatenate((t_val_rev, t_val))
     t_sub = concatenate((t_val_rev, t_sub))
-    E_val *= signal.hann(E_val.size)
-    E_sub *= signal.hann(E_sub.size)
+    E_val *= signal.windows.hann(E_val.size)
+    E_sub *= signal.windows.hann(E_sub.size)
     E_sub = zero_padding(E_sub, left_padd_idxs - left_padd_idxs_sub, 0)
     return t_val, E_val, t_sub, E_sub
 
@@ -118,8 +118,8 @@ def tukey_windowing(t_val, E_val, t_sub, E_sub):
     t_val_rev = - flip(t_val[1:left_padd_idxs + 1])
     t_val = concatenate((t_val_rev, t_val))
     t_sub = concatenate((t_val_rev, t_sub))
-    E_val *= signal.tukey(E_val.size)
-    E_sub *= signal.tukey(E_sub.size)
+    E_val *= signal.windows.tukey(E_val.size)
+    E_sub *= signal.windows.tukey(E_sub.size)
     E_sub = zero_padding(E_sub, left_padd_idxs - left_padd_idxs_sub, 0)
     return t_val, E_val, t_sub, E_sub
 
@@ -138,3 +138,12 @@ def lin_low_filter(E_val_w, signal_percent, slope):  # todo: slope = dB/octave
     att_band = arange(E_val_w.size - band_lim_idx) / (E_val_w.size - band_lim_idx)
     filt = concatenate((pass_band, flip(att_band)))
     return E_val_w * filt
+
+
+def gauss_low_filter(f_val, cutoff, sigma):
+    sigma_idx = int(round(sigma / mean(diff(f_val))))
+    cutoff_idx = where(f_val >= cutoff)[0][0]
+    low_band = ones(cutoff_idx)
+    upper_band = signal.windows.gaussian(2 * (f_val.size - low_band.size), std=sigma_idx)
+    pass_band = concatenate((low_band, upper_band[int(round(upper_band.size / 2)):]))
+    return pass_band

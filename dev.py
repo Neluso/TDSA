@@ -32,7 +32,8 @@ def bh_windowing_dev(t_val, E_val, t_sub, E_sub):
     return t_val, E_val, t_sub, E_sub, win
 
 
-fh = open('./data/marca_autodestructiva/ref.txt')
+fh = open('./data/ito/ref_ito_1_avg_f.txt')
+gh = open('./data/ito/ito_1_avg_f.txt')
 data = fh.read()
 data = data.split('\n')
 t_ref = list()
@@ -46,8 +47,8 @@ for item in data:
 t_ref = array(t_ref) * 1e-12
 E_ref = array(E_ref)
 
-fh = open('./data/marca_autodestructiva/sam.txt')
-data = fh.read()
+
+data = gh.read()
 data = data.split('\n')
 t_sam = list()
 E_sam = list()
