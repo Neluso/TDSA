@@ -5,7 +5,7 @@ from scipy import signal
 
 
 def fourier_analysis(t_data, E_data, nSamp):
-    samp_int = mean(diff(t_data))  # seconds
+    samp_int = float(mean(diff(t_data))) # seconds
     E_data_w = rfft(E_data, n=nSamp)
     f_data = rfftfreq(nSamp, d=samp_int)  # Hz
     return f_data, E_data_w

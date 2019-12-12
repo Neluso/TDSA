@@ -78,20 +78,20 @@ xlim([0, 2])
 ylim([-1, 3])
 show()
 
-ref_pulse_idx = centre_loc(E_ref)
-# lower bounds for k0, k1, k2, k3 respectively
-k_min = [0, t_ref[0], -1, t_ref[ref_pulse_idx]]
-# upper bounds for k0, k1, k2, k3 respectively
-k_max = [1, t_ref[ref_pulse_idx], 1, t_ref[-1]]
-
-k0 = list()
-k1 = list()
-k2 = list()
-k3 = list()
-
-thick = list()
-error_func = list()
-repetitions = 10
+# ref_pulse_idx = centre_loc(E_ref)
+# # lower bounds for k0, k1, k2, k3 respectively
+# k_min = [0, t_ref[0], -1, t_ref[ref_pulse_idx]]
+# # upper bounds for k0, k1, k2, k3 respectively
+# k_max = [1, t_ref[ref_pulse_idx], 1, t_ref[-1]]
+#
+# k0 = list()
+# k1 = list()
+# k2 = list()
+# k3 = list()
+#
+# thick = list()
+# error_func = list()
+# repetitions = 10
 #
 # for i in range(repetitions):
 #
