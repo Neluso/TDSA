@@ -30,8 +30,11 @@ def cauchy_fit(params, *args):
     return sum((cauchy.pdf(x, loc, scale) + a * x + m - y)**2)
 
 
-t_ref, E_ref = read_1file('./data/ito/vidrio_notch_avg_f.txt')
-t_sam, E_sam = read_1file('./data/ito/notch_paper_avg_f.txt')
+t_ref, E_ref = read_slow_data('./data/notch/ref_notch.txt')
+t_sam, E_sam = read_slow_data('./data/notch/sam_notch.txt')
+
+E_ref = - flip(E_ref)
+E_sam = - flip(E_sam)
 
 
 delta_t_ref = mean(diff(t_ref))
@@ -53,11 +56,6 @@ y_v = - E_ref_w[f_min_idx:f_max_idx]
 x_p = f_sam[f_min_idx:f_max_idx]
 y_p = - E_sam_w[f_min_idx:f_max_idx]
 
-# figure(3)
-# plot(x_v, y_v)
-# plot(x_p, y_p)
-# show()
-
 
 param_min = (0.225, 0, 0, -10)
 param_max = (0.4, 10, 50, 10)
@@ -77,26 +75,22 @@ f_vp_fits = list()
 #                   args=(x_p, y_p),
 #                   debug=debug_pso)
 
-res_v2 = minimize(cauchy_fit, array((0.3, 0.01, 24, -5)), args=(x_v, y_v), method='COBYLA', options={'maxiter':200})
-# res_p2 = minimize(cauchy_fit, array((0.3, 0.03, 24, 0)), args=(x_p, y_p), method='Nelder-Mead')
-print(res_v2)
-figure(3)
-res_v2 = res_v2.x
-plot(x_v, y_v)
-plot(x_v, cauchy.pdf(x_v, res_v2[0], res_v2[1]) + res_v2[2] * x_v + res_v2[3])
-show()
-quit()
-print(res_p2)
+res_v = minimize(cauchy_fit, array((0.3, 0.01, 24, -5)), args=(x_v, y_v), method='Nelder-Mead', options={'maxiter':2000})
+res_p = minimize(cauchy_fit, array((0.3, 0.03, 24, 0)), args=(x_p, y_p), method='Nelder-Mead')
+
+print(res_v)
+print(res_p)
 
 
-sigma_va = res_v2.jac
-sigma_vp = res_p2.jac
+# sigma_va = res_v2.jac
+# sigma_vp = res_p2.jac
+# sigma_va = dot(sigma_va.T, sigma_va) * sqrt(res_v2.fun / (x_v.size - 4))
+# sigma_vp = dot(sigma_vp.T, sigma_vp) * sqrt(res_p2.fun / (x_p.size - 4))
 
-sigma_va = dot(sigma_va.T, sigma_va) * sqrt(res_v2.fun / (x_v.size - 4))
-sigma_vp = dot(sigma_vp.T, sigma_vp) * sqrt(res_p2.fun / (x_p.size - 4))
-
-f_va = res_v2.x[0]
-f_vp = res_p2.x[0]
+f_va = res_v.x[0]
+f_vp = res_p.x[0]
+sigma_va = res_v.x[1]
+sigma_vp = res_p.x[1]
 
 
 f_va *= 1e12

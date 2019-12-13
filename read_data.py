@@ -1,4 +1,4 @@
-from numpy import array
+from numpy import array, flip
 from tkinter import messagebox
 
 
@@ -45,3 +45,19 @@ def read_1file(file_path):
         t_ref.append(float(item[0]))
         E_ref.append(float(item[1]))
     return array(t_ref), array(E_ref)
+
+
+def read_slow_data(file_path):  # output: time (ps), I (nA)
+    fh = open(file_path)
+    data = fh.read()
+    data = data.split('\n')
+    print(data)
+    t_ref = list()
+    E_ref = list()
+    for item in data:
+        item = item.split('\t')
+        if item == ['']:
+            break
+        t_ref.append(float(item[0]))
+        E_ref.append(float(item[1]))
+    return array(t_ref), array(E_ref) * 1e9
