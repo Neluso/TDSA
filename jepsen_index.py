@@ -71,4 +71,4 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # Returns refractive i
     # Step 6.2: Obtaining the absorption coefficient in m^-1
     alpha_f = alpha_w(n, H_w, thickness)
 
-    return n, alpha_f
+    return n, alpha_f, n_avg

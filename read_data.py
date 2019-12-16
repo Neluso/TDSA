@@ -51,7 +51,6 @@ def read_slow_data(file_path):  # output: time (ps), I (nA)
     fh = open(file_path)
     data = fh.read()
     data = data.split('\n')
-    print(data)
     t_ref = list()
     E_ref = list()
     for item in data:
@@ -60,4 +59,4 @@ def read_slow_data(file_path):  # output: time (ps), I (nA)
             break
         t_ref.append(float(item[0]))
         E_ref.append(float(item[1]))
-    return array(t_ref), array(E_ref) * 1e9
+    return array(t_ref), - flip(array(E_ref)) * 1e9

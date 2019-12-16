@@ -24,8 +24,8 @@ def bh_windowing_dev(t_val, E_val, t_sub, E_sub):
     t_val_rev = - flip(t_val[1:left_padd_idxs + 1])
     t_val = concatenate((t_val_rev, t_val))
     t_sub = concatenate((t_val_rev, t_sub))
-    E_val *= signal.blackmanharris(E_val.size)
-    win = signal.blackmanharris(E_sub.size)
+    E_val *= signal.windows.blackmanharris(E_val.size)
+    win = signal.windows.blackmanharris(E_sub.size)
     E_sub *= win
     E_sub = zero_padding(E_sub, left_padd_idxs - left_padd_idxs_sub, 0)
     win = zero_padding(win, left_padd_idxs - left_padd_idxs_sub, 0)
