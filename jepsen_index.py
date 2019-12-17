@@ -25,7 +25,8 @@ def alpha_w(ref_ind, H_0, thick):
     return - (2 / thick) * log(H_0 * n_quocient(ref_ind))  # m^-1
 
 
-def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):  # Returns refractive index 'n' and absortion coeficient 'alpha_r'
+def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):
+    # Returns refractive index 'n',  absorption coefficient 'alpha_r' and averaged index n_avg
 
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)

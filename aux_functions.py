@@ -21,6 +21,10 @@ def toDb(x):
     return 20 * log10(abs(x))
 
 
+def fromDb(x):
+    return 10**(x / 20)
+
+
 def prettyfy(x, norm):
     return toDb(x / norm)
 

@@ -1,7 +1,10 @@
 # TDSA
 THz- Time Domain Spectroscopy Analizer
 
-Requirements: Anaconda 3.7+
+Requirements: 
+ - Anaconda 3.7+
+ - pyswarm
+ - pywavelets
 
 Instructions: (building)
 

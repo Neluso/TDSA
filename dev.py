@@ -77,9 +77,9 @@ delta_peak_sam_min = where(t_sam >= t_sam[E_sam_centre]-delta_time)[0][0]
 delta_peak_sam_max = where(t_sam >= t_sam[E_sam_centre]+delta_time)[0][0]
 
 
-win_ref = signal.tukey(delta_peak_ref_max - delta_peak_ref_min)
+win_ref = signal.windows.tukey(delta_peak_ref_max - delta_peak_ref_min)
 win_ref = zero_padding(win_ref, delta_peak_ref_min, E_ref.size - delta_peak_ref_max)
-win_sam = signal.tukey(delta_peak_sam_max - delta_peak_sam_min)
+win_sam = signal.windows.tukey(delta_peak_sam_max - delta_peak_sam_min)
 win_sam = zero_padding(win_sam, delta_peak_sam_min, E_sam.size - delta_peak_sam_max)
 
 
