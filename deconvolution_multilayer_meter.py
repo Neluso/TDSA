@@ -33,7 +33,7 @@ t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018
 t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
 
 delta_t_ref = mean(diff(t_ref))
-enlargement = 0 * E_ref.size
+enlargement = 19 * E_ref.size
 E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
 E_sam = zero_padding(E_sam, 0, enlargement)
@@ -41,8 +41,7 @@ t_sam = concatenate((t_sam, t_sam[-1] * ones(enlargement) + delta_t_ref * arange
 E_sam_max = amax(abs(E_sam))
 E_sam_max_idx = where(abs(E_sam) == E_sam_max)[0][0]
 
-# nSamp = E_ref.size
-# nSampPow = nSamp  # nextpow2(nSamp)
+
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
 delta_f_ref = mean(diff(f_ref))
@@ -62,17 +61,20 @@ irf_filt_max_idx = where(irf_filt == irf_filt_max)[0][0]
 t_irf = arange(irf_filt.size) / (irf_filt.size * delta_f_ref)
 
 irf = roll(irf_filt / amax(abs(irf_filt)), E_sam_max_idx - irf_filt_max_idx)
-irf_peaks = signal.find_peaks(abs(irf), 0.20 * amax(abs(irf)))
+irf_peaks = signal.find_peaks(abs(irf), 0.15 * amax(abs(irf)))
 
 
-figure(10)
+figure(1)
 plot(t_sam, E_sam / amax(E_sam), lw=1)
 plot(t_ref, irf, lw=1)
-for idx in range(irf_peaks[0].size):  # mark peaks
-    t_peak = t_ref[irf_peaks[0][idx]]
-    E_peak = irf_peaks[1]['peak_heights'][idx]
-    text(t_peak, E_peak, str(round(E_peak, 2)))
-    plot(t_peak, E_peak, 'r', marker=7)
+for idx in irf_peaks[0]:  # mark peaks
+    t_peak = t_ref[idx]
+    E_peak = irf[idx]
+    text(t_peak, E_peak, str(abs(round(E_peak, 2))))
+    if E_peak >= 0:
+        plot(t_peak, E_peak, 'r', marker=7)
+    if E_peak < 0:
+        plot(t_peak, E_peak, 'r', marker=6)
 xlim([0, 50])
 
 show()

@@ -3,6 +3,7 @@ from numpy import *
 from matplotlib.pyplot import *
 from scipy import signal
 from aux_functions import *
+import pywt
 
 
 def fourier_analysis(t_data, E_data, nSamp=0):
@@ -155,3 +156,9 @@ def gauss_low_filter(f_val, cutoff, sigma):
 def wiener_filter(E_data, beta=0.00003162277):
     E_data *= conj(E_data)
     return E_data / (E_data + beta)
+
+
+def SWT_denoising(E_data):
+    cA, cD = pywt.swt(E_data, 'sim4', 7)
+    print(cA, cD)
+    return
