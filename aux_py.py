@@ -34,3 +34,62 @@ ylim([0, 1.5])
 xlim([0, 70])
 legend()
 show()
+
+# ref_pulse_idx = centre_loc(E_ref)  TODO review this part of code
+# # lower bounds for k0, k1, k2, k3 respectively
+# k_min = [0, t_ref[0], -1, t_ref[ref_pulse_idx]]
+# # upper bounds for k0, k1, k2, k3 respectively
+# k_max = [1, t_ref[ref_pulse_idx], 1, t_ref[-1]]
+#
+# k0 = list()
+# k1 = list()
+# k2 = list()
+# k3 = list()
+#
+# thick = list()
+# error_func = list()
+# repetitions = 10
+#
+# for i in range(repetitions):
+#
+#     print('Iteration', i + 1, 'of', repetitions)
+#
+#     k, fopt = pso(min_function, k_min, k_max,
+#                   args=(E_ref, E_sam, t_ref),
+#                   swarmsize=1000,
+#                   maxiter=2000,
+#                   f_ieqcons=constraints,
+#                   phig=0.1,
+#                   phip=0.1,
+#                   minstep=1e-10,
+#                   minfunc=1e-10,
+#                   debug=False)
+#
+#
+#     # figure(1)
+#     # title('Fit')
+#     # plot(t_sam, E_sam, lw=1, label='sam')
+#     # plot(t_ref, objective_function(k, *(E_ref, E_sam, t_ref)), lw=1, label='fit')
+#     # legend()
+#
+#     delta_t = k[3] - k[1]
+#     thickness = c_0 * delta_t * 1e-12 / (2 * 2.6)  # m
+#     thickness *= 1e3  # mm
+#     thick.append(thickness)
+#     error_func.append(fopt)
+#     k0.append(k[0])
+#     k1.append(k[1])
+#     k2.append(k[2])
+#     k3.append(k[3])
+#     # print('k0 =', k[0])
+#     # print('k1 =', k[1])
+#     # print('k2 =', k[2])
+#     # print('k3 =', k[3])
+#     # print('delta t =', delta_t, 'ps')
+#     # print('d =', thickness, 'mm')
+#
+# figure(1)
+# plot(arange(repetitions), array(thick))
+# figure(2)
+# plot(arange(repetitions), array(error_func))
+# show()

@@ -2,6 +2,7 @@ from numpy.fft import *
 from numpy import *
 from matplotlib.pyplot import *
 from scipy import signal
+from aux_functions import *
 
 
 def fourier_analysis(t_data, E_data, nSamp=0):
@@ -149,3 +150,8 @@ def gauss_low_filter(f_val, cutoff, sigma):
     upper_band = signal.windows.gaussian(2 * (f_val.size - low_band.size), std=sigma_idx)
     pass_band = concatenate((low_band, upper_band[int(round(upper_band.size / 2)):]))
     return pass_band
+
+
+def wiener_filter(E_data, beta=0.00003162277):
+    E_data *= conj(E_data)
+    return E_data / (E_data + beta)
