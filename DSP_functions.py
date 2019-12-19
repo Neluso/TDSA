@@ -158,7 +158,21 @@ def wiener_filter(E_data, beta=0.00003162277):
     return E_data / (E_data + beta)
 
 
-def SWT_denoising(E_data):
-    cA, cD = pywt.swt(E_data, 'sim4', 7)
-    print(cA, cD)
-    return
+def SWT_denoising(E_data, level, threshold):
+    sym4_coeffs = pywt.swt(E_data, 'sym4', level)
+    threshold *= sqrt(2 * log(E_data.size))
+    filtered_coeffs = list()
+    for pair in sym4_coeffs:
+        cA_mod = pair[0]
+        cD_mod = pair[1]
+        cD_aux = zeros(cD_mod.shape)
+        for i in range(cD_mod.size):
+            if cD_mod[i] >= threshold:
+                cD_aux[i] = cD_mod[i] - threshold
+            elif cD_mod[i] <= - threshold:
+                cD_aux[i] = cD_mod[i] + threshold
+            else:
+                cD_aux[i] = 0
+        filtered_coeffs.append((cA_mod, cD_aux))
+
+    return pywt.iswt(array(filtered_coeffs), 'sym4')

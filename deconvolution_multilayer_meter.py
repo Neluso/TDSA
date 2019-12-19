@@ -33,7 +33,7 @@ t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018
 t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
 
 delta_t_ref = mean(diff(t_ref))
-enlargement = 19 * E_ref.size
+enlargement = (5 * 2**7 - 1) * E_ref.size
 E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
 E_sam = zero_padding(E_sam, 0, enlargement)
@@ -60,13 +60,16 @@ irf_filt_max = amax(irf_filt)
 irf_filt_max_idx = where(irf_filt == irf_filt_max)[0][0]
 t_irf = arange(irf_filt.size) / (irf_filt.size * delta_f_ref)
 
-irf = roll(irf_filt / amax(abs(irf_filt)), E_sam_max_idx - irf_filt_max_idx)
+irf = roll(irf_filt / amax(abs(irf_filt)), E_sam_max_idx - irf_filt_max_idx)  # align deconvolution to t_ref
+irf_dno = SWT_denoising(irf, 7, 0.1)  # apply de-noising
+
 irf_peaks = signal.find_peaks(abs(irf), 0.15 * amax(abs(irf)))
 
 
 figure(1)
 plot(t_sam, E_sam / amax(E_sam), lw=1)
 plot(t_ref, irf, lw=1)
+plot(t_ref, irf_dno, lw=1)
 for idx in irf_peaks[0]:  # mark peaks
     t_peak = t_ref[idx]
     E_peak = irf[idx]
