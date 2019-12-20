@@ -128,7 +128,7 @@ for i in range(layers):
     k_bounds.append((0, 1))  # k
     k_bounds.append((0, 1e-3))  # thickness
 
-
+# TODO test different strategies
 res = differential_evolution(cost_function,
                              k_bounds,
                              args=(E_sam_w / E_ref_w, f_ref),
