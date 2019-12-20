@@ -11,7 +11,7 @@ from tqdm import trange
 
 def fp_m(n, k, L, f, m):
     n_cplx = n - 1j * k
-    rho_term = (n_cplx - n_aire) / (n_cplx + n_aire)
+    rho_term = (n_cplx - n_air) / (n_cplx + n_air)
     return (rho_term**2 * exp(-2j * n_cplx * f * 2 * pi * L / c_0))**m
 
 
@@ -21,7 +21,7 @@ def fp_full(n, k, L, f):
 
 def fp_first_der_m(n, k, L, f, m):
     n_cplx = n - 1j * k
-    rho_prima_rho_term = (2 * n_aire) / (n_cplx ** 2 - n_aire ** 2)
+    rho_prima_rho_term = (2 * n_air) / (n_cplx ** 2 - n_air ** 2)
     fp_val = 2 * m * (rho_prima_rho_term - 1j * 2 * pi * L / c_0)
     fp_val *= fp_m(n, k, L, f, m)
     # fp_val *= fp_full(n, k, L, f)
@@ -30,17 +30,17 @@ def fp_first_der_m(n, k, L, f, m):
 
 def fp_second_der_m(f, m, n, k, L):
     n_cplx = n - 1j * k
-    rho_prima_rho_term = (2 * n_aire) / (n_cplx**2 - n_aire**2)
+    rho_prima_rho_term = (2 * n_air) / (n_cplx ** 2 - n_air ** 2)
     fp_val = (2 * m * (rho_prima_rho_term - 1j * 2 * pi * f * L / c_0))**2
-    fp_val -= 8 * m * (4 * n_cplx * n_aire / (n_cplx**2 - n_aire**2))
+    fp_val -= 8 * m * (4 * n_cplx * n_air / (n_cplx ** 2 - n_air ** 2))
     fp_val *= fp_m(f, m, n, k, L)
     return fp_val
 
 
 def transfer_function(f, n, k, L, fp_echo):
     n_cplx = n - 1j * k
-    n_quo = 4 * n_cplx * n_aire / (n_cplx + n_aire)**2
-    exp_term = exp(- 1j * (n_cplx - n_aire) * (2 * pi * L) / c_0)
+    n_quo = 4 * n_cplx * n_air / (n_cplx + n_air) ** 2
+    exp_term = exp(- 1j * (n_cplx - n_air) * (2 * pi * L) / c_0)
     full_echos = False
     if full_echos:
         fp_val = fp_full(n, k, L, f)

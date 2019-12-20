@@ -18,7 +18,7 @@ def refractive_index(frq, delta_phi, thick):
 
 
 def n_quocient(ref_ind):
-    return ((ref_ind + n_aire) ** 2) / (4 * ref_ind * n_aire)
+    return ((ref_ind + n_air) ** 2) / (4 * ref_ind * n_air)
 
 
 def alpha_w(ref_ind, H_0, thick):

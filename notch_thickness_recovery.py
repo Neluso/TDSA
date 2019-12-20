@@ -12,17 +12,17 @@ from scipy.signal import windows
 
 
 def thickness_val(n, order_m, f_ref, f_sam):
-    return c_0 * (order_m + 0.5) / (n - n_aire) * (1 / f_ref - 1 / f_sam)
+    return c_0 * (order_m + 0.5) / (n - n_air) * (1 / f_ref - 1 / f_sam)
 
 
 def thickness_sigma2(n, sig_n, order_m, f_ref, sig_f_ref, f_sam, sig_f_sam):  # sigs in relative error (0 to 1)
-    aux1 = ((1 / f_ref - 1 / f_sam) * c_0 * (order_m + 0.5) / (n - n_aire)**2)**2 * (sig_n * n)**2
-    aux2 = (c_0 * (order_m + 0.5) / (n - n_aire))**2 * ((sig_f_ref / f_ref)**2 + (sig_f_sam / f_sam)**2)
+    aux1 = ((1 / f_ref - 1 / f_sam) * c_0 * (order_m + 0.5) / (n - n_air) ** 2) ** 2 * (sig_n * n) ** 2
+    aux2 = (c_0 * (order_m + 0.5) / (n - n_air)) ** 2 * ((sig_f_ref / f_ref) ** 2 + (sig_f_sam / f_sam) ** 2)
     return aux1 + aux2
 
 
 def thickness_sigma2_aprox(n, order_m, f_ref, sig_f_ref, f_sam, sig_f_sam):  # sigs in relative error (0 to 1)
-    aux = (c_0 * (order_m + 0.5) / (n - n_aire))**2 * ((sig_f_ref / f_ref)**2 + (sig_f_sam / f_sam)**2)
+    aux = (c_0 * (order_m + 0.5) / (n - n_air)) ** 2 * ((sig_f_ref / f_ref) ** 2 + (sig_f_sam / f_sam) ** 2)
     return aux
 
 
