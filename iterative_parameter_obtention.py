@@ -1,4 +1,5 @@
 from scipy.optimize import differential_evolution
+from numpy.random import rand
 from TDSA import *
 
 
@@ -53,22 +54,35 @@ E_sam_w = E_sam_w[f_min_idx:f_max_idx]
 H_w = E_sam_w / E_ref_w
 
 tl = 1e-8  # tolerance
-bnds = [(1, 3), (0, 1), (0, 1)]
+L_0 = 1.95*1e-3
+n_0 = 1 + c_0 * (t_sam[centre_loc((E_sam))] - t_ref[centre_loc(E_ref)]) / L_0
+k_0 = - c_0 * log(abs(amax(E_sam_w)) / abs(amax(E_ref_w))) / (L_0 * 2 * pi * f_ref[argmax(E_ref_w)])
+bnds = [(1, 2*n_0), (0, 2*k_0), (0.9*L_0, 1.1*L_0)]
+initial_values = list()
+particle_number = 15*3
+for i in range(particle_number):
+    initial_values.append(array([n_0 + -0.5 * (-1 + 2 * rand()),
+                                 k_0 + 0.01 * (-1 + 2 * rand()),
+                                 L_0 + 0.5*1e-5 * (-1 + 2 * rand())
+                                 ]))
+initial_values = array(initial_values)
+print(n_0, k_0, L_0)
+
 res = differential_evolution(delta_min,
                              bnds,
                              args=(f_ref, H_w),
                              strategy='best1bin',
-                             popsize=45,
+                             popsize=90,
+                             # init=initial_values,
                              maxiter=2000,
                              polish=False
                              )
 print(res)
 
-
 # Plots
-n, alpha, n_avg = jepsen_index(t_ref, E_ref, t_sam, E_sam, 1.95*1e-3)  # 2*res.x[2])
-n = n[f_min_idx:f_max_idx]
-alpha = 0.01 * alpha[f_min_idx:f_max_idx]
+# n, alpha, n_avg = jepsen_index(t_ref, E_ref, t_sam, E_sam, 1.95*1e-3)  # 2*res.x[2])
+# n = n[f_min_idx:f_max_idx]
+# alpha = 0.01 * alpha[f_min_idx:f_max_idx]
 f_ref *= 1e-12
 
 
@@ -88,12 +102,12 @@ axs[1].plot(f_ref, imag(H_w), lw=1)
 axs[1].plot(f_ref, imag(transfer_function(f_ref, res.x[0], res.x[1], res.x[2], 1)), lw=1)
 xlabel(r'$f\ (THz)$')
 
-fig, axs = subplots(2)
-fig.suptitle('Optical parameters')
-axs[0].plot(f_ref, n, lw=1)
-axs[0].set_ylabel(r'$n$')
-axs[1].plot(f_ref, alpha, lw=1)
-axs[1].set_ylabel(r'$\alpha \ (cm^{-1})$')
-xlabel(r'$f\ (THz)$')
+# fig, axs = subplots(2)
+# fig.suptitle('Optical parameters')
+# axs[0].plot(f_ref, n, lw=1)
+# axs[0].set_ylabel(r'$n$')
+# axs[1].plot(f_ref, alpha, lw=1)
+# axs[1].set_ylabel(r'$\alpha \ (cm^{-1})$')
+# xlabel(r'$f\ (THz)$')
 
 show()
