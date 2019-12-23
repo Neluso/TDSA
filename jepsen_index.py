@@ -1,11 +1,9 @@
 # This script extracts the refractive index of a sample measured in a transmision THz-TDS using the algorithm proposed by
 # Jepsen, P.U. J Infrared Milli Terahz Waves (2019) 40: 395. https://doi.org/10.1007/s10762-019-00578-0
 
-
 from numpy import *
-from aux_functions import *
-from DSP_functions import *
 from TDS_constants import *
+from TDSA import *
 
 
 def refractive_index(frq, delta_phi, thick):
@@ -26,7 +24,7 @@ def alpha_w(ref_ind, H_0, thick):
 
 
 def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):
-    # Returns refractive index 'n',  absorption coefficient 'alpha_r' and averaged index n_avg
+    # Returns refractive index 'n',  absorption coefficient 'alpha_r' and averaged index 'n_avg'
 
     nSamp = E_ref.size
     nSamp_pow = nextpow2(nSamp)

@@ -27,6 +27,25 @@
 #     idx_k7 = centre_loc(E_val) - int(round(k7 / mean(diff(t_val))))
 #     return k0 * roll(E_val, - idx_k1) + k2 * roll(E_val, - idx_k3) + k4 * roll(E_val, - idx_k5) + k6 * roll(E_val, - idx_k7)
 
+########################################################################################################################
+
+# def fp_first_der_m(n, k, L, f, m):
+#     n_cplx = n - 1j * k
+#     rho_prima_rho_term = (2 * n_air) / (n_cplx ** 2 - n_air ** 2)
+#     fp_val = 2 * m * (rho_prima_rho_term - 1j * 2 * pi * L / c_0)
+#     fp_val *= fp_m(n, k, L, f, m)
+#     # fp_val *= fp_full(n, k, L, f)
+#     return fp_val
+#
+#
+# def fp_second_der_m(f, m, n, k, L):
+#     n_cplx = n - 1j * k
+#     rho_prima_rho_term = (2 * n_air) / (n_cplx ** 2 - n_air ** 2)
+#     fp_val = (2 * m * (rho_prima_rho_term - 1j * 2 * pi * f * L / c_0))**2
+#     fp_val -= 8 * m * (4 * n_cplx * n_air / (n_cplx ** 2 - n_air ** 2))
+#     fp_val *= fp_m(f, m, n, k, L)
+#     return fp_val
+########################################################################################################################
 
 layers = 2
 for i in range(1, layers - 1):
