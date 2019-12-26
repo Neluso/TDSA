@@ -27,10 +27,10 @@ def cr_l_1_l(n_l, n_l_1):  # from n_l-1 to n_l
 
 
 def phase_factor(n, k, thick, freq):  # theta in radians
-    n_comp = n + 1j * k
+    n_comp = n - 1j * k
     omg = 2 * pi * freq
     thick *= cos(theta(n))
-    return exp(2 * 1j * n_comp * omg * thick / c_0)
+    return exp(- 2 * 1j * n_comp * omg * thick / c_0)
 
 
 # def H_sim(n_l, k_l, thick_l, freq):
@@ -129,15 +129,29 @@ for i in range(layers):
     k_bounds.append((0, 1e-3))  # thickness
 
 # TODO test different strategies
-res = differential_evolution(cost_function,
-                             k_bounds,
-                             args=(E_sam_w / E_ref_w, f_ref),
-                             strategy='best1bin',
-                             popsize=15
-                             )
+i = 0
+strategies = ['best1bin', 'best1exp', 'rand1exp', 'randtobest1exp', 'currenttobest1exp', 'best2exp', 'rand2exp',
+              'randtobest1bin', 'currenttobest1bin', 'best2bin', 'rand2bin', 'rand1bin']
 
-print(res)
-plot(f_ref, abs(E_sam_w / E_ref_w), lw=1)
-plot(f_ref, abs(H_sim(array([1.4, 1.5, 1.6]), 0.01 * ones(3), 33e-6 * ones(3), f_ref)), lw=1)
-plot(f_ref, abs(H_sim(array([res.x[0], res.x[3], res.x[6]]), array([res.x[1], res.x[4], res.x[7]]), array([res.x[2], res.x[5], res.x[8]]), f_ref)), lw=1)
+for strategy_test in tqdm(strategies):
+    i += 1
+    figure(i)
+    plot(f_ref, abs(E_sam_w / E_ref_w), lw=1, label='meas')
+    title(strategy_test)
+    for j in range(5):
+        res = differential_evolution(cost_function,
+                                     k_bounds,
+                                     args=(E_sam_w / E_ref_w, f_ref),
+                                     strategy=strategy_test,
+                                     popsize=15*(j+1),
+                                     maxiter=2000,
+                                     )
+        # plot(f_ref, abs(H_sim(array([1.4, 1.5, 1.6]), 0.01 * ones(3), 33e-6 * ones(3), f_ref)), lw=1)
+        plot(f_ref, abs(H_sim(array([res.x[0], res.x[3], res.x[6]]),
+                              array([res.x[1], res.x[4], res.x[7]]),
+                              array([res.x[2], res.x[5], res.x[8]]), f_ref)),
+             lw=1,
+             label=15*(j+1)
+             )
+    legend()
 show()
