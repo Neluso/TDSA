@@ -6,9 +6,9 @@ from TDSA import *
 # function definitions
 
 def fp_m(n, k, L, f, m):
-    n_cplx = n - 1j * k
+    n_cplx = n + 1j * k
     rho_term = (n - n_air) / (n + n_air)
-    return ((rho_term**2) * exp(-2j * n_cplx * f * 2 * pi * L / c_0))**m
+    return ((rho_term**2) * exp(2j * n_cplx * f * 2 * pi * L / c_0))**m
 
 
 def fp_full(n, k, L, f):
@@ -16,9 +16,9 @@ def fp_full(n, k, L, f):
 
 
 def transfer_function(f, n, k, L, fp_echo):
-    n_cplx = n - 1j * k
+    n_cplx = n + 1j * k
     n_quo = 4 * n * n_air / (n + n_air) ** 2
-    exp_term = exp(-1j * (n_cplx - n_air) * (2 * pi * L) / c_0)
+    exp_term = exp(1j * (n_cplx - n_air) * (2 * pi * L) / c_0)
     full_echos = False
     if full_echos:
         fp_val = fp_full(n, k, L, f)
@@ -68,6 +68,7 @@ bnds = [(0.99*n_0, 1.01*n_0), (0.99*k_0, 1.01*k_0), (0.9*L_0, 1.1*L_0)]
 #                                  ]))
 # initial_values = array(initial_values)
 n_opt = zeros(f_ref.size)
+
 k_opt = zeros(f_ref.size)
 L_opt = zeros(f_ref.size)
 for i in trange(f_ref.size):
@@ -75,10 +76,10 @@ for i in trange(f_ref.size):
                              bnds,
                              args=(f_ref, H_w),
                              strategy='best1bin',
-                             popsize=90,
+                             popsize=150,
                              # init=initial_values,
-                             # maxiter=2000,
-                             polish=False
+                             maxiter=2000,
+                             polish=True
                              )
     # res = minimize(delta_min, params_0, args=(f_ref, H_w), method='Nelder-Mead')
     n_opt[i] = res.x[0]

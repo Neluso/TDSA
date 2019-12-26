@@ -138,13 +138,13 @@ for strategy_test in tqdm(strategies):
     figure(i)
     plot(f_ref, abs(E_sam_w / E_ref_w), lw=1, label='meas')
     title(strategy_test)
-    for j in range(5):
+    for j in range(8):
         res = differential_evolution(cost_function,
                                      k_bounds,
                                      args=(E_sam_w / E_ref_w, f_ref),
                                      strategy=strategy_test,
                                      popsize=15*(j+1),
-                                     maxiter=2000,
+                                     maxiter=2500,
                                      )
         # plot(f_ref, abs(H_sim(array([1.4, 1.5, 1.6]), 0.01 * ones(3), 33e-6 * ones(3), f_ref)), lw=1)
         plot(f_ref, abs(H_sim(array([res.x[0], res.x[3], res.x[6]]),
@@ -153,5 +153,6 @@ for strategy_test in tqdm(strategies):
              lw=1,
              label=15*(j+1)
              )
+    savefig('./output/' + strategy_test + '.jpg', 'JPG')
     legend()
 show()
