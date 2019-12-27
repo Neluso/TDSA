@@ -129,6 +129,7 @@ for i in range(layers):
     k_bounds.append((0, 1e-3))  # thickness
 
 # TODO test different strategies
+# TODO review full H_sim
 i = 0
 strategies = ['best1bin', 'best1exp', 'rand1exp', 'randtobest1exp', 'currenttobest1exp', 'best2exp', 'rand2exp',
               'randtobest1bin', 'currenttobest1bin', 'best2bin', 'rand2bin', 'rand1bin']
@@ -153,6 +154,6 @@ for strategy_test in tqdm(strategies):
              lw=1,
              label=15*(j+1)
              )
-    savefig('./output/' + strategy_test + '.jpg', 'JPG')
     legend()
+    savefig('./output/' + strategy_test + '.png', format='png')
 show()

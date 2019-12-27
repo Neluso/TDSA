@@ -32,7 +32,7 @@ def transfer_function(f, n, k, L, fp_echo):
 def delta_min(params, *args):  # f and H_w are single value. Frequency and measured measured H_w at f
     n, k, L = params
     f, H_w = args
-    delta_min_val = (log(abs(transfer_function(f, n, k, L, 2))) - log(abs(H_w)))**2
+    delta_min_val = (log(abs(transfer_function(f, n, k, L, 1))) - log(abs(H_w)))**2
     delta_min_val += (unwrap(angle(transfer_function(f, n, k, L, 1))) - unwrap(angle(H_w)))**2
     return sum(delta_min_val)
 
