@@ -1,11 +1,13 @@
 from TDSA import *
 from scipy.optimize import differential_evolution
+from scipy.signal.windows import tukey
+from time import time_ns
 
 
 # constant definitions
 deg_in = 30  # incidence angle in degrees
 snell_sin = n_air * sin(deg_in * pi / 180)
-layers = 2
+layers = 3
 n_subs = 1.17e99 - 0.0 * 1j  # substrate refractive index
 
 
@@ -35,7 +37,7 @@ def ct2(n_l, n_l_1):
 def cr_l_1_l(n_l, n_l_1):  # from n_l-1 to n_l
     n_l_1 *= cos(theta(n_l_1))
     n_l *= cos(theta(n_l))
-    return (n_l_1 - n_l) / (n_l_1 + n_l)
+    return - (n_l_1 - n_l) / (n_l_1 + n_l)
 
 
 def phase_factor(n, k, thick, freq):  # theta in radians
@@ -71,8 +73,8 @@ def H_sim(ns, ks, thicks, freq):
     
     # most outer layer, in contact with air
     # real indices
-    rlm1l = cr_l_1_l(ns[0], n_air)
-    tt = ct2(ns[0], n_air)
+    # rlm1l = cr_l_1_l(ns[0], n_air)
+    # tt = ct2(ns[0], n_air)
     # complex indices
     rlm1l = cr_l_1_l(ns[0] - 1j * ks[0], n_air_cplx)
     tt = ct2(ns[0] - 1j * ks[0], n_air_cplx)
@@ -113,11 +115,20 @@ def cost_function(k, *args):
 
 # Main script
 t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat2_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref cork wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat1_avg_f.txt')
 
+print('DSP')
 delta_t_ref = mean(diff(t_ref))
+ref_pulse_idx = centre_loc(E_ref)
+window = tukey(2 * ref_pulse_idx)
+window = zero_padding(window, 0, E_ref.size - window.size)
+E_ref *= window
+E_sam *= window
 enlargement = 0 * E_ref.size
 E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
@@ -141,63 +152,65 @@ E_sam_w = E_sam_w[f_min:f_max]
 H_w = E_sam_w / E_ref_w
 # H_w /= amax(H_w)
 
-ref_pulse_idx = centre_loc(E_ref)
-k_bounds = []  # [(n_air, 5), (0, 1), (50*1e-6, 150*1e-6), (n_air, 500), (0, 1), (5, 30*1e-6)]  # , (n_air, 5), (0, 1), (0, 10*1e-6)]
 
-for i in range(layers):
-    # k_bounds.append((n_air, 5))  # n
-    k_bounds.append((n_air, 100))  # n
-    k_bounds.append((0, 100))  # k
-    k_bounds.append((0, 1e-3))  # thickness
+# k_bounds = [
+#     (1.8, 5), (0, 10), (50*1e-6, 150*1e-6),
+#     (1.8, 5), (0, 10), (5*1e-6, 50*1e-6),
+#     (1.8, 5), (0, 10), (1*1e-6, 10*1e-6)
+# ]
+
+k_bounds = [
+    (1.2, 10), (0, 10), (0, 1e-3),
+    (1.2, 10), (0, 10), (0, 1e-3),
+    (1.2, 10), (0, 10), (0, 1e-3)
+]
+
 
 # TODO review full H_sim
-i = 0
-strategies = ['best1bin', 'best1exp', 'rand1exp', 'randtobest1exp', 'currenttobest1exp', 'best2exp', 'rand2exp',
-              'randtobest1bin', 'currenttobest1bin', 'best2bin', 'rand2bin', 'rand1bin']
-
+# i = 0
+# strategies = ['best1bin', 'best1exp', 'rand1exp', 'randtobest1exp', 'currenttobest1exp', 'best2exp', 'rand2exp',
+#               'randtobest1bin', 'currenttobest1bin', 'best2bin', 'rand2bin', 'rand1bin']
+print('Fitting')
+t1 = time_ns()
 res = differential_evolution(cost_function,
                              k_bounds,
                              args=(H_w, f_ref),
                              strategy='best1bin',
                              popsize=150,
                              maxiter=2000,
+                             disp=True,
+                             mutation=1.5,
                              polish=True
                              )
-
-# print(res)
-# print()
-print('White coat:')
-print('n =', round(res.x[0], 2))
-print('k =', res.x[1])
-print('d =', round(res.x[2] * 1e6, 2), 'um')
+t2 = time_ns()
 print()
-print('Green coat:')
-print('n =', round(res.x[3], 2))
-print('k =', res.x[4])
-print('d =', round(res.x[5] * 1e6, 2), 'um')
+print('Results:')
+print('White coat -', 'n:', round(res.x[0], 2), 'k:', round(res.x[1], 2), 'd:', round(res.x[2] * 1e6, 2), 'um')
+print('Green coat -', 'n:', round(res.x[3], 2), 'k:', round(res.x[4], 2), 'd:', round(res.x[5] * 1e6, 2), 'um')
+print('Primer coat -', 'n:', round(res.x[6], 2), 'k:', round(res.x[7], 2), 'd:', round(res.x[8] * 1e6, 2), 'um')
+print('Total:', round((res.x[2] + res.x[5] + res.x[8]) * 1e6, 2), 'um')
 print()
-# print('Primer coat')
-# print('n =', round(res.x[6], 2))
-# print('k =', res.x[7])
-# print('d =', round(res.x[8] * 1e6, 2), 'um')
-# print()
+secs = (t2-t1)*1e-9
+mins = secs / 60
+print('Processing time:', mins, 'min, ', secs, 'sec')
+print()
 
 ns = array([
     res.x[0]
     , res.x[3]
-    # , res.x[6]
+    , res.x[6]
 ])
 ks = array([
     res.x[1]
     , res.x[4]
-    # , res.x[7]
+    , res.x[7]
 ])
 thikcs = array([
     res.x[2]
     , res.x[5]
-    # , res.x[8]
+    , res.x[8]
 ])
-H_teo = H_sim(ns, ks, thikcs, f_ref)  # * exp(- 1j * pi)
+H_teo = H_sim(ns, ks, thikcs, f_ref)
 
 
 f_ref *= 1e-12

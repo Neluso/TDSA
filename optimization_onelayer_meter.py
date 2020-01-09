@@ -20,18 +20,16 @@ def ct2(n_l, n_l_1):
 
 
 def cr_l_1_l(n_l, n_l_1):  # from n_l-1 to n_l
-    thetal_1 = theta(n_l_1)
-    thetal = theta(n_l)
-    return (n_l_1 * cos(thetal_1) - n_l * cos(thetal)) / (n_l_1 * cos(thetal_1) + n_l * cos(thetal))
+    n_l_1 *= cos(theta(n_l_1))
+    n_l *= cos(theta(n_l))
+    return - (n_l_1 - n_l) / (n_l_1 + n_l)
 
 
 def phase_factor(n, k, thick, freq):  # theta in radians
-    n_comp = n - 1j * k
     omg = 2 * pi * freq
     thick *= cos(theta(n))
     phi = 2 * omg * thick / c_0
-    # return exp(- 2 * 1j * n_comp * omg * thick / c_0)
-    return exp(1j * n * phi) * exp(- k * phi)
+    return exp(- 1j * n * phi) * exp(- k * phi)
 
 
 def H_sim(n, k, thick, freq):
@@ -41,20 +39,6 @@ def H_sim(n, k, thick, freq):
     tt = ct2(n - 1j * k, n_air_cplx)
     exp_phi = phase_factor(n, k, thick, freq)
     H_i = rlm1l + (tt * H_i * exp_phi) / (1 + rlm1l * H_i * exp_phi)
-    
-    # # inner layers, no constact with air nor substrate, indexes from 'layer_qty - 2' to '1'
-    # for i in range(1, layers - 1):
-    #     i = layers - i - 1
-    #     rlm1l = cr_l_1_l(ns[i], ns[i - 1])
-    #     tt = ct2(ns[i], ns[i - 1])
-    #     exp_phi = phase_factor(ns[i], ks[i], thicks[i], freq)
-    #     H_i = rlm1l + (tt * H_i * exp_phi) / (1 + rlm1l * H_i * exp_phi)
-    #
-    # # most outer layer, in contact with air
-    # rlm1l = cr_l_1_l(ns[0], n_air_cplx)
-    # tt = ct2(ns[0], n_air_cplx)
-    # exp_phi = phase_factor(ns[0], ks[0], thicks[0], freq)
-    # H_i = rlm1l + (tt * H_i * exp_phi) / (1 + rlm1l * H_i * exp_phi)
     return H_i
 
 
@@ -63,14 +47,14 @@ def cost_function(params, *args):
     H_meas, freqs = args
     logs = log(abs(H_sim(n, k, thick, freqs))) - log(abs(H_meas))
     angles = abs(unwrap(angle(H_sim(n, k, thick, freqs)))) - abs(unwrap(angle(H_meas)))
-    return sum(logs + angles)
+    return sum(logs + 0.1 * angles)
 
 
 # Main script
-t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
-# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
+t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
 
 delta_t_ref = mean(diff(t_ref))
 enlargement = 0 * E_ref.size
@@ -99,7 +83,7 @@ k_bounds = []
 
 
 k_bounds.append((1, 5))  # n
-k_bounds.append((0, 1))  # k
+k_bounds.append((0, 10))  # k
 k_bounds.append((0, 1e-3))  # thickness
 
 H_w = E_sam_w / E_ref_w
