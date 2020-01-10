@@ -1,5 +1,5 @@
 from TDSA import *
-from scipy.optimize import differential_evolution
+from scipy.optimize import differential_evolution, NonlinearConstraint
 from scipy.signal.windows import tukey
 from time import time_ns
 
@@ -19,19 +19,13 @@ debug_value_3 = list()
 
 # function definitions
 def theta(n):
-    return arcsin(snell_sin / n)
+    return arcsin(snell_sin / real(n))
 
 
 def ct2(n_l, n_l_1):
     n_l *= cos(theta(n_l))
     n_l_1 *= cos(theta(n_l_1))
     return 4 * n_l * n_l_1 / (n_l + n_l_1)**2
-
-
-# def cr_l_1_l(n_l, n_l_1):  # from n_l-1 to n_l
-#     thetal_1 = theta(n_l_1)
-#     thetal = theta(n_l)
-#     return (n_l_1 * cos(thetal_1) - n_l * cos(thetal)) / (n_l_1 * cos(thetal_1) + n_l * cos(thetal))
 
 
 def cr_l_1_l(n_l, n_l_1):  # from n_l-1 to n_l
@@ -113,6 +107,21 @@ def cost_function(k, *args):
     # return sum(real_part + imag_part)
 
 
+def cons(params, *args):
+    ns = list()
+    ks = list()
+    thicks = list()
+    for i in range(layers):
+        ns.append(params[3 * i])
+        ks.append(params[3 * i + 1])
+        thicks.append(params[3 * i + 2])
+    ns = array(ns)
+    ks = array(ks)
+    thicks = array(thicks)
+    H_meas, freqs = args
+    return thicks[0] - thicks[1], thicks[1] - thicks[2]
+
+
 # Main script
 t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
 t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
@@ -153,17 +162,26 @@ H_w = E_sam_w / E_ref_w
 # H_w /= amax(H_w)
 
 
-# k_bounds = [
+# k_bounds = [  # narrow
 #     (1.8, 5), (0, 10), (50*1e-6, 150*1e-6),
 #     (1.8, 5), (0, 10), (5*1e-6, 50*1e-6),
 #     (1.8, 5), (0, 10), (1*1e-6, 10*1e-6)
 # ]
-
-k_bounds = [
-    (1.2, 10), (0, 10), (0, 1e-3),
-    (1.2, 10), (0, 10), (0, 1e-3),
-    (1.2, 10), (0, 10), (0, 1e-3)
+k_bounds = [  # tailored optical parameters (emulating a calibration)
+    (3, 4), (0, 1), (0, 1e-3),
+    (3.5, 4.1), (6.9, 8.1), (0, 1e-3),
+    (4, 4.4), (7, 10), (0, 1e-3)
 ]
+# k_bounds = [  # very narrow
+#     (3, 4), (0, 1), (50*1e-6, 150*1e-6),
+#     (3.5, 4.1), (6.9, 8.1), (5*1e-6, 50*1e-6),
+#     (4, 4.4), (7, 10), (1*1e-6, 10*1e-6)
+# ]
+# k_bounds = [  # wide
+#     (1.2, 10), (0, 10), (0, 1e-3),
+#     (1.2, 10), (0, 10), (0, 1e-3),
+#     (1.2, 10), (0, 10), (0, 1e-3)
+# ]
 
 
 # TODO review full H_sim
@@ -180,7 +198,9 @@ res = differential_evolution(cost_function,
                              maxiter=2000,
                              disp=True,
                              mutation=1.5,
-                             polish=True
+                             polish=True,
+                             workers=1,
+                             constraints=[]
                              )
 t2 = time_ns()
 print()
@@ -189,6 +209,7 @@ print('White coat -', 'n:', round(res.x[0], 2), 'k:', round(res.x[1], 2), 'd:', 
 print('Green coat -', 'n:', round(res.x[3], 2), 'k:', round(res.x[4], 2), 'd:', round(res.x[5] * 1e6, 2), 'um')
 print('Primer coat -', 'n:', round(res.x[6], 2), 'k:', round(res.x[7], 2), 'd:', round(res.x[8] * 1e6, 2), 'um')
 print('Total:', round((res.x[2] + res.x[5] + res.x[8]) * 1e6, 2), 'um')
+# print('Total:', round((res.x[2] + res.x[5]) * 1e6, 2), 'um')
 print()
 secs = (t2-t1)*1e-9
 mins = secs / 60
