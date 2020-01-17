@@ -3,7 +3,9 @@
 
 from numpy import *
 from TDS_constants import *
-from TDSA import *
+from DSP_functions import *
+# from TDSA import *
+
 
 
 def refractive_index(frq, delta_phi, thick):

@@ -153,7 +153,7 @@ def gauss_low_filter(f_val, cutoff, sigma):
     return pass_band
 
 
-def wiener_filter(E_data, beta=0.00003162277):
+def wiener_filter(E_data, beta=0.00003162277):  # beta = 1/SNR
     E_data *= conj(E_data)
     return E_data / (E_data + beta)
 
