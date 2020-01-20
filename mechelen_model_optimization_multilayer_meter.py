@@ -74,6 +74,7 @@ def H_sim(ns, ks, thicks, d_air, freq):
 
 
 def cost_function(k, *args):
+    E_sam, E_ref_w, freqs = args
     d_air = k[0]
     k = k[1:]
     ns = list()
@@ -86,7 +87,6 @@ def cost_function(k, *args):
     ns = array(ns)
     ks = array(ks)
     thicks = array(thicks)
-    E_sam, E_ref_w, freqs = args
     
     H_teo = H_sim(ns, ks, thicks, d_air, freqs)
     E_sam_teo_w = E_ref_w * H_teo
@@ -131,8 +131,8 @@ delta_t_ref = mean(diff(t_ref))
 ref_pulse_idx = centre_loc(E_ref)
 window = tukey(2 * ref_pulse_idx)
 window = zero_padding(window, 0, E_ref.size - window.size)
-# E_ref *= window
-# E_sam *= window
+E_ref *= window
+E_sam *= window
 enlargement = 0 * E_ref.size
 E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
@@ -146,6 +146,8 @@ t_sam *= 1e-12
 
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
+# E_sam_w *= wiener_filter(E_ref_w)
+
 delta_f_ref = mean(diff(f_ref))
 # f_min, f_max = f_min_max_idx(f_ref, 0.1, 1.1)
 # f_ref = f_ref[f_min:f_max]
@@ -169,24 +171,24 @@ H_w = E_sam_w / E_ref_w
 #     (3.5, 4.1), (6.9, 8.1), (0, 1e-3),
 #     (4, 4.4), (7, 10), (0, 1e-3)
 # ]
-k_bounds = [  # highly tailored optical parameters
-    (0, 100e-6),  # air thickness
-    (3, 4), (0, 1), (20e-6, 100e-6),
-    (3.5, 4.1), (6.9, 8.1), (18e-6, 50e-6),
-    (4, 4.4), (7, 10), (1e-6, 15e-6)
-]
+# k_bounds = [  # highly tailored optical parameters
+#     (0, 100e-6),  # air thickness
+#     (3, 4), (0, 1), (20e-6, 100e-6),
+#     (3.5, 4.1), (6.9, 8.1), (18e-6, 50e-6),
+#     (4, 4.4), (7, 10), (1e-6, 15e-6)
+# ]
 # k_bounds = [  # very narrow
 #     (0, 100e-6),  # air thickness
 #     (3, 4), (0.1, 0.4), (50*1e-6, 150*1e-6),
 #     (3.5, 4.1), (6.9, 8.1), (5*1e-6, 50*1e-6),
 #     (4, 4.4), (7, 10), (1*1e-6, 10*1e-6)
 # ]
-# k_bounds = [  # wide
-#     (0, 100e-6),  # air thickness
-#     (1.2, 10), (0, 10), (0, 1e-3),
-#     (1.2, 10), (0, 10), (0, 1e-3),
-#     (1.2, 10), (0, 10), (0, 1e-3)
-# ]
+k_bounds = [  # wide
+    (0, 100e-6),  # air thickness
+    (1.2, 10), (0, 10), (0, 1e-3),
+    (1.2, 10), (0, 10), (0, 1e-3),
+    (1.2, 10), (0, 10), (0, 1e-3)
+]
 # k_bounds = [  # testing
 #     (0, 100e-6),  # air thickness
 #     (1, 100), (0, 10), (81e-6, 81e-6),
@@ -213,15 +215,13 @@ print('Fitting')
 t1 = time_ns()
 res = differential_evolution(cost_function,
                              k_bounds,
-                             args=(E_sam, E_ref_w, E_sam_w, H_w, f_ref),
+                             args=(E_sam, E_ref_w, f_ref),
                              strategy='best1bin',
                              # popsize=150,
                              # maxiter=2000,
                              disp=True,  # step cost_function value
                              # mutation=1.5,
                              workers=1,
-                             # constraints=NonlinearConstraint(cons,,ones(2)),
-                             # constraints=LinearConstraint(cons, 1e-12*ones(2), ones(2)),
                              polish=True
                              )
 t2 = time_ns()
@@ -277,11 +277,14 @@ axs[1].set_xlim([f_ref[0], 1.2])
 axs[1].set_ylim([- 4 * pi, pi])
 xlabel(r'$f\ (THz)$')
 
+E_sam_teo = irfft(H_teo * E_ref_w, n=t_sam.size)
 figure(20)
 plot(t_sam, E_sam, lw=1)
-plot(t_sam, irfft(H_teo * E_ref_w, n=t_sam.size), lw=1)
+plot(t_sam, E_sam_teo, lw=1)
+figure(21)
+plot(t_sam, abs(E_sam - E_sam_teo), lw=1)
 
-#
+
 # fig, axs = subplots(2)
 # fig.suptitle('Re/Im')
 #

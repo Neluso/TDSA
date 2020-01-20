@@ -49,17 +49,30 @@ def phase_factor(n, k, thick, freq):  # theta in radians
     return exp(- 1j * n * phi) * exp(- k * phi)
 
 
-def epsilon(e_s, e_inf, tau, freq):  # Debye model
-    omg = 2 * pi * freq
-    e_w = e_inf + (e_s - e_inf) / (1 + 1j * omg * tau)
+def debye_process(delta_epsilon, tau, freqs):
+    omg = 2 * pi * freqs
+    return delta_epsilon / (1 + 1j * omg * tau)
+
+
+# def epsilon(e_s, e_inf, tau, freq):  # Debye model
+#     omg = 2 * pi * freq
+#     e_w = e_inf + (e_s - e_inf) / (1 + 1j * omg * tau)
+#     return e_w
+
+
+def epsilon(e_inf, delta_eps, tau, freq):
+    e_w = e_inf
+    for i in range(tau.size):
+        e_w += debye_process(delta_eps[i], tau[i], freq)
     return e_w
 
 
-def nk_from_eps(e_s, e_inf, tau, freq):
-    e_w = epsilon(e_s, e_inf, tau, freq)
+def nk_from_eps(e_inf, e_s, tau, freq):
+    e_w = epsilon(e_inf, e_s, tau, freq)
     n = sqrt((abs(e_w) + real(e_w)) / 2)
     k = sqrt((abs(e_w) - real(e_w)) / 2)
     return n, k
+
 
 def H_sim(ns, ks, thicks, d_air, freq):
     # most inner layer, in contact with substrate
@@ -93,11 +106,15 @@ def cost_function(params, *args):
     thicks = list()
     E_sam, E_ref_w, freqs = args
     for i in range(layers):
-        e_s = params[4 * i]
-        e_inf = params[4 * i + 1]
-        tau = params[4 * i + 2]
-        thicks.append(params[4 * i + 3])
-        n, k = nk_from_eps(e_s, e_inf, tau, freqs)  # debye model
+        e_inf = params[4 * i]
+        e_1 = params[4 * i + 1]
+        tau_1 = params[4 * i + 2]
+        e_2 = params[4 * i + 3]
+        tau_2 = params[4 * i + 4]
+        thicks.append(params[4 * i + 5])
+        e_s = array((e_1, e_2))
+        tau = array((tau_1, tau_2))
+        n, k = nk_from_eps(e_inf, e_s, tau, freqs)  # debye model
         ns.append(n)
         ks.append(k)
     ns = array(ns)
@@ -136,28 +153,36 @@ print('DSP')
 delta_t_ref = mean(diff(t_ref))
 ref_pulse_idx = centre_loc(E_ref)
 window = tukey(E_ref.size)
-E_ref *= window
-E_sam *= window
+# E_ref *= window
+# E_sam *= window
 t_ref *= 1e-12
 t_sam *= 1e-12
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
 H_w = E_sam_w / E_ref_w
 
-alpha = 7
-beta = 12
+alpha = 1
+beta = 100
 # k_bounds = [  # calibration
 #     (0, 100e-6),  # air thickness
-#     (alpha, beta), (alpha, beta), (1e-14, 1e-12), (0, 100e-6),
-#     (alpha, beta), (alpha, beta), (1e-14, 1e-12), (0, 100e-6),
-#     (alpha, beta), (alpha, beta), (1e-14, 1e-12), (0, 100e-6)
+#     (alpha, beta), (alpha, beta), (1e-14, 1e-12), (alpha, beta), (1e-14, 1e-12), (0, 100e-6),
+#     (alpha, beta), (alpha, beta), (1e-14, 1e-12), (alpha, beta), (1e-14, 1e-12), (0, 100e-6),
+#     (alpha, beta), (alpha, beta), (1e-14, 1e-12), (alpha, beta), (1e-14, 1e-12), (0, 100e-6)
 # ]
 k_bounds = [  # calibration
     (0, 100e-6),  # air thickness
-    (alpha, beta), (alpha, beta), (1e-14, 1e-12), (81e-6, 81e-6),  # 87*1e-6),
-    (alpha, beta), (alpha, beta), (1e-14, 1e-12), (19e-6, 19e-6),  # 20*1e-6),
-    (alpha, beta), (alpha, beta), (1e-14, 1e-12), (5e-6, 5e-6)  # 5*1e-6)
+    (alpha, beta), (- beta, beta), (1e-14, 1e-12), (- beta, beta), (1e-14, 1e-12), (0, 100e-6),
+    (alpha, beta), (- beta, beta), (1e-14, 1e-12), (- beta, beta), (1e-14, 1e-12), (0, 100e-6),
+    (alpha, beta), (- beta, beta), (1e-14, 1e-12), (- beta, beta), (1e-14, 1e-12), (0, 100e-6)
 ]
+# alpha = 7
+# beta = 12
+# k_bounds = [  # calibration
+#     (0, 100e-6),  # air thickness
+#     (alpha, beta), (alpha, beta), (1e-14, 1e-12), (81e-6, 81e-6),  # 87*1e-6),
+#     (alpha, beta), (alpha, beta), (1e-14, 1e-12), (19e-6, 19e-6),  # 20*1e-6),
+#     (alpha, beta), (alpha, beta), (1e-14, 1e-12), (5e-6, 5e-6)  # 5*1e-6)
+# ]
 
 cons = array(  # constraint matrix
     [
@@ -176,6 +201,8 @@ cons = array(  # constraint matrix
 #               'randtobest1bin', 'currenttobest1bin', 'best2bin', 'rand2bin', 'rand1bin']
 print('Fitting')
 t1 = time_ns()
+
+
 res = differential_evolution(cost_function,
                              k_bounds,
                              args=(E_sam, E_ref_w, f_ref),
@@ -183,11 +210,8 @@ res = differential_evolution(cost_function,
                              # popsize=150,
                              # maxiter=2000,
                              disp=True,  # step cost_function value
-                             # mutation=1.5,
                              workers=1,
-                             # constraints=NonlinearConstraint(cons,,ones(2)),
-                             # constraints=LinearConstraint(cons, 1e-12*ones(2), ones(2)),
-                             polish=False
+                             polish=True
                              )
 t2 = time_ns()
 print()
@@ -267,9 +291,11 @@ axs[1].plot(f_ref, imag(H_teo), lw=1)
 
 axs[0].set_ylabel(r'$Re$')
 axs[0].xaxis.set_visible(False)
-axs[0].set_xlim([f_ref[0], f_ref[-1]])
+axs[0].set_xlim([f_ref[0], 1.2])
+axs[0].set_ylim([-0.3, 1.2])
 axs[1].set_ylabel(r'$Im$')
-axs[1].set_xlim([f_ref[0], f_ref[-1]])
+axs[1].set_xlim([f_ref[0], 1.2])
+axs[1].set_ylim([-1.2, 0.5])
 xlabel(r'$f\ (THz)$')
 
 
@@ -278,6 +304,7 @@ plot(t_sam, E_sam, lw=1)
 plot(t_sam, E_sam_teo, lw=1)
 figure(6)
 plot(t_sam, E_sam - E_sam_teo, lw=1)
+ylabel('r')
 
 
 show()
