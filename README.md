@@ -2,16 +2,18 @@
 THz- Time Domain Spectroscopy Analizer
 
 Requirements: 
- - Anaconda 3.7+
- - pyswarm
- - pywavelets
-
-Instructions: (building)
-
-1.- Execute main.py script
-
-2.- Select reference data file
- 
-3.- Select sample data file
-
-Results: Puts in a new 'output/sample file name' the data, the spectra and the plots
+ - cycler          0.10.0
+ - dill            0.3.1.1
+ - kiwisolver      1.1.0
+ - matplotlib      3.1.2
+ - multiprocess    0.70.9
+ - numpy           1.18.1
+ - pip             19.2.3
+ - pyparsing       2.4.6
+ - pyswarm         0.6
+ - python-dateutil 2.8.1
+ - PyWavelets      1.1.1
+ - scipy           1.4.1
+ - setuptools      41.2.0
+ - six             1.14.0
+ - tqdm            4.41.1
