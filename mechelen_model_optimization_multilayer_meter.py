@@ -3,20 +3,19 @@
 
 
 from TDSA import *
-from scipy.optimize import differential_evolution, minimize
+from scipy.optimize import differential_evolution
 from scipy.signal.windows import tukey
 from time import time_ns, strftime, gmtime
-import datetime
-import math
 
 
 # constant definitions
 deg_in = 30  # incidence angle in degrees
 snell_sin = n_air * sin(deg_in * pi / 180)
-layers = 3
+layers = 2
 # n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
-n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index -- metal
+# n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index -- metal
 # n_subs = 1.25 - 0.0 * 1j  # substrate refractive index -- cork 2.0
+n_subs = 3.00 - 1.0 * 1j  # substrate refractive index -- cork 3.0
 
 
 # debug variables
@@ -105,23 +104,22 @@ def cost_function(k, *args):
 
 # Main script
 # Boleto 176054
-t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
-# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref cork wcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat1_avg_f.txt')
+t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat2_avg_f.txt')
 
 # Boleto 180881
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/sam metal wcoat 1_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/sam metal wcoat 3_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/cork_w_coat/ref metal cork_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/cork_w_coat/sam cork wcoat 1_avg_f.txt')
 
 # Boleto 177910
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/metal_w_coat/sam metal wcoat 2_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/metal_w_coat/sam metal wcoat 1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/cork_w_coat/ref metal cork_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/cork_w_coat/sam cork wcoat 1_avg_f.txt')
 
@@ -172,28 +170,52 @@ H_w = E_sam_w / E_ref_w
 #     (4, 4.4), (7, 10), (0, 1e-3)
 # ]
 # k_bounds = [  # highly tailored optical parameters
-#     (0, 100e-6),  # air thickness
-#     (3, 4), (0, 1), (20e-6, 100e-6),
-#     (3.5, 4.1), (6.9, 8.1), (18e-6, 50e-6),
-#     (4, 4.4), (7, 10), (1e-6, 15e-6)
+#     (1e-6, 50e-6),  # air thickness
+#     (3, 4), (0, 1), (20e-6, 50e-6),
+#     (3.5, 4.1), (6.9, 8.1), (40e-6, 53e-6),
+#     (4, 4.4), (7, 10), (5e-6, 10e-6)
 # ]
-# k_bounds = [  # very narrow
-#     (0, 100e-6),  # air thickness
-#     (3, 4), (0.1, 0.4), (50*1e-6, 150*1e-6),
-#     (3.5, 4.1), (6.9, 8.1), (5*1e-6, 50*1e-6),
-#     (4, 4.4), (7, 10), (1*1e-6, 10*1e-6)
-# ]
-k_bounds = [  # wide
+k_bounds = [  # very narrow
     (0, 100e-6),  # air thickness
-    (1.2, 10), (0, 10), (0, 1e-3),
-    (1.2, 10), (0, 10), (0, 1e-3),
-    (1.2, 10), (0, 10), (0, 1e-3)
+    (3, 4), (0.1, 0.4), (50*1e-6, 150*1e-6),
+    (3.5, 4.1), (6.9, 8.1), (5*1e-6, 50*1e-6),
+    # (4, 4.4), (7, 10), (1*1e-6, 10*1e-6)
 ]
+# k_bounds = [  # wide
+#     (0, 100e-6),  # air thickness
+#     (1.2, 10), (0, 10), (0, 1e-3),
+#     (1.2, 10), (0, 10), (0, 1e-3),
+#     (1.2, 10), (0, 10), (0, 1e-3)
+# ]
 # k_bounds = [  # testing
 #     (0, 100e-6),  # air thickness
 #     (1, 100), (0, 10), (81e-6, 81e-6),
 #     (1, 100), (0, 10), (19e-6, 19e-6),
 #     (1, 100), (0, 10), (4e-6, 4e-6)
+# ]
+# k_bounds = [  # calibrating 177910
+#     (0, 100e-6),  # air thickness
+#     (1, 100), (0, 10), (34e-6, 34e-6),
+#     (1, 100), (0, 10), (47e-6, 47e-6),
+#     (1, 100), (0, 10), (7e-6, 7e-6)
+# ]
+# k_bounds = [  # reconstructicting 177910
+#     (0, 100e-6),  # air thickness
+#     (3.5, 4), (0, 1), (30e-6, 40e-6),
+#     (1.5, 3), (0, 5), (40e-6, 50e-6),
+#     (20, 30), (0, 5), (5e-6, 10e-6)
+# ]
+# k_bounds = [  # calibrating 180881
+#     (0, 100e-6),  # air thickness
+#     (1, 100), (0, 10), (47e-6, 47e-6),
+#     (1, 100), (0, 10), (27e-6, 27e-6),
+#     (1, 100), (0, 10), (11e-6, 11e-6)
+# ]
+# k_bounds = [  # reconstructicting 180881
+#     (0, 100e-6),  # air thickness
+#     (3, 4), (0, 1), (40e-6, 50e-6),
+#     (2, 4), (0, 10), (30e-6, 40e-6),
+#     (10, 20), (0, 5), (5e-6, 15e-6)
 # ]
 
 cons = array(  # constraint matrix
