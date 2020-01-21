@@ -3,10 +3,10 @@ from scipy.signal import windows
 from DSP_functions import *
 from jepsen_index import jepsen_index
 from aux_functions import *
-from TDSA import *
+# from TDSA import *
 
-t_ref, E_ref = read_slow_data('./data/cork/ref_cork.txt')
-t_sam, E_sam = read_slow_data('./data/cork/sam_cork.txt')
+t_ref, E_ref = read_slow_data('./data/old/cork/ref_cork.txt')
+t_sam, E_sam = read_slow_data('./data/old/cork/sam_cork.txt')
 
 # t_ref, E_ref = read_1file('./data/demo_data/test_ref.txt')
 # t_sam, E_sam = read_1file('./data/demo_data/test_sam.txt')
