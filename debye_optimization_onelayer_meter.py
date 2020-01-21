@@ -34,6 +34,20 @@ def phase_factor(n, k, thick, freq):  # theta in radians
     return exp(- 1j * n * phi) * exp(- k * phi)
 
 
+def epsilon(e_inf, e_s, tau, freq):
+    e_w = e_inf
+    omg = 2 * pi * freq
+    e_w += (e_s - e_inf) / (1 + 1j * omg * tau)
+    return e_w
+
+
+def nk_from_eps(e_inf, e_s, tau, freq):
+    e_w = epsilon(e_inf, e_s, tau, freq)
+    n = sqrt((abs(e_w) + real(e_w)) / 2)
+    k = sqrt((abs(e_w) - real(e_w)) / 2)
+    return n, k
+
+
 def H_sim(n, k, thick, d_air, freq):
     # most inner layer, in contact with substrate
     H_i = cr_l_1_l(n_subs, n - 1j * k) * ones(freq.size)
@@ -45,8 +59,9 @@ def H_sim(n, k, thick, d_air, freq):
 
 
 def cost_function(params, *args):
-    d_air, n, k, thick = params
+    d_air, e_inf, e_s, tau, thick = params
     E_sam, E_ref_w, freqs = args
+    n, k = nk_from_eps(e_inf, e_s, tau, freqs)
     H_teo = H_sim(n, k, thick, d_air, freqs)
     E_sam_teo_w = E_ref_w * H_teo
     E_sam_teo = irfft(E_sam_teo_w, n=E_sam.size)
@@ -74,7 +89,7 @@ t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/sam metal wcoat 3_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/cork_w_coat/ref metal cork_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/cork_w_coat/sam cork wcoat 3_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/cork_w_coat/sam cork wcoat 2_avg_f.txt')
 
 delta_t_ref = mean(diff(t_ref))
 enlargement = 0 * E_ref.size
@@ -98,10 +113,11 @@ f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
 
 k_bounds = []
 
-k_bounds.append((0, 100e-6))    # air thickness
-k_bounds.append((1, 5))         # n
-k_bounds.append((0, 1))        # k
-k_bounds.append((1e-6, 150e-6))      # thickness
+k_bounds.append((0, 100e-6))     # air thickness
+k_bounds.append((1, 1000))       # e_inf
+k_bounds.append((0, 1))          # e_s
+k_bounds.append((1e-14, 1e-11))  # tau
+k_bounds.append((1e-6, 150e-6))  # thickness
 
 
 
@@ -114,9 +130,10 @@ res = differential_evolution(cost_function,
 print(res)
 print()
 print('Avg layer')
-print('n =', round(res.x[1], 2))
-print('k =', round(res.x[2], 3))
-print('d =', round(res.x[3] * 1e6, 2), 'um')
+n_eff, k_eff = nk_from_eps(res.x[1], res.x[2], res.x[3], f_ref)
+print('n =', round(mean(n_eff), 2))
+print('k =', round(mean(k_eff), 2))
+print('d =', round(res.x[4] * 1e6, 2), 'um')
 print()
 
 H_w = E_sam_w / E_ref_w
