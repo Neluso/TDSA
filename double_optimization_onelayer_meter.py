@@ -11,53 +11,56 @@ n_subs = 1.17 - 0.0 * 1j  # substrate refractive index --- cork
 
 
 # function definitions
-def theta(n):
-    return arcsin(snell_sin / real(n))
+def theta(n, theta_in):  # theta_in in degrees
+    theta_in *= pi / 180
+    return arcsin(n_air * theta_in / real(n))
 
 
-def ct2(n_l, n_l_1):
-    n_l *= cos(theta(n_l))
-    n_l_1 *= cos(theta(n_l_1))
+def ct2(n_l, n_l_1, theta_in):
+    n_l *= cos(theta(n_l, theta_in))
+    n_l_1 *= cos(theta(n_l_1, theta_in))
     return 4 * n_l * n_l_1 / (n_l + n_l_1)**2
 
 
-def cr_l_1_l(n_l, n_l_1):  # from n_l-1 to n_l
-    n_l_1 *= cos(theta(n_l_1))
-    n_l *= cos(theta(n_l))
+def cr_l_1_l(n_l, n_l_1, theta_in):  # from n_l-1 to n_l
+    n_l_1 *= cos(theta(n_l_1, theta_in))
+    n_l *= cos(theta(n_l, theta_in))
     return - (n_l_1 - n_l) / (n_l_1 + n_l)
 
 
-def phase_factor(n, k, thick, freq):  # theta in radians
+def phase_factor(n, k, thick, theta_in, freq):  # theta in radians
     omg = 2 * pi * freq
-    thick *= cos(theta(n))
+    thick *= cos(theta(n, theta_in))
     phi = 2 * omg * thick / c_0
     return exp(- 1j * n * phi) * exp(- k * phi)
 
 
-def H_sim(n, k, thick, d_air, freq):
+def H_sim(n, k, thick, d_air, theta_in, freq):
     # most inner layer, in contact with substrate
-    H_i = cr_l_1_l(n_subs, n - 1j * k) * ones(freq.size)
-    rlm1l = cr_l_1_l(n - 1j * k, n_air_cplx)
-    tt = ct2(n - 1j * k, n_air_cplx)
-    exp_phi = phase_factor(n, k, thick, freq)
+    H_i = cr_l_1_l(n_subs, n - 1j * k, theta_in) * ones(freq.size)
+    rlm1l = cr_l_1_l(n - 1j * k, n_air_cplx, theta_in)
+    tt = ct2(n - 1j * k, n_air_cplx, theta_in)
+    exp_phi = phase_factor(n, k, thick, theta_in, freq)
     H_i = rlm1l + (tt * H_i * exp_phi) / (1 + rlm1l * H_i * exp_phi)
-    return phase_factor(n_air, 0, d_air, freq) * H_i
+    return phase_factor(n_air, 0, d_air, theta_in, freq) * H_i
 
 
 def cost_function(params, *args):
     d_air, n, k, thick = params
-    E_sam, E_ref_w, freqs = args
-    H_teo = H_sim(n, k, thick, d_air, freqs)
+    E_sam, E_ref_w, freqs, E_sam2, E_ref_w2, freqs2 = args
+    H_teo = H_sim(n, k, thick, d_air, 30, freqs)
     E_sam_teo_w = E_ref_w * H_teo
     E_sam_teo = irfft(E_sam_teo_w, n=E_sam.size)
-    return sum((E_sam_teo - E_sam) ** 2)
+    H_teo2 = H_sim(n, k, thick, d_air, 50, freqs2)
+    E_sam_teo_w2 = E_ref_w2 * H_teo2
+    E_sam_teo2 = irfft(E_sam_teo_w2, n=E_sam2.size)
+    return sum((E_sam_teo - E_sam) ** 2 + (E_sam_teo2 - E_sam2) ** 2)
 
 
 # Main script
 # Boleto 176054
-# @ 30º
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat2_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_primer/ref metal primer_avg_f.txt')
@@ -65,9 +68,10 @@ def cost_function(params, *args):
 t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
 t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat2_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref cork wcoat_avg_f.txt')
-# @ 50º
-# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/sam cork wcoat2_avg_f.txt')
+
+# 50º
+t_ref2, E_ref2 = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+t_sam2, E_sam2 = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/sam cork wcoat2_avg_f.txt')
 
 # Boleto 177910
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
@@ -96,10 +100,14 @@ E_sam_max = amax(abs(E_sam))
 
 t_ref *= 1e-12
 t_sam *= 1e-12
+t_ref2 *= 1e-12
+t_sam2 *= 1e-12
 
 
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
+f_ref2, E_ref_w2 = fourier_analysis(t_ref2, E_ref2)
+f_sam2, E_sam_w2 = fourier_analysis(t_sam2, E_sam2)
 
 k_bounds = []
 
@@ -112,7 +120,7 @@ k_bounds.append((1e-6, 150e-6))  # thickness
 
 res = differential_evolution(cost_function,
                              k_bounds,
-                             args=(E_sam, E_ref_w, f_ref),
+                             args=(E_sam, E_ref_w, f_ref, E_sam2, E_ref_w2, f_ref2),
                              disp=True,
                              polish=True
                              )
@@ -125,11 +133,8 @@ print('d =', round(res.x[3] * 1e6, 2), 'um')
 print()
 
 H_w = E_sam_w / E_ref_w
-H_teo = H_sim(res.x[1], res.x[2], res.x[3], res.x[0], f_ref)
+H_teo = H_sim(res.x[1], res.x[2], res.x[3], res.x[0], 30, f_ref)
 E_sam_teo = irfft(H_teo * E_ref_w, n=t_sam.size)
-
-t_sam *= 1e12
-f_ref *= 1e-12
 
 plot(t_sam, E_sam, lw=1)
 plot(t_sam, E_sam_teo, lw=1)

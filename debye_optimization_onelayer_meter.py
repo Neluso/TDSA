@@ -1,6 +1,7 @@
 from TDSA import *
 from scipy.optimize import differential_evolution
 from scipy.signal.windows import tukey
+from time import time_ns, strftime, gmtime
 
 
 # constant definitions
@@ -64,20 +65,21 @@ def cost_function(params, *args):
     n, k = nk_from_eps(e_inf, e_s, tau, freqs)
     H_teo = H_sim(n, k, thick, d_air, freqs)
     E_sam_teo_w = E_ref_w * H_teo
-    E_sam_teo = irfft(E_sam_teo_w, n=E_sam.size)
-    return sum((E_sam_teo - E_sam) ** 2)
+    E_sam_teo = irfft(E_sam_teo_w)  # , n=E_sam.size)
+    return sum((E_sam_teo - E_sam)**2)
 
 
 # Main script
 # Boleto 176054
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat3_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_primer/ref metal primer_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_primer/sam metal primer_avg_f.txt')
 t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat2_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat1_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref cork wcoat_avg_f.txt')
 
 # Boleto 177910
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
@@ -115,33 +117,52 @@ k_bounds = []
 
 k_bounds.append((0, 100e-6))     # air thickness
 k_bounds.append((1, 1000))       # e_inf
-k_bounds.append((0, 1))          # e_s
-k_bounds.append((1e-14, 1e-11))  # tau
+k_bounds.append((1, 1000))       # e_s
+k_bounds.append((0, 1e-14))  # tau
 k_bounds.append((1e-6, 150e-6))  # thickness
 
 
-
+t1 = time_ns()
 res = differential_evolution(cost_function,
                              k_bounds,
                              args=(E_sam, E_ref_w, f_ref),
                              disp=True,
                              polish=True
                              )
+t2 = time_ns()
 print(res)
 print()
 print('Avg layer')
 n_eff, k_eff = nk_from_eps(res.x[1], res.x[2], res.x[3], f_ref)
+thick = res.x[4]
+d_air = res.x[0]
 print('n =', round(mean(n_eff), 2))
 print('k =', round(mean(k_eff), 2))
-print('d =', round(res.x[4] * 1e6, 2), 'um')
+print('d =', round(thick * 1e6, 2), 'um')
+print()
+secs = (t2-t1)*1e-9
+if secs < 3600:
+    print('Processing time (mm:ss):', strftime('%M:%S', gmtime(secs)))
+else:
+    print('Processing time (mm:ss):', strftime('%H:%M:%S', gmtime(secs)))
 print()
 
 H_w = E_sam_w / E_ref_w
-H_teo = H_sim(res.x[1], res.x[2], res.x[3], res.x[0], f_ref)
-E_sam_teo = irfft(H_teo * E_ref_w, n=t_sam.size)
+H_teo = H_sim(n_eff, k_eff, thick, d_air, f_ref)
+E_sam_teo = irfft(H_teo * E_ref_w)  # , n=t_sam.size)
 
-plot(t_sam, E_sam, lw=1)
-plot(t_sam, E_sam_teo, lw=1)
+t_ref *= 1e12
+t_sam *= 1e12
+f_ref *= 1e-12
+f_sam *= 1e-12
+
+figure(1)
+plot(t_sam, E_sam, lw=1, label='sam')
+plot(t_sam, E_sam_teo, lw=1, label='fit')
+legend()
+
+figure(2)
+plot(f_ref, n_eff, lw=1)
 
 # fig, axs = subplots(2)
 # fig.suptitle('Abs/Phase')
@@ -150,12 +171,13 @@ plot(t_sam, E_sam_teo, lw=1)
 # axs[0].plot(f_ref, abs(H_teo), lw=1)
 # axs[1].plot(f_ref, unwrap(angle(H_teo)), lw=1)
 # axs[0].set_ylabel(r'$\rho$')
-# axs[0].xaxis.set_visible(False)
-# axs[0].set_xlim([f_ref[0], 1.2])
-# axs[0].set_ylim([0, 1])
+# # axs[0].xaxis.set_visible(False)
 # axs[1].set_ylabel(r'$\phi \ (rad)$')
+# xlabel(r'$f\ (THz)$')
 # axs[1].set_xlim([f_ref[0], 1.2])
 # axs[1].set_ylim([- 4 * pi, pi])
-# xlabel(r'$f\ (THz)$')
+# axs[0].set_xlim([f_ref[0], 1.2])
+# axs[0].set_ylim([0, 1])
+
 
 show()

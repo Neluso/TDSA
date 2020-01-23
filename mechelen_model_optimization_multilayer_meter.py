@@ -12,10 +12,10 @@ from time import time_ns, strftime, gmtime
 deg_in = 30  # incidence angle in degrees
 snell_sin = n_air * sin(deg_in * pi / 180)
 layers = 2
-# n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
+n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
 # n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index -- metal
 # n_subs = 1.25 - 0.0 * 1j  # substrate refractive index -- cork 2.0
-n_subs = 3.00 - 1.0 * 1j  # substrate refractive index -- cork 3.0
+# n_subs = 3.00 - 1.0 * 1j  # substrate refractive index -- cork 3.0
 
 
 # debug variables
