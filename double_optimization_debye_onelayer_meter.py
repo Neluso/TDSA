@@ -6,8 +6,8 @@ from time import time_ns, strftime, gmtime
 # constant definitions
 deg_in = 30  # incidence angle in degrees
 snell_sin = n_air_cplx * sin(deg_in * pi / 180)
-# n_subs = 1.17 - 0.0 * 1j  # substrate refractive index --- cork
-n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index --- metal
+n_subs = 1.17 - 0.0 * 1j  # substrate refractive index --- cork
+# n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index --- metal
 
 
 # function definitions
@@ -35,6 +35,20 @@ def phase_factor(n, k, thick, theta_in, freq):  # theta in radians
     return exp(- 1j * n * phi) * exp(- k * phi)
 
 
+def epsilon(e_inf, e_s, tau, freq):
+    e_w = e_inf
+    omg = 2 * pi * freq
+    e_w += (e_s - e_inf) / (1 + 1j * omg * tau)
+    return e_w
+
+
+def nk_from_eps(e_inf, e_s, tau, freq):
+    e_w = epsilon(e_inf, e_s, tau, freq)
+    n = sqrt((abs(e_w) + real(e_w)) / 2)
+    k = sqrt((abs(e_w) - real(e_w)) / 2)
+    return n, k
+
+
 def H_sim(n, k, thick, d_air, theta_in, freq):
     # most inner layer, in contact with substrate
     H_i = cr_l_1_l(n_subs, n - 1j * k, theta_in) * ones(freq.size)
@@ -46,8 +60,9 @@ def H_sim(n, k, thick, d_air, theta_in, freq):
 
 
 def cost_function(params, *args):
-    d_air, n, k, thick = params
+    d_air, e_inf, e_s, tau, thick = params
     E_sam, E_ref_w, freqs, E_sam2, E_ref_w2, freqs2 = args
+    n, k = nk_from_eps(e_inf, e_s, tau, freqs)
     H_teo = H_sim(n, k, thick, d_air, 30, freqs)
     E_sam_teo_w = E_ref_w * H_teo
     E_sam_teo = irfft(E_sam_teo_w)
@@ -59,23 +74,23 @@ def cost_function(params, *args):
 
 # Main script
 # Boleto 176054
-t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat3_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat3_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_primer/ref metal primer_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_primer/sam metal primer_avg_f.txt')
-# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat3_avg_f.txt')
+t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat3_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref cork wcoat_avg_f.txt')
 
 # 50º
-t_ref2, E_ref2 = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/metal_w_coat/ref metal wcoat_avg_f.txt')
-t_sam2, E_sam2 = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/metal_w_coat/sam metal wcoat3_avg_f.txt')
-# # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-# # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/sam cork wcoat2_avg_f.txt')
-# t_ref2, E_ref2 = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-# t_sam2, E_sam2 = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/sam cork wcoat3_avg_f.txt')
+# t_ref2, E_ref2 = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/metal_w_coat/ref metal wcoat_avg_f.txt')
+# t_sam2, E_sam2 = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/metal_w_coat/sam metal wcoat3_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/sam cork wcoat2_avg_f.txt')
+t_ref2, E_ref2 = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+t_sam2, E_sam2 = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/sam cork wcoat3_avg_f.txt')
 
 # Boleto 177910
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
@@ -128,37 +143,52 @@ f_ref2, E_ref_w2 = fourier_analysis(t_ref2, E_ref2)
 f_sam2, E_sam_w2 = fourier_analysis(t_sam2, E_sam2)
 
 k_bounds = []
+# testing
+# k_bounds.append((0, 100e-6))     # air thickness
+# k_bounds.append((1, 1000))       # e_inf
+# k_bounds.append((1, 1000))       # e_s
+# k_bounds.append((1e-15, 1e-11))  # tau
+# k_bounds.append((1e-6, 150e-6))  # thickness
+# calibration
+# k_bounds.append((0, 100e-6))     # air thickness
+# k_bounds.append((1, 1000))       # e_inf
+# k_bounds.append((1, 1000))       # e_s
+# k_bounds.append((1e-15, 1e-11))  # tau
+# k_bounds.append((100e-6, 110e-6))  # thickness
+# calibrated
+k_bounds.append((0, 10e-6))      # air thickness
+k_bounds.append((4, 8))          # e_inf
+k_bounds.append((9, 13))         # e_s
+k_bounds.append((5e-13, 7e-13))  # tau
+k_bounds.append((0, 1000e-6))  # thickness
 
-k_bounds.append((0, 100e-6))  # air thickness
-k_bounds.append((1, 5))          # n
-k_bounds.append((0, 1))          # k
-k_bounds.append((1e-6, 150e-6))  # thickness
-
-n_mean = list()
-k_mean = list()
+e_inf_mean = list()
+e_s_mean = list()
+tau_mean = list()
 thick_mean = list()
 d_air_mean = list()
-N_tests = 20
+N_tests = 2
 t1 = time_ns()
-for i in trange(N_tests):
-    res = differential_evolution(cost_function,
+res = differential_evolution(cost_function,
                                  k_bounds,
                                  args=(E_sam, E_ref_w, f_ref, E_sam2, E_ref_w2, f_ref2),
-                                 disp=False,
+                                 disp=True,
                                  polish=True
                                  )
-    # print(res)
-    # print()
-    # print('Avg layer')
-    n_mean.append(res.x[1])
-    k_mean.append(res.x[2])
-    thick_mean.append(res.x[3])
-    d_air_mean.append(res.x[0])
 t2 = time_ns()
-print('d =', mean(d_air_mean) * 1e6, '+-', std(d_air_mean) * 1e6, 'um')
-print('n =', round(mean(n_mean), 2), '+-', round(std(n_mean), 2))
-print('k =', round(mean(k_mean), 3), '+-', round(std(k_mean), 3))
-print('d =', round(mean(thick_mean) * 1e6, 2), '+-', round(std(thick_mean) * 1e6, 2), 'um')
+d_air = res.x[0]
+e_inf = res.x[1]
+e_s = res.x[2]
+tau = res.x[3]
+thick = res.x[4]
+ns, ks = nk_from_eps(e_inf, e_s, tau, f_ref)
+
+
+print(res)
+print('d =', d_air * 1e9, 'nm')
+print('n =', round(mean(ns), 2), '+-', round(std(ns), 2))
+print('k =', round(mean(ks), 3), '+-', round(std(ks), 3))
+print('d =', round(thick * 1e6, 2), 'um')
 secs = (t2-t1)*1e-9
 if secs < 3600:
     print('Processing time (mm:ss):', strftime('%M:%S', gmtime(secs)))
@@ -166,28 +196,12 @@ else:
     print('Processing time (mm:ss):', strftime('%H:%M:%S', gmtime(secs)))
 print()
 
-figure(50)
-Ns_tests = arange(N_tests)
-plot(Ns_tests, mean(n_mean) - n_mean, lw=1, label='n')
-plot(Ns_tests, n_mean, lw=1, label='mean-n')
-figure(51)
-plot(Ns_tests, mean(k_mean) - k_mean, lw=1, label='k')
-plot(Ns_tests, k_mean, lw=1, label='mean-k')
-figure(52)
-plot(Ns_tests, mean(thick_mean) - thick_mean, lw=1, label='t')
-plot(Ns_tests, thick_mean, lw=1, label='mean-t')
-figure(53)
-plot(Ns_tests, mean(d_air_mean) - d_air_mean, lw=1, label='d')
-plot(Ns_tests, d_air_mean, lw=1, label='mean-d')
-
 
 H_w = E_sam_w / E_ref_w
-H_teo = H_sim(mean(n_mean), mean(k_mean), mean(thick_mean), mean(d_air_mean), 30, f_ref)
-H_teo2 = H_sim(mean(n_mean), mean(k_mean), mean(thick_mean), mean(d_air_mean), 50, f_ref2)
+H_teo = H_sim(ns, ks, thick, d_air, 30, f_ref)
+H_teo2 = H_sim(ns, ks, thick, d_air, 50, f_ref2)
 E_sam_teo = irfft(H_teo * E_ref_w)
 E_sam_teo2 = irfft(H_teo2 * E_ref_w2)
-
-
 t_ref *= 1e12
 t_sam *= 1e12
 t_ref2 *= 1e12
@@ -196,6 +210,7 @@ f_ref *= 1e-12
 f_sam *= 1e-12
 f_ref2 *= 1e-12
 f_sam2 *= 1e-12
+
 
 figure(1)
 plot(t_sam, E_sam, lw=1, label='30')
@@ -218,5 +233,14 @@ xlabel(r'$f\ (THz)$')
 # axs[0].set_ylim([0, 1])
 # axs[1].set_xlim([f_ref[0], 1.2])
 # axs[1].set_ylim([- 4 * pi, pi])
+
+fig, axs = subplots(2)
+f_min, f_max = f_min_max_idx(f_ref*1e12, 0.1, 1.5)
+fig.suptitle('n/k')
+axs[0].plot(f_ref[f_min:f_max], ns[f_min:f_max], lw=1)
+axs[1].plot(f_ref[f_min:f_max], ks[f_min:f_max], lw=1)
+axs[0].set_ylabel(r'$n$')
+axs[1].set_ylabel(r'$k$')
+xlabel(r'$f\ (THz)$')
 
 show()
