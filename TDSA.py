@@ -1,4 +1,6 @@
 from numpy import *
+from numpy.fft import *
+from scipy.signal import *
 from matplotlib.pyplot import *
 from tqdm import *
 from aux_functions import *

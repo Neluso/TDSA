@@ -1,13 +1,13 @@
 from TDSA import *
-from scipy.optimize import differential_evolution
+from scipy.optimize import differential_evolution, NonlinearConstraint
 from scipy.signal.windows import tukey
 
 
 # constant definitions
 deg_in = 30  # incidence angle in degrees
 snell_sin = n_air_cplx * sin(deg_in * pi / 180)
-n_subs = 1.17 - 0.0 * 1j  # substrate refractive index --- cork
-# n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index --- metal
+# n_subs = 1.17 - 0.0 * 1j  # substrate refractive index --- cork
+n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index --- metal
 
 
 # function definitions
@@ -34,6 +34,12 @@ def phase_factor(n, k, thick, freq):  # theta in radians
     return exp(- 1j * n * phi) * exp(- k * phi)
 
 
+def f_cons(params):
+    d_air, n, k, thick = params
+    # print(abs(n * thick * cos(theta(n))), real(n * thick * cos(theta(n))))
+    return abs(n * thick * cos(theta(n)))
+
+
 def H_sim(n, k, thick, d_air, freq):
     # most inner layer, in contact with substrate
     H_i = cr_l_1_l(n_subs, n - 1j * k) * ones(freq.size)
@@ -48,22 +54,27 @@ def cost_function(params, *args):
     d_air, n, k, thick = params
     E_sam, E_ref_w, freqs = args
     H_teo = H_sim(n, k, thick, d_air, freqs)
+    # E_sam_teo_w = ifftshift(E_ref_w * H_teo)
     E_sam_teo_w = E_ref_w * H_teo
-    E_sam_teo = irfft(E_sam_teo_w, n=E_sam.size)
+    E_sam_teo = ifftshift(irfft(E_sam_teo_w))  # , n=E_sam.size)
+    # plot(arange(E_sam_teo.size), E_sam_teo)
+    # plot(arange(E_sam_teo.size), E_sam)
+    # show()
+    # quit()
     return sum((E_sam_teo - E_sam) ** 2)
 
 
 # Main script
 # Boleto 176054
 # @ 30º
-# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
+t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_primer/ref metal primer_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_primer/sam metal primer_avg_f.txt')
-t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat3_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref cork wcoat_avg_f.txt')
 # @ 50º
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/ref metal cork wcoat_avg_f.txt')
@@ -93,13 +104,20 @@ t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange
 E_sam = zero_padding(E_sam, 0, enlargement)
 t_sam = concatenate((t_sam, t_sam[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
 E_sam_max = amax(abs(E_sam))
-
 t_ref *= 1e-12
 t_sam *= 1e-12
 
 
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
+H_w = E_sam_w / E_ref_w
+wiener_filt = wiener_filter(E_ref_w, beta=fromDb(noise_floor(f_ref, E_ref_w, 20)))
+H_w_filt = H_w * wiener_filt
+irf = irfft(H_w_filt)
+
+irf_peaks = signal.find_peaks(abs(irf), 0.3 * amax(abs(irf)))
+times = diff(t_ref[irf_peaks[0]])
+
 
 k_bounds = []
 # testing
@@ -107,20 +125,15 @@ k_bounds.append((0, 100e-6))     # air thickness
 k_bounds.append((1, 5))          # n
 k_bounds.append((0, 1))          # k
 k_bounds.append((1e-6, 150e-6))  # thickness
-# k_bounds.append((0, 1))  # thickness for testing
-# calibrated ?
-# k_bounds.append((10e-9, 10e-6))     # air thickness
-# k_bounds.append((2.5, 4))          # n
-# k_bounds.append((0.5, 1))          # k
-# k_bounds.append((1e-6, 150e-6))   # thickness
 
 
-
+cons = NonlinearConstraint(f_cons, 0.8 * times[0]*c_0/2, 1.2 * times[0]*c_0/2)
 
 res = differential_evolution(cost_function,
                              k_bounds,
                              args=(E_sam, E_ref_w, f_ref),
                              disp=True,
+                             constraints=cons,
                              polish=True
                              )
 print(res)
@@ -131,18 +144,18 @@ print('k =', round(res.x[2], 3))
 print('d =', round(res.x[3] * 1e6, 2), 'um')
 print()
 
-
 H_w = E_sam_w / E_ref_w
 H_teo = H_sim(res.x[1], res.x[2], res.x[3], res.x[0], f_ref)
-E_sam_teo = irfft(H_teo * E_ref_w)  # , n=t_sam.size)
-print('Fit goodnes:', sum(abs(E_sam - E_sam_teo)))
+# H_teo = H_sim(3.23, 0.516, 80.9e-6, 8e-5, f_ref)
+E_sam_teo = irfft(H_teo * E_ref_w)
+
 t_sam *= 1e12
 t_ref *= 1e12
 f_ref *= 1e-12
 f_sam *= 1e-12
 
 figure(1)
-# plot(t_ref, E_ref, lw=1, label='ref')
+plot(t_ref, E_ref, lw=1, label='ref')
 plot(t_sam, E_sam, lw=1, label='sam')
 plot(t_sam, E_sam_teo, lw=1, label='fit')
 xlim([t_ref[0], t_ref[-1]])

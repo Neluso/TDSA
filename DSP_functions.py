@@ -1,6 +1,5 @@
 from numpy.fft import *
 from numpy import *
-from matplotlib.pyplot import *
 from scipy import signal
 from aux_functions import *
 import pywt
@@ -154,8 +153,7 @@ def gauss_low_filter(f_val, cutoff, sigma):
 
 
 def wiener_filter(E_data, beta=0.00003162277):  # beta = 1/SNR
-    E_data *= conj(E_data)
-    return E_data / (E_data + beta)
+    return E_data*conj(E_data) / (E_data*conj(E_data) + beta)
 
 
 def SWT_denoising(E_data, level, threshold):

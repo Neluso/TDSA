@@ -29,8 +29,10 @@ def constraints(k, *args):
     return [k0, abs(k0) - abs(k2), - k0 - k2 + 1, k3 - k1, abs(k2)]
 
 
-t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
+t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat3_avg_f.txt')
 
 delta_t_ref = mean(diff(t_ref))
 enlargement = (5 * 2**7 - 1) * E_ref.size
@@ -63,7 +65,8 @@ t_irf = arange(irf_filt.size) / (irf_filt.size * delta_f_ref)
 irf = roll(irf_filt / amax(abs(irf_filt)), E_sam_max_idx - irf_filt_max_idx)  # align deconvolution to t_ref
 irf_dno = SWT_denoising(irf, 7, 0.1)  # apply de-noising
 
-irf_peaks = signal.find_peaks(abs(irf), 0.15 * amax(abs(irf)))
+irf_peaks = signal.find_peaks(abs(irf), 0.125 * amax(abs(irf)))
+print(irf_peaks)
 
 
 figure(1)
