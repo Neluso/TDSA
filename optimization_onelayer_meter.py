@@ -9,6 +9,16 @@ snell_sin = n_air_cplx * sin(deg_in * pi / 180)
 n_subs = 1.17 - 0.0 * 1j  # substrate refractive index --- cork
 # n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index --- metal
 
+reg_rel = 0.1
+reg_matrix = array((
+    (1, 0, 0, 0),
+    (0, 1, reg_rel, reg_rel),
+    (0, reg_rel, 1, reg_rel),
+    (0, reg_rel, reg_rel, 1)
+))
+reg_param = 0.1
+reg_matrix *= reg_param
+
 
 # function definitions
 def theta(n):
@@ -50,7 +60,9 @@ def cost_function(params, *args):
     H_teo = H_sim(n, k, thick, d_air, freqs)
     E_sam_teo_w = E_ref_w * H_teo
     E_sam_teo = irfft(E_sam_teo_w, n=E_sam.size)
-    return sum((E_sam_teo - E_sam) ** 2)
+    reg_vals = dot(reg_matrix, params)
+    fit_vals = E_sam_teo - E_sam
+    return dot(fit_vals, fit_vals) + dot(reg_vals, reg_vals)  # TODO add regularization
 
 
 # Main script
@@ -62,8 +74,8 @@ def cost_function(params, *args):
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_primer/ref metal primer_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_primer/sam metal primer_avg_f.txt')
-t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat3_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat3_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref cork wcoat_avg_f.txt')
 # @ 50º
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018_50_deg/cork_w_coat/ref metal cork wcoat_avg_f.txt')
@@ -78,8 +90,8 @@ t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018
 # Boleto 180881
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/sam metal wcoat 3_avg_f.txt')
-# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/cork_w_coat/ref metal cork_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/cork_w_coat/sam cork wcoat 3_avg_f.txt')
+t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/cork_w_coat/ref metal cork_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/cork_w_coat/sam cork wcoat 3_avg_f.txt')
 
 delta_t_ref = mean(diff(t_ref))
 enlargement = 0 * E_ref.size
@@ -135,7 +147,7 @@ print()
 H_w = E_sam_w / E_ref_w
 H_teo = H_sim(res.x[1], res.x[2], res.x[3], res.x[0], f_ref)
 E_sam_teo = irfft(H_teo * E_ref_w)  # , n=t_sam.size)
-print('Fit goodnes:', sum(abs(E_sam - E_sam_teo)))
+print('Fit goodnes:', sum(abs(E_sam - E_sam_teo)) / E_sam.size)
 t_sam *= 1e12
 t_ref *= 1e12
 f_ref *= 1e-12

@@ -11,11 +11,29 @@ from time import time_ns, strftime, gmtime
 # constant definitions
 deg_in = 30  # incidence angle in degrees
 snell_sin = n_air * sin(deg_in * pi / 180)
-layers = 2
+layers = 3
 n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
 # n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index -- metal
 # n_subs = 1.25 - 0.0 * 1j  # substrate refractive index -- cork 2.0
 # n_subs = 3.00 - 1.0 * 1j  # substrate refractive index -- cork 3.0
+
+
+reg_rel = 0.1
+reg_matrix = identity(1 + layers * 3)
+for i in range(reg_matrix.shape[0]):
+    for j in range(reg_matrix.shape[1]):
+        if i == j:
+            reg_matrix[i, j] = 1
+        elif i == 0:
+            reg_matrix[i, j] = 0
+        elif j == 0:
+            reg_matrix[i, j] = 0
+        else:
+            reg_matrix[i, j] = reg_rel
+reg_param = 0.1
+reg_matrix *= reg_param
+print(reg_matrix.shape)
+# quit()
 
 
 # debug variables
@@ -74,6 +92,7 @@ def H_sim(ns, ks, thicks, d_air, freq):
 
 def cost_function(k, *args):
     E_sam, E_ref_w, freqs = args
+    reg_params = dot(reg_matrix, k)
     d_air = k[0]
     k = k[1:]
     ns = list()
@@ -90,7 +109,10 @@ def cost_function(k, *args):
     H_teo = H_sim(ns, ks, thicks, d_air, freqs)
     E_sam_teo_w = E_ref_w * H_teo
     E_sam_teo = irfft(E_sam_teo_w, n=E_sam.size)
-    return sum((E_sam_teo - E_sam)**2)
+    
+    reg_vals = E_sam_teo - E_sam
+    
+    return dot(reg_vals, reg_vals) + dot(reg_params, reg_params)
 
 
 # def cons(params, *args):
@@ -104,12 +126,12 @@ def cost_function(k, *args):
 
 # Main script
 # Boleto 176054
-# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
+t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
-t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat2_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat2_avg_f.txt')
 
 # Boleto 180881
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
@@ -175,18 +197,18 @@ H_w = E_sam_w / E_ref_w
 #     (3.5, 4.1), (6.9, 8.1), (40e-6, 53e-6),
 #     (4, 4.4), (7, 10), (5e-6, 10e-6)
 # ]
-k_bounds = [  # very narrow
-    (0, 100e-6),  # air thickness
-    (3, 4), (0.1, 0.4), (50*1e-6, 150*1e-6),
-    (3.5, 4.1), (6.9, 8.1), (5*1e-6, 50*1e-6),
-    # (4, 4.4), (7, 10), (1*1e-6, 10*1e-6)
-]
-# k_bounds = [  # wide
+# k_bounds = [  # very narrow
 #     (0, 100e-6),  # air thickness
-#     (1.2, 10), (0, 10), (0, 1e-3),
-#     (1.2, 10), (0, 10), (0, 1e-3),
-#     (1.2, 10), (0, 10), (0, 1e-3)
+#     (3, 4), (0.1, 0.4), (50*1e-6, 150*1e-6),
+#     (3.5, 4.1), (6.9, 8.1), (5*1e-6, 50*1e-6),
+#     (4, 4.4), (7, 10), (1*1e-6, 10*1e-6)
 # ]
+k_bounds = [  # wide
+    (0, 100e-6),  # air thickness
+    (1.2, 10), (0, 10), (0, 1e-3),
+    (1.2, 10), (0, 10), (0, 1e-3),
+    (1.2, 10), (0, 10), (0, 1e-3)
+]
 # k_bounds = [  # testing
 #     (0, 100e-6),  # air thickness
 #     (1, 100), (0, 10), (81e-6, 81e-6),
@@ -238,12 +260,9 @@ t1 = time_ns()
 res = differential_evolution(cost_function,
                              k_bounds,
                              args=(E_sam, E_ref_w, f_ref),
-                             strategy='best1bin',
                              # popsize=150,
                              # maxiter=2000,
                              disp=True,  # step cost_function value
-                             # mutation=1.5,
-                             workers=1,
                              polish=True
                              )
 t2 = time_ns()
