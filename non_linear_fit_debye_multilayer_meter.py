@@ -1,7 +1,9 @@
 from TDSA import *
 from scipy.optimize import differential_evolution, NonlinearConstraint, LinearConstraint, curve_fit
 from scipy.signal.windows import tukey
-from time import time_ns, strftime, gmtime
+from time import time_ns
+import lmfit
+import os
 
 
 # constant definitions
@@ -74,7 +76,7 @@ def epsilon_cc(e_s, e_inf, tau, alpha, freq):  # Cole-Cole mode
     return e_w
 
 
-def nk_from_eps(e_s, e_inf, tau, freq):
+def nk_from_eps(e_inf, e_s, tau, freq):
     e_w = epsilon(e_s, e_inf, tau, freq)
     n = sqrt((abs(e_w) + real(e_w)) / 2)
     k = sqrt((abs(e_w) - real(e_w)) / 2)
@@ -88,10 +90,11 @@ def nk_from_eps_cc(e_s, e_inf, tau, alpha, freq):
     return n, k
 
 
-def H_sim(freq, d_air, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3):
-    k_1 *= freq*1e-12
-    k_2 *= freq*1e-12
-    k_3 *= freq*1e-12
+def H_sim(freq, d_air, e_inf_1, e_s_1, tau_1, d_1, e_inf_2, e_s_2, tau_2, d_2, e_inf_3, e_s_3, tau_3, d_3):
+    n_1, k_1 = nk_from_eps(e_inf_1, e_s_1, tau_1, freq)
+    n_2, k_2 = nk_from_eps(e_inf_2, e_s_2, tau_2, freq)
+    n_3, k_3 = nk_from_eps(e_inf_3, e_s_3, tau_3, freq)
+
     H_i = cr_l_1_l(n_subs, n_3 - 1j * k_3) * ones(freq.size)
     rlm1l = cr_l_1_l(n_3 - 1j * k_3, n_2 - 1j * k_2)
     tt = ct2(n_3 - 1j * k_3, n_3 - 1j * k_2)
@@ -111,9 +114,62 @@ def H_sim(freq, d_air, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3):
     return phase_factor(n_air, 0, d_air, freq) * H_i
 
 
+def resid(params, *args):
+    d_air = params['d_air'].value
+    e_inf_1 = params['e_inf_1'].value
+    e_s_1 = params['e_s_1'].value
+    tau_1 = params['tau_1'].value
+    d_1 = params['d_1'].value
+    e_inf_2 = params['e_inf_2'].value
+    e_s_2 = params['e_s_2'].value
+    tau_2 = params['tau_2'].value
+    d_2 = params['d_2'].value
+    e_inf_3 = params['e_inf_3'].value
+    e_s_3 = params['e_s_3'].value
+    tau_3 = params['tau_3'].value
+    d_3 = params['d_3'].value
+    freq, E_r_w, E_meas, H_w = args
+    H_0 = H_sim(freq, d_air, e_inf_1, e_s_1, tau_1, d_1, e_inf_2, e_s_2, tau_2, d_2, e_inf_3, e_s_3, tau_3, d_3)
+    E_0 = ifft(H_0 * E_r_w)
+    return E_0 - E_meas + abs(H_0) - abs(H_w) + unwrap(angle(H_0)) - unwrap(angle(H_w))
+
+
+def fit_status(params, iter, resid, *args, **kws):
+    d_air = params['d_air'].value
+    e_inf_1 = params['e_inf_1'].value
+    e_s_1 = params['e_s_1'].value
+    tau_1 = params['tau_1'].value
+    d_1 = params['d_1'].value
+    e_inf_2 = params['e_inf_2'].value
+    e_s_2 = params['e_s_2'].value
+    tau_2 = params['tau_2'].value
+    d_2 = params['d_2'].value
+    e_inf_3 = params['e_inf_3'].value
+    e_s_3 = params['e_s_3'].value
+    tau_3 = params['tau_3'].value
+    d_3 = params['d_3'].value
+    freq, E_r_w, E_meas, H_w = args
+    H_0 = H_sim(freq, d_air, e_inf_1, e_s_1, tau_1, d_1, e_inf_2, e_s_2, tau_2, d_2, e_inf_3, e_s_3, tau_3, d_3)
+    E_0 = ifft(H_0 * E_r_w)
+    J = sum((E_0 - E_meas)**2)
+    # print(e_inf_1, e_s_1, tau_1, d_1, e_inf_2, e_s_2, tau_2, d_2, e_inf_3, e_s_3, tau_3, d_3)
+    print('Iteration:', iter, 'J(x, theta) =', J)
+
+
+# fs = arange(100)/10
+# e_inf = 10
+# e_s = 20
+# tau = 0.01
+# n_test, k_test = nk_from_eps(e_inf, e_s, tau, fs)
+# plot(fs, n_test)
+# plot(fs, sqrt(e_s) * ones(fs.size))
+# show()
+# quit()
+
+
 # Main script
 t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat2_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat3_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
@@ -129,23 +185,23 @@ window = tukey(2 * ref_pulse_idx)
 window = zero_padding(window, 0, E_ref.size - window.size)
 # E_ref *= window
 # E_sam *= window
-enlargement = 0 * E_ref.size
-E_ref = zero_padding(E_ref, 0, enlargement)
-t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
-E_sam = zero_padding(E_sam, 0, enlargement)
-t_sam = concatenate((t_sam, t_sam[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
-E_sam_max = amax(abs(E_sam))
-
-window = zero_padding(window, 0, enlargement)
+# enlargement = 0 * E_ref.size
+# E_ref = zero_padding(E_ref, 0, enlargement)
+# t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
+# E_sam = zero_padding(E_sam, 0, enlargement)
+# t_sam = concatenate((t_sam, t_sam[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
+# E_sam_max = amax(abs(E_sam))
+#
+# window = zero_padding(window, 0, enlargement)
 
 t_ref *= 1e-12
 t_sam *= 1e-12
 
 
-f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
-f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
+f_ref, E_ref_w = fourier_analysis_comp(t_ref, E_ref)
+f_sam, E_sam_w = fourier_analysis_comp(t_sam, E_sam)
 delta_f_ref = mean(diff(f_ref))
-# f_min, f_max = f_min_max_idx(f_ref, 0.2, 0.6)
+f_min, f_max = f_min_max_idx(f_ref, 0.2, 1.1)
 # # f_min, f_max = f_min_max_idx(f_ref, 0, f_ref[-1]*1e-12)
 # # f_min, f_max = f_min_max_idx(f_ref, 0, 10)
 # f_ref = f_ref[f_min:f_max]
@@ -154,56 +210,135 @@ delta_f_ref = mean(diff(f_ref))
 # E_sam_w = E_sam_w[f_min:f_max]
 
 H_w = E_sam_w / E_ref_w
-filt = wiener_filter(E_ref_w, beta=1e-2)
+filt = wiener_filter(E_ref_w, beta=2e-3)
+# plot(f_ref, toDb(wiener_filter(E_ref_w, beta=1e-1)), label='1')
+# plot(f_ref, toDb(wiener_filter(E_ref_w, beta=1e-2)), label='2')
+# plot(f_ref, toDb(wiener_filter(E_ref_w, beta=1e-3)), label='3')
+# plot(f_ref, toDb(wiener_filter(E_ref_w, beta=2e-4)), label='3.5')
+# plot(f_ref, toDb(wiener_filter(E_ref_w, beta=1e-4)), label='4')
+# legend()
+# show()
+# quit()
+
 # E_sam_w *= filt
 # H_w *= filt
 # E_ref_w *= filt
 
 
-# p0 = array((20e-6, 2.0, 0.1, 60e-6, 2.0, 0.1, 30e-6, 2.0, 0.1, 10e-6))
-# p0 = array((20e-6, 3.0, 0.1, 60e-6, 3.0, 0.1, 20e-6, 3.0, 0.1, 5e-6))
-# lwr_bnds = array((0, 1, 0, 20e-6, 1, 0, 10e-6, 1, 0, 0))
-# hgr_bnds = array((100e-6, 5, 10, 100e-6, 5, 10, 50e-6, 5, 10, 20e-6))
+theta_params = lmfit.Parameters()
+theta_params.add('d_air', 20e-6, min=0, max=1e-4)
 
-p0 = array((20e-6, 3, 0.1, 80e-6, 3, 0.1, 19e-6, 3, 0.1, 4e-6))
-lwr_bnds = array((0, 1, 0, 80e-6, 1, 0, 19e-6, 1, 0, 4e-6))
-hgr_bnds = array((100e-6, 5, 10, 81e-6, 5, 10, 20e-6, 5, 10, 5e-6))
+eps_max = 14  # 14
+eps_min = 5  # 5
+discrp = 3
 
-# print(H_sim(f_ref, 20e-6, 2.0, 0.1, 50e-6, 2.0, 0.1, 50e-6, 2.0, 0.1, 50e-6))
-# quit()
+theta_params.add('discr1', 0, min=-discrp, max=discrp)
+theta_params.add('discr2', 0, min=-discrp, max=discrp)
+theta_params.add('discr3', 0, min=-discrp, max=discrp)
+theta_params.add('discr4', 0, min=-discrp, max=discrp)
+
+theta_params.add('e_inf_1', 9, min=eps_min, max=eps_max)
+theta_params.add('e_s_1', 9, min=eps_min, max=eps_max)
+theta_params.add('tau_1', 1e-12, min=1e-15, max=1e-9)
+
+theta_params.add('e_inf_2', 9, min=eps_min, max=eps_max, expr='discr1 + e_inf_1')
+theta_params.add('e_s_2', 9, min=eps_min, max=eps_max, expr='discr2 + e_s_1')
+theta_params.add('tau_2', 1e-12, min=1e-15, max=1e-9)
+
+theta_params.add('e_inf_3', 9, min=eps_min, max=eps_max, expr='discr3 + e_inf_1')
+theta_params.add('e_s_3', 9, min=eps_min, max=eps_max, expr='discr4 + e_s_1')
+theta_params.add('tau_3', 1e-12, min=1e-15, max=1e-9)
+
+# theta_params.add('d_1', 80e-6, min=80e-6, max=81e-6)
+# theta_params.add('d_2', 20e-6, min=19e-6, max=20e-6)
+# theta_params.add('d_3', 5e-6, min=4e-6, max=5e-6)
+
+
+# # pseudo_calibration
+# theta_params.add('e_inf_1', 7.24, min=7, max=8)
+# theta_params.add('e_s_1', 12.2, min=12, max=13)
+# theta_params.add('tau_1', 7.23e-13, min=7e-13, max=8.1e-13)
+#
+# theta_params.add('e_inf_2', 5, min=5, max=6)
+# theta_params.add('e_s_2', 14, min=14, max=15)
+# theta_params.add('tau_2', 2.08e-12, min=2e-12, max=3e-12)
+#
+# theta_params.add('e_inf_3', 11.24, min=11, max=12)
+# theta_params.add('e_s_3', 8.2, min=8, max=9)
+# theta_params.add('tau_3', 1.08e-12, min=1e-12, max=2e-12)
+# #
+theta_params.add('d_1', 80e-6, min=0)  # , min=80e-6, max=81e-6)
+theta_params.add('d_2', 20e-6, min=0)  # , min=19e-6, max=20e-6)
+theta_params.add('d_3', 5e-6, min=0)  # , min=4e-6, max=5e-6)
+
 
 print('Fitting')
 
 
-def E_sim(times, d_air, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3):
-    H_0 = H_sim(f_ref, d_air, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3)
-    E_0 = irfft(H_0 * E_ref_w)
-    return E_0
-
-
 t1 = time_ns()
-popt, pcov = curve_fit(E_sim, t_sam, E_sam, p0,
-                       bounds=(lwr_bnds, hgr_bnds),
-                       method='dogbox'
-                       )
+res = lmfit.minimize(resid, theta_params,
+                     args=(f_ref, E_ref_w, E_sam, H_w),
+                     # method='differential_evolution',
+                     method='bfgs',
+                     iter_cb=fit_status
+                     )
 t2 = time_ns()
-print('popt =', popt)
-print('pcov =', pcov)
+theta_params_fit = res.params
+d_air = theta_params_fit['d_air'].value
+e_inf_1 = theta_params_fit['e_inf_1'].value
+e_s_1 = theta_params_fit['e_s_1'].value
+tau_1 = theta_params_fit['tau_1'].value
+d_1 = theta_params_fit['d_1'].value
+e_inf_2 = theta_params_fit['e_inf_2'].value
+e_s_2 = theta_params_fit['e_s_2'].value
+tau_2 = theta_params_fit['tau_2'].value
+d_2 = theta_params_fit['d_2'].value
+e_inf_3 = theta_params_fit['e_inf_3'].value
+e_s_3 = theta_params_fit['e_s_3'].value
+tau_3 = theta_params_fit['tau_3'].value
+d_3 = theta_params_fit['d_3'].value
+
+n_1, k_1 = nk_from_eps(e_inf_1, e_s_1, tau_1, f_ref)
+n_2, k_2 = nk_from_eps(e_inf_2, e_s_2, tau_2, f_ref)
+n_3, k_3 = nk_from_eps(e_inf_3, e_s_3, tau_3, f_ref)
+
+
+# plot(f_ref, n_1, f_ref, n_2, f_ref, n_3)
+# show()
+# quit()
 
 print('Results:')
-print('White coat --- n:', round(popt[1], 2), 'k:', round(popt[2], 2), 'd:', round(popt[3]*1e6, 0))
-print('Green coat --- n:', round(popt[4], 2), 'k:', round(popt[5], 2), 'd:', round(popt[6]*1e6, 0))
-print('Primer --- n:', round(popt[7], 2), 'k:', round(popt[8], 2), 'd:', round(popt[9]*1e6, 0))
+print('White coat --- n:', round(mean(n_1), 2), 'k:', round(mean(k_1), 3), 'd:', round(d_1*1e6, 0))
+print('e_inf:', e_inf_1, ', e_s:', e_s_1, ', tau:', tau_1)
+print('Green coat --- n:', round(mean(n_2), 2), 'k:', round(mean(k_2), 3), 'd:', round(d_2*1e6, 0))
+print('e_inf:', e_inf_2, ', e_s:', e_s_2, ', tau:', tau_2)
+print('Primer --- n:', round(mean(n_3), 2), 'k:', round(mean(k_3), 3), 'd:', round(d_3*1e6, 0))
+print('e_inf:', e_inf_3, ', e_s:', e_s_3, ', tau:', tau_3)
+print_time_ns(t1, t2)
+
+# print(str(e_inf_1) + ';' + str(e_inf_2) + ';' + str(e_inf_3) + ';' + str(e_s_1) + ';' + str(e_s_2) + ';' + str(e_s_3) + ';' + str(tau_1) + ';' + str(tau_2) + ';' + str(tau_3))
+
+H_teo = H_sim(f_ref, d_air, e_inf_1, e_s_1, tau_1, d_1, e_inf_2, e_s_2, tau_2, d_2, e_inf_3, e_s_3, tau_3, d_3)
 
 figure(1)
 plot(t_sam, E_sam)
-plot(t_sam, E_sim(t_sam, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9]))
+plot(t_sam, irfft(H_teo*E_ref_w))
 
 figure(2)
-plot(f_ref, abs(H_w))
-plot(f_ref, abs(H_sim(f_ref, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9])))
+plot(f_ref[f_min:f_max], abs(H_w)[f_min:f_max])
+plot(f_ref[f_min:f_max], abs(H_teo)[f_min:f_max])
 
 figure(3)
-plot(f_ref, unwrap(angle(H_w)))
-plot(f_ref, unwrap(angle(H_sim(f_ref, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9]))))
+plot(f_ref[f_min:f_max], unwrap(angle(H_w))[f_min:f_max])
+plot(f_ref[f_min:f_max], unwrap(angle(H_teo))[f_min:f_max])
+
+figure(4)
+plot(f_ref[f_min:f_max], n_1[f_min:f_max], f_ref[f_min:f_max], n_2[f_min:f_max], f_ref[f_min:f_max], n_3[f_min:f_max])
+figure(5)
+plot(f_ref[f_min:f_max], k_1[f_min:f_max], f_ref[f_min:f_max], k_2[f_min:f_max], f_ref[f_min:f_max], k_3[f_min:f_max])
+
+
+# print(theta_params_fit)
+
+
 show()

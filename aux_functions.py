@@ -1,5 +1,6 @@
 from numpy import where  # array functions
 from numpy import log10  # mathematical functions
+from time import time_ns, strftime, gmtime
 
 
 def f_min_max_idx(freq, fmin=0.1, fmax=1):
@@ -45,3 +46,12 @@ def f_range(freq, f_lim_min, f_lim_max):
     f_min_idx = where(freq == f_min)[0][0]
     f_max_idx = where(freq == f_max)[0][0]
     return f_min_idx, f_max_idx
+
+
+def print_time_ns(t1, t2):
+    secs = (t2 - t1) * 1e-9
+    if secs < 3600:
+        print('Processing time (mm:ss):', strftime('%M:%S', gmtime(secs)))
+    else:
+        print('Processing time (mm:ss):', strftime('%H:%M:%S', gmtime(secs)))
+    return 0
