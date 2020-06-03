@@ -31,6 +31,7 @@ num_pop = 100
 num_pop_cross = int(num_pop/2)
 num_pop_new = num_pop - num_pop_cross
 max_iter = 1000
+noise_level_cutoff = 0.00002  # noise level for iteration cutoff
 smoothing_span = 11
 smoothing_order = 2
 p_mut = 0.1  # % of individuals which will suffer mutation
@@ -70,7 +71,7 @@ for i in trange(max_iter):
     for item in sorted(S_i.items(), key=lambda x: x[1]):
         key_list.append(item[0])
 
-    if S_i[key_list[0]] <= 0.0002:
+    if S_i[key_list[0]] <= noise_level_cutoff:
         break
 
     M_i_cross = dict()
