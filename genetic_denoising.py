@@ -1,5 +1,6 @@
 from TDSA import *
 from scipy import interpolate
+from scipy.signal import savgol_filter
 
 
 t_ref, E_ref = read_1file('./data/demo_data/test_ref.txt')
@@ -26,17 +27,23 @@ def score(M):
     return std(E_sam - ifft(M*E_ref_w))
 
 
-num_pop = 1000
+num_pop = 100
 num_pop_cross = int(num_pop/2)
 num_pop_new = num_pop - num_pop_cross
 max_iter = 1000
-smoothing_span = 2
+smoothing_span = 11
+smoothing_order = 2
 p_mut = 0.1  # % of individuals which will suffer mutation
-M_i = dict()
+mut_sev = 0.05  # 'severity' of mutation
+M_i = dict()  # Guesses
+S_i = dict()  # Scores
 
 
 M_raw = E_sam_w / E_ref_w
-M_smooth = smooth(M_raw, smoothing_span)
+# M_smooth = smooth(M_raw, smoothing_span)
+M_smooth = savgol_filter(abs(M_raw), smoothing_span, smoothing_order) * exp(-1j * savgol_filter(unwrap(angle(M_raw)), smoothing_span, smoothing_order))
+# plot(fftshift(f_ref), fftshift(abs(M_raw)), 'o')
+# plot(fftshift(f_ref), fftshift(abs(M_smooth)), 'o')
 
 
 # Initilization and 1st evaluation
@@ -46,47 +53,97 @@ for i in range(num_pop):
         if idx not in idxs:
             idxs.append(idx)
     idxs = sort(idxs)
-    abs_M_itpl = interpolate.interp1d(f_ref[idxs], abs(M_smooth[idxs]), fill_value='extrapolate')
-    # plot(fftshift(f_ref), fftshift(abs(M_raw)))
-    # plot(fftshift(f_ref), fftshift(abs_M_itpl(f_ref)))
-    # show()
-    angle_M_itpl = interpolate.interp1d(f_ref[idxs], unwrap(angle(M_smooth[idxs])), fill_value='extrapolate')
+    rand_abs = (abs(M_raw[idxs]) - abs(M_smooth[idxs])) * random.rand(len(idxs)) + abs(M_smooth[idxs])
+    rand_arg = (unwrap(angle(M_raw[idxs])) - unwrap(angle(M_smooth[idxs]))) * random.rand(len(idxs)) + unwrap(angle(M_smooth[idxs]))
+    abs_M_itpl = interpolate.interp1d(f_ref[idxs], rand_abs, fill_value='extrapolate')
+    angle_M_itpl = interpolate.interp1d(f_ref[idxs], rand_arg, fill_value='extrapolate')
     m_i = abs_M_itpl(f_ref) * exp(-1j * angle_M_itpl(f_ref))
 
-    M_i[score(m_i)] = m_i
+    M_i[i] = m_i
+    S_i[i] = score(m_i)
 
 
 for i in trange(max_iter):
 
     # Crossover
-    key_list = sorted(M_i.keys())
-    key_list = key_list[:num_pop_cross]
-    M_i_cross = dict()
-    for key in key_list:
-        M_i_cross[key] = M_i[key]
-    M_i = M_i_cross
+    key_list = list()
+    for item in sorted(S_i.items(), key=lambda x: x[1]):
+        key_list.append(item[0])
 
-    for j in range(num_pop_cross - 1):
+    if S_i[key_list[0]] <= 0.0002:
+        break
+
+    M_i_cross = dict()
+    S_i_cross = dict()
+    new_key = 0
+    for key in key_list[:num_pop_cross]:
+        M_i_cross[new_key] = M_i[key]
+        S_i_cross[new_key] = S_i[key]
+        new_key += 1
+
+    M_i = M_i_cross
+    S_i = S_i_cross
+
+    key_list = list()
+    for item in sorted(S_i.items(), key=lambda x: x[1]):
+        key_list.append(item[0])
+
+    for j in range(-1, num_pop_cross - 1):
         m_i = 0.5*(M_i[key_list[j]] + M_i[key_list[j + 1]])
-        M_i[score(m_i)] = m_i
+        M_i[new_key] = m_i
+        S_i[new_key] = score(m_i)
+        new_key += 1
+
+    key_list = list()
+    for item in sorted(S_i.items(), key=lambda x: x[1]):
+        key_list.append(item[0])
 
     # Mutation
+    for j in range(num_pop):
+        p_rand = random.rand()
+        if p_rand <= p_mut:
+            mut_idx = random.randint(0, M_raw.size)
+            if mut_idx <= smoothing_span:
+                if mut_idx == 0:
+                    idxs = [0]
+                    idxs = idxs + list(range(mut_idx + smoothing_span, M_raw.size))
+                else:
+                    idxs = [0, mut_idx]
+                    idxs = idxs + list(range(mut_idx + smoothing_span, M_raw.size))
+            elif mut_idx >= M_raw.size - smoothing_span:
+                idxs = list(range(mut_idx - smoothing_span))
+                idxs = idxs + [mut_idx, M_raw.size-1]
+            else:
+                idxs = list(range(mut_idx - smoothing_span))
+                idxs.append(mut_idx)
+                idxs = idxs + list(range(mut_idx + smoothing_span, M_raw.size))
+            m_j = M_i[j]
+            m_j[mut_idx] = m_j[mut_idx] * (2 * random.rand() - 1) * mut_sev
+            abs_M_itpl = interpolate.interp1d(f_ref[idxs], abs(m_j[idxs]), fill_value='extrapolate')
+            angle_M_itpl = interpolate.interp1d(f_ref[idxs], unwrap(angle(m_j[idxs])), fill_value='extrapolate')
+            m_i = abs_M_itpl(f_ref) * exp(-1j * angle_M_itpl(f_ref))
+            M_i[j] = m_i
+            S_i[j] = score(m_i)
 
 
-key_list = sorted(M_i.keys())
+key_list = list()
+for item in sorted(S_i.items(), key=lambda x: x[1]):
+    key_list.append(item[0])
 M_fit = M_i[key_list[0]]
 
 
 figure()
 plot(t_sam, E_sam, label='sam')
-plot(t_sam, real(ifft(smooth(M_fit, smoothing_span) * E_ref_w)), label='fit')
+plot(t_sam, real(ifft(savgol_filter(M_fit, smoothing_span, smoothing_order) * E_ref_w)), label='fit')
 
 legend()
 
 
 figure()
 plot(fftshift(f_ref), fftshift(abs(M_raw)), label='raw')
-plot(fftshift(f_sam), fftshift(abs(smooth(M_fit, 5))), label='smooth')
+plot(fftshift(f_sam), fftshift(abs(M_smooth)), label='smooth')
+plot(fftshift(f_sam), fftshift(abs(M_fit)), label='fit')
+
 
 xlim([0, 1])
 legend()
