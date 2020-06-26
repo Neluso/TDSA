@@ -2,6 +2,7 @@ from TDSA import *
 from scipy.optimize import curve_fit
 from scipy.signal.windows import tukey
 from time import time_ns
+from genetic_denoising import genetic_deno
 
 # constant definitions
 deg_in = 30  # incidence angle in degrees
@@ -9,8 +10,8 @@ snell_sin = n_air * sin(deg_in * pi / 180)
 layers = 3
 # epsilon_model = 'debye'
 # epsilon_model = 'cole'
-# n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
-n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index -- metal
+n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
+# n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index -- metal
 # n_subs = 1.25 - 0.0 * 1j  # substrate refractive index -- cork 2.0
 
 
@@ -29,8 +30,6 @@ for i in range(reg_matrix.shape[0]):
 reg_param = 0.1
 reg_matrix *= reg_param
 
-
-
 # debug variables
 debug_value_1 = list()
 debug_value_2 = list()
@@ -45,7 +44,7 @@ def theta(n):
 def ct2(n_l, n_l_1):
     n_l *= cos(theta(n_l))
     n_l_1 *= cos(theta(n_l_1))
-    return 4 * n_l * n_l_1 / (n_l + n_l_1)**2
+    return 4 * n_l * n_l_1 / (n_l + n_l_1) ** 2
 
 
 def cr_l_1_l(n_l, n_l_1):  # from n_l-1 to n_l
@@ -69,7 +68,7 @@ def epsilon(e_s, e_inf, tau, freq):  # Debye model
 
 def epsilon_cc(e_s, e_inf, tau, alpha, freq):  # Cole-Cole mode
     omg = 2 * pi * freq
-    e_w = e_inf + (e_s - e_inf) / (1 + (1j * omg * tau)**(alpha))
+    e_w = e_inf + (e_s - e_inf) / (1 + (1j * omg * tau) ** (alpha))
     return e_w
 
 
@@ -88,9 +87,9 @@ def nk_from_eps_cc(e_s, e_inf, tau, alpha, freq):
 
 
 def H_sim(freq, d_air, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3):
-    k_1 *= freq*1e-12
-    k_2 *= freq*1e-12
-    k_3 *= freq*1e-12
+    k_1 *= freq * 1e-12
+    k_2 *= freq * 1e-12
+    k_3 *= freq * 1e-12
     H_i = cr_l_1_l(n_subs, n_3 - 1j * k_3) * ones(freq.size)
     rlm1l = cr_l_1_l(n_3 - 1j * k_3, n_2 - 1j * k_2)
     tt = ct2(n_3 - 1j * k_3, n_3 - 1j * k_2)
@@ -106,28 +105,46 @@ def H_sim(freq, d_air, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3):
     tt = ct2(n_1 - 1j * k_1, n_air_cplx)
     exp_phi = phase_factor(n_1, k_1, d_1, freq)
     H_i = rlm1l + (tt * H_i * exp_phi) / (1 + rlm1l * H_i * exp_phi)
-    
+
     return phase_factor(n_air, 0, d_air, freq) * H_i
 
 
 # Main script
-t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat2_avg_f.txt')
+# Main script
+# Boleto 176054
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref cork wcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat1_avg_f.txt')
+
+# Boleto 180881
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/sam metal wcoat 1_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/sam metal wcoat 3_avg_f.txt')
+t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/cork_w_coat/ref metal cork_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/cork_w_coat/sam cork wcoat 1_avg_f.txt')
+
+# Boleto 177910
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/metal_w_coat/sam metal wcoat 1_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/cork_w_coat/ref metal cork_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_177910_fecha_04_12_2017/cork_w_coat/sam cork wcoat 1_avg_f.txt')
+
+t_ref *= 1e-12
+t_sam *= 1e-12
+
+plot(t_sam, E_sam, label='org')
+print('Denoising')
+E_sam = genetic_deno(t_ref, E_ref, t_sam, E_sam)
 
 print('DSP')
 delta_t_ref = mean(diff(t_ref))
 ref_pulse_idx = centre_loc(E_ref)
 window = tukey(2 * ref_pulse_idx)
 window = zero_padding(window, 0, E_ref.size - window.size)
-# E_ref *= window
-# E_sam *= window
+E_ref *= window
+E_sam *= window
 enlargement = 0 * E_ref.size
 E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
@@ -136,9 +153,6 @@ t_sam = concatenate((t_sam, t_sam[-1] * ones(enlargement) + delta_t_ref * arange
 E_sam_max = amax(abs(E_sam))
 
 window = zero_padding(window, 0, enlargement)
-
-t_ref *= 1e-12
-t_sam *= 1e-12
 
 
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
@@ -161,12 +175,12 @@ filt = wiener_filter(E_ref_w, beta=1e-2)
 
 # p0 = array((20e-6, 2.0, 0.1, 60e-6, 2.0, 0.1, 30e-6, 2.0, 0.1, 10e-6))
 # p0 = array((20e-6, 3.0, 0.1, 60e-6, 3.0, 0.1, 20e-6, 3.0, 0.1, 5e-6))
-# lwr_bnds = array((0, 1, 0, 20e-6, 1, 0, 10e-6, 1, 0, 0))
-# hgr_bnds = array((100e-6, 5, 10, 100e-6, 5, 10, 50e-6, 5, 10, 20e-6))
+# lwr_bnds = array((0, 1, 0, 1e-6, 1, 0, 1e-6, 1, 0, 1e-6))
+# hgr_bnds = array((100e-6, 5, 10, 100e-6, 5, 10, 100e-6, 5, 10, 100e-6))
 
 p0 = array((20e-6, 3, 0.1, 80e-6, 3, 0.1, 19e-6, 3, 0.1, 4e-6))
-lwr_bnds = array((0, 1, 0, 80e-6, 1, 0, 19e-6, 1, 0, 4e-6))
-hgr_bnds = array((100e-6, 5, 10, 81e-6, 5, 10, 20e-6, 5, 10, 5e-6))
+lwr_bnds = array((0, 2, 0, 80e-6, 2, 0, 19e-6, 2, 0, 4e-6))
+hgr_bnds = array((100e-6, 5, 1, 81e-6, 5, 1, 20e-6, 5, 1, 5e-6))
 
 # print(H_sim(f_ref, 20e-6, 2.0, 0.1, 50e-6, 2.0, 0.1, 50e-6, 2.0, 0.1, 50e-6))
 # quit()
@@ -190,13 +204,14 @@ print('popt =', popt)
 print('pcov =', pcov)
 
 print('Results:')
-print('White coat --- n:', round(popt[1], 2), 'k:', round(popt[2], 2), 'd:', round(popt[3]*1e6, 0))
-print('Green coat --- n:', round(popt[4], 2), 'k:', round(popt[5], 2), 'd:', round(popt[6]*1e6, 0))
-print('Primer --- n:', round(popt[7], 2), 'k:', round(popt[8], 2), 'd:', round(popt[9]*1e6, 0))
+print('White coat --- n:', round(popt[1], 2), 'k:', round(popt[2], 2), 'd:', round(popt[3] * 1e6, 0))
+print('Green coat --- n:', round(popt[4], 2), 'k:', round(popt[5], 2), 'd:', round(popt[6] * 1e6, 0))
+print('Primer --- n:', round(popt[7], 2), 'k:', round(popt[8], 2), 'd:', round(popt[9] * 1e6, 0))
 
 figure(1)
-plot(t_sam, E_sam)
-plot(t_sam, E_sim(t_sam, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9]))
+plot(t_sam, E_sam, label='dns')
+plot(t_sam, E_sim(t_sam, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9]), label='fit')
+legend()
 
 figure(2)
 plot(f_ref, abs(H_w))

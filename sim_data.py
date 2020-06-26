@@ -1,6 +1,5 @@
 from TDSA import *
 from numpy.fft import *
-from numpy.fft import fft as fft_func
 from time import time_ns
 import lmfit
 
@@ -143,26 +142,26 @@ f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_min, f_max = f_min_max_idx(f_ref, 0.2, 1.1)
 
 f_ref *= 1e-12
-n1 = 3 * ones(f_ref.size)
+n1 = 1.8 * ones(f_ref.size)
 k1 = 0.00 * f_ref
-n2 = 1.5 * ones(f_ref.size)
+n2 = 2.0 * ones(f_ref.size)
 k2 = 0.00 * f_ref
-n3 = 3 * ones(f_ref.size)
+n3 = 1.8 * ones(f_ref.size)
 k3 = 0.00 * f_ref
 f_ref *= 1e12
 
-dair = 0  # 20e-8
-d1 = 50e-6
-d2 = 50e-6
-d3 = 50e-6
+dair = 10e-6
+d1 = 10e-6
+d2 = d1
+d3 = d1
 
 H_0 = H_sim(f_ref, dair, n1, k1, d1, n2, k2, d2, n3, k3, d3)
-figure(20)
-plot(f_ref, abs(H_0))
-xlim([0, 1e12])
-figure(21)
-plot(f_ref, angle(H_0))
-xlim([0, 1e12])
+# figure(20)
+# plot(f_ref, abs(H_0))
+# xlim([0, 1e12])
+# figure(21)
+# plot(f_ref, angle(H_0))
+# xlim([0, 1e12])
 E_sim = irfft(rfft(E_ref) * H_0)
 # E_sim = ifft(fft(E_ref) * H_0)
 # plot(t_ref, E_sim)
@@ -196,14 +195,14 @@ theta_params.add('d_air', 0, min=0, max=1e-4)
 # theta_params.add('d_2', d2-decentering, min=0, max=1e-3)
 # theta_params.add('d_3', d3+decentering, min=0, max=1e-3)
 
-theta_params.add('d_1', 50e-6, min=1e-6, max=1e-3)
-theta_params.add('d_2', 50e-6, min=1e-6, max=1e-3)
-theta_params.add('d_3', 50e-6, min=1e-6, max=1e-3)
+theta_params.add('d_1', d1, min=1e-6, max=1e-3)
+theta_params.add('d_2', d2, min=1e-6, max=1e-3)
+theta_params.add('d_3', d3, min=1e-6, max=1e-3)
 
-max_err = 0  # -0.05  # in % fraction
-n1 *= 1 + max_err
-n2 *= 1 + max_err
-n3 *= 1 + max_err
+max_err = 0.01  # in % fraction
+n1 *= 1 + max_err * (2 * random.rand() - 1)
+n2 *= 1 + max_err * (2 * random.rand() - 1)
+n3 *= 1 + max_err * (2 * random.rand() - 1)
 
 print('Fitting')
 
@@ -238,9 +237,9 @@ E_fit = irfft(H_teo*E_ref_w)
 t_ref *= 1e12
 
 figure(1)
-# plot(t_ref, E_ref, lw=1, label='ref')
+plot(t_ref, E_ref, lw=1, label='ref')
 plot(t_ref, E_sim, lw=1, label='sim')
-# plot(t_ref, E_fit, lw=1, label='fit')
+plot(t_ref, E_fit, lw=1, label='fit')
 legend()
 xlim([t_ref[0], t_ref[-1]])
 

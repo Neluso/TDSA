@@ -1,9 +1,5 @@
 from TDSA import *
 from numpy.fft import *
-from numpy.fft import fft as fft_func
-from time import time_ns
-import lmfit
-
 
 # constant definitions
 deg_in = 30  # incidence angle in degrees
@@ -91,7 +87,7 @@ f_ref *= 1e12
 
 
 H_0 = H_sim(f_ref, layers)
-wh = open('H_0.txt','w')
+wh = open('H_0.txt', 'w')
 for i in range(f_ref.size):
     wh.write(str(f_ref[i])+','+str(real(H_0[i]))+','+str(imag(H_0[i]))+'\n')
 # quit()
@@ -101,8 +97,8 @@ xlim([0, 1e12])
 figure(21)
 plot(f_ref, unwrap(angle(H_0)))
 xlim([0, 1e12])
-# E_sim = irfft(rfft(E_ref) * H_0)
-E_sim = ifft(E_ref_w * H_0)
+E_sim = irfft(rfft(E_ref) * H_0)
+# E_sim = ifft(E_ref_w * H_0)
 
 figure(1)
 plot(t_ref, E_ref, lw=1, label='ref1')

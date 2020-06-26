@@ -1,15 +1,9 @@
 from TDSA import *
 from DSP_functions import *
-from TDS_constants import *
 from numpy import *
-from aux_functions import *
 from read_data import *
 from matplotlib.pyplot import *
 from scipy.signal import windows
-from scipy.optimize import differential_evolution
-from scipy.special import erf
-from scipy.interpolate import Akima1DInterpolator
-
 
 particle_count = 150
 max_iterations = 1500

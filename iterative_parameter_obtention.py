@@ -1,6 +1,5 @@
-from scipy.optimize import differential_evolution, minimize
-from numpy.random import rand
 from TDSA import *
+from scipy.optimize import differential_evolution
 
 
 # function definitions

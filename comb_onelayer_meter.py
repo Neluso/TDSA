@@ -1,8 +1,6 @@
 from TDSA import *
-from scipy.optimize import differential_evolution, NonlinearConstraint, LinearConstraint
+from scipy.optimize import differential_evolution, NonlinearConstraint
 from scipy.signal.windows import tukey
-from numpy.linalg import pinv
-
 
 # constant definitions
 deg_in = 30  # incidence angle in degrees

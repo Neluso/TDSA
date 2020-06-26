@@ -1,8 +1,8 @@
 from TDSA import *
-from scipy.optimize import differential_evolution, NonlinearConstraint, LinearConstraint
+from scipy.optimize import differential_evolution
 from scipy.signal.windows import tukey
 from time import time_ns, strftime, gmtime
-import math
+from genetic_denoising import genetic_deno
 
 
 # constant definitions
@@ -195,6 +195,7 @@ t_sam *= 1e-12
 
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
+E_sam_w = genetic_deno(E_ref_w, E_sam_w)
 delta_f_ref = mean(diff(f_ref))
 f_min, f_max = f_min_max_idx(f_ref, 0.2, 0.6)
 # f_min, f_max = f_min_max_idx(f_ref, 0, f_ref[-1]*1e-12)

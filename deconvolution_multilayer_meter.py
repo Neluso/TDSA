@@ -1,3 +1,4 @@
+from TDSA import *
 from TDS_constants import *
 from DSP_functions import *
 from pyswarm import pso
@@ -31,8 +32,10 @@ def constraints(k, *args):
 
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
-t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat3_avg_f.txt')
+t_ref, E_ref = read_1file(
+    'data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+t_sam, E_sam = read_1file(
+    'data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat3_avg_f.txt')
 
 delta_t_ref = mean(diff(t_ref))
 enlargement = (5 * 2**7 - 1) * E_ref.size

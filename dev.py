@@ -1,17 +1,11 @@
 # Developing script
 
 
-from read_data import read_data
-from numpy import *
-from numpy.fft import *
+from TDSA import *
 from DSP_functions import *
 from aux_functions import *
 from matplotlib.pyplot import *
-from tkinter import *
-from tkinter.filedialog import askopenfilenames
 from scipy import signal
-from jepsen_index import jepsen_index
-from tqdm import *
 
 
 def bh_windowing_dev(t_val, E_val, t_sub, E_sub):
