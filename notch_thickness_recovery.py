@@ -5,7 +5,6 @@ from numpy import *
 from aux_functions import *
 from read_data import *
 from matplotlib.pyplot import *
-from scipy.stats import norm
 from scipy.signal import windows
 from scipy.optimize import differential_evolution
 

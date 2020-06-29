@@ -1,3 +1,4 @@
+from TDSA import *
 from characterization import characterization
 from imaging import imaging
 from tkinter import *

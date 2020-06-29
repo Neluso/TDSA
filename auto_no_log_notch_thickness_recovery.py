@@ -4,7 +4,6 @@ from TDS_constants import *
 from numpy import *
 from aux_functions import *
 from read_data import *
-from matplotlib.pyplot import *
 from scipy.signal import windows
 from scipy.optimize import differential_evolution
 from scipy.special import erf

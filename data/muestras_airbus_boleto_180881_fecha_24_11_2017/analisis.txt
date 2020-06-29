@@ -1,0 +1,28 @@
+Results sam metal wcoat1_avg_f.txt -  very narrow bounds:
+
+White coat - n: 3.44 k: 0.17 d: 62.52 um
+Green coat - n: 3.93 k: 7.02 d: 26.35 um
+Primer coat - n: 4.2 k: 9.03 d: 2.4 um
+Total: 91.27 um
+
+Processing time (mm:ss): 5:35
+
+
+Results sam metal wcoat1_avg_f.txt -  tailored optical parameters bounds:
+
+White coat - n: 3.55 k: 0.21 d: 60.08 um
+Green coat - n: 3.52 k: 7.02 d: 24.16 um
+Primer coat - n: 4.27 k: 9.75 d: 3.78 um
+Total: 88.03 um
+
+Processing time (mm:ss): 9:15
+
+
+Results sam metal wcoat1_avg_f.txt -  narrow bounds:
+
+White coat - n: 3.42 k: 0.24 d: 61.75 um
+Green coat - n: 2.51 k: 6.83 d: 27.78 um
+Primer coat - n: 2.86 k: 7.43 d: 4.19 um
+Total: 93.72 um
+
+Processing time (mm:ss): 13:33

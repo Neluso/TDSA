@@ -1,6 +1,7 @@
 # This script extracts the refractive index of a sample measured in a transmision THz-TDS using the algorithm proposed by
 # Jepsen, P.U. J Infrared Milli Terahz Waves (2019) 40: 395. https://doi.org/10.1007/s10762-019-00578-0
 
+from TDSA import *
 from numpy import *
 from TDS_constants import *
 from DSP_functions import *

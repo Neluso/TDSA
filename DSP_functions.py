@@ -1,4 +1,5 @@
 from numpy.fft import *
+from numpy.fft import fft as fft_func
 from numpy import *
 from scipy import signal
 from aux_functions import *
@@ -8,9 +9,23 @@ import pywt
 def fourier_analysis(t_data, E_data, nSamp=0):
     if nSamp == 0:
         nSamp = E_data.size
+    # samp_int = t_data[1] - t_data[0]  # seconds
     samp_int = float(mean(diff(t_data)))  # seconds
     E_data_w = rfft(E_data, n=nSamp)
     f_data = rfftfreq(nSamp, d=samp_int)  # Hz
+    # E_data_w = fft_func(E_data, n=nSamp)
+    # f_data = fftfreq(nSamp, d=samp_int)  # Hz
+    # f_data = arange(nSamp) / nSamp
+    # f_data /= samp_int
+    return f_data, E_data_w
+
+
+def fourier_analysis_comp(t_data, E_data, nSamp=0):
+    if nSamp == 0:
+        nSamp = E_data.size
+    samp_int = float(mean(diff(t_data)))  # seconds
+    E_data_w = fft_func(E_data, n=nSamp)
+    f_data = fftfreq(nSamp, d=samp_int)  # Hz
     return f_data, E_data_w
 
 

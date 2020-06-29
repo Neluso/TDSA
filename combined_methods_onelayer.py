@@ -1,6 +1,5 @@
 from TDSA import *
-from scipy.optimize import differential_evolution, NonlinearConstraint, LinearConstraint, HessianUpdateStrategy, SR1
-
+from scipy.optimize import differential_evolution, NonlinearConstraint
 
 # constant definitions
 deg_in = 30  # incidence angle in degrees

@@ -1,8 +1,7 @@
 from TDSA import *
-from scipy.optimize import differential_evolution, NonlinearConstraint, LinearConstraint
+from scipy.optimize import differential_evolution
 from scipy.signal.windows import tukey
 from time import time_ns, strftime, gmtime
-import math
 
 # constant definitions
 deg_in = 30  # incidence angle in degrees

@@ -1,8 +1,7 @@
 from TDSA import *
-from scipy.optimize import differential_evolution, NonlinearConstraint, LinearConstraint, curve_fit
+from scipy.optimize import curve_fit
 from scipy.signal.windows import tukey
-from time import time_ns, strftime, gmtime
-
+from time import time_ns
 
 # constant definitions
 deg_in = 30  # incidence angle in degrees
@@ -127,14 +126,16 @@ delta_t_ref = mean(diff(t_ref))
 ref_pulse_idx = centre_loc(E_ref)
 window = tukey(2 * ref_pulse_idx)
 window = zero_padding(window, 0, E_ref.size - window.size)
-E_ref *= window
-E_sam *= window
-enlargement = 2 * E_ref.size
+# E_ref *= window
+# E_sam *= window
+enlargement = 0 * E_ref.size
 E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
 E_sam = zero_padding(E_sam, 0, enlargement)
 t_sam = concatenate((t_sam, t_sam[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
 E_sam_max = amax(abs(E_sam))
+
+window = zero_padding(window, 0, enlargement)
 
 t_ref *= 1e-12
 t_sam *= 1e-12
@@ -152,13 +153,20 @@ delta_f_ref = mean(diff(f_ref))
 # E_sam_w = E_sam_w[f_min:f_max]
 
 H_w = E_sam_w / E_ref_w
-filt = wiener_filter(E_ref_w)
-H_w *= filt
+filt = wiener_filter(E_ref_w, beta=1e-2)
+# E_sam_w *= filt
+# H_w *= filt
+# E_ref_w *= filt
 
 
-p0 = array((20e-6, 2.0, 0.1, 60e-6, 2.0, 0.1, 30e-6, 2.0, 0.1, 10e-6))
-lwr_bnds = array((0, 1, 0, 20e-6, 1, 0, 10e-6, 1, 0, 0))
-hgr_bnds = array((100e-6, 5, 10, 100e-6, 5, 10, 50e-6, 5, 10, 20e-6))
+# p0 = array((20e-6, 2.0, 0.1, 60e-6, 2.0, 0.1, 30e-6, 2.0, 0.1, 10e-6))
+# p0 = array((20e-6, 3.0, 0.1, 60e-6, 3.0, 0.1, 20e-6, 3.0, 0.1, 5e-6))
+# lwr_bnds = array((0, 1, 0, 20e-6, 1, 0, 10e-6, 1, 0, 0))
+# hgr_bnds = array((100e-6, 5, 10, 100e-6, 5, 10, 50e-6, 5, 10, 20e-6))
+
+p0 = array((20e-6, 3, 0.1, 80e-6, 3, 0.1, 19e-6, 3, 0.1, 4e-6))
+lwr_bnds = array((0, 1, 0, 80e-6, 1, 0, 19e-6, 1, 0, 4e-6))
+hgr_bnds = array((100e-6, 5, 10, 81e-6, 5, 10, 20e-6, 5, 10, 5e-6))
 
 # print(H_sim(f_ref, 20e-6, 2.0, 0.1, 50e-6, 2.0, 0.1, 50e-6, 2.0, 0.1, 50e-6))
 # quit()
@@ -182,15 +190,19 @@ print('popt =', popt)
 print('pcov =', pcov)
 
 print('Results:')
-print('White coat --- n:', popt[1], 'k:', popt[2], 'd:', popt[3]*1e6)
-print('Green coat --- n:', popt[4], 'k:', popt[5], 'd:', popt[6]*1e6)
-print('Primer --- n:', popt[7], 'k:', popt[8], 'd:', popt[9]*1e6)
+print('White coat --- n:', round(popt[1], 2), 'k:', round(popt[2], 2), 'd:', round(popt[3]*1e6, 0))
+print('Green coat --- n:', round(popt[4], 2), 'k:', round(popt[5], 2), 'd:', round(popt[6]*1e6, 0))
+print('Primer --- n:', round(popt[7], 2), 'k:', round(popt[8], 2), 'd:', round(popt[9]*1e6, 0))
 
 figure(1)
 plot(t_sam, E_sam)
 plot(t_sam, E_sim(t_sam, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9]))
 
 figure(2)
-plot(f_ref, H_w)
-plot(f_ref, H_sim(f_ref, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9]))
+plot(f_ref, abs(H_w))
+plot(f_ref, abs(H_sim(f_ref, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9])))
+
+figure(3)
+plot(f_ref, unwrap(angle(H_w)))
+plot(f_ref, unwrap(angle(H_sim(f_ref, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9]))))
 show()

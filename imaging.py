@@ -2,6 +2,7 @@
 # Y the column position. Also a 'ref.txt' must be measured and left in the same directory.
 
 
+from TDSA import *
 from read_data import read_data
 from DSP_functions import *
 from numpy import zeros, sum, abs, array, linspace, transpose
@@ -15,7 +16,7 @@ from tkinter import messagebox
 
 def imaging(show_plots, hor_offset, ver_offset, resolution, temp_window):
     
-    files = os.listdir('./imaging_data/')
+    files = os.listdir('imaging_data/')
     popup = Toplevel()
     popup.geometry('390x65')
     popup.title('TDSA Building image')
