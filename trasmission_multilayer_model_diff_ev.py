@@ -5,9 +5,9 @@ from time import time_ns
 from genetic_denoising import genetic_deno
 
 # constant definitions
-n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
+# n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
 # n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index -- metal
-# n_subs = 1.25 - 0.0 * 1j  # substrate refractive index -- cork 2.0
+n_subs = 1.25 - 0.0 * 1j  # substrate refractive index -- cork 2.0
 
 
 # debug variables
@@ -35,7 +35,8 @@ def fabry_perot(n_in, n_out, n_l, d_l, freq):
     return 1 / (1 - cr(n_in, n_l) * cr(n_l, n_out) * phase_factor(n_l, d_l, freq))
 
 
-def H_sim(freq, d_air, d_subs, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3):
+def H_sim(freq, params) :  # d_air, d_subs, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3):
+    d_air, d_subs, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3 = params
     k_1 *= freq * 1e-12
     k_2 *= freq * 1e-12
     k_3 *= freq * 1e-12
@@ -65,23 +66,37 @@ def H_sim(freq, d_air, d_subs, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3):
     # return H_0 * H_1 * H_2 * H_3 * H_subs
 
 
+def cost_function(params, *args):
+    
+    E_sam, E_ref_w, freqs = args
+    H_teo = H_sim(freqs, params)  # d_air, d_subs, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3)
+    E_sam_teo_w = E_ref_w * H_teo
+    E_sam_teo = irfft(E_sam_teo_w, n=E_sam.size)
+    return sum((E_sam_teo - E_sam)**2)  # + sum(params**2)
+
+
 # Main script
 # Main script
 # Boleto 176054
-t_ref, E_ref = read_1file('./data/airbus_transmision/ref_176054.txt')
-t_sam, E_sam = read_1file('./data/airbus_transmision/sam1_176054.txt')
+# t_ref, E_ref = read_1file('./data/airbus_transmision/ref_176054.txt')
+# t_sam, E_sam = read_1file('./data/airbus_transmision/sam1_176054.txt')
 
 # Boleto 180881
 # t_ref, E_ref = read_1file('./data/airbus_transmision/ref_180881.txt')
 # t_sam, E_sam = read_1file('./data/airbus_transmision/sam3_180881.txt')
 
 # Boleto 177910
-# t_ref, E_ref = read_1file('./data/airbus_transmision/ref_177910.txt')
-# t_sam, E_sam = read_1file('./data/airbus_transmision/sam3_177910.txt')
+t_ref, E_ref = read_1file('./data/airbus_transmision/ref_177910.txt')
+t_sam, E_sam = read_1file('./data/airbus_transmision/sam1_177910.txt')
+
+
+E_sam_raw = E_sam
 
 
 t_ref *= 1e-12
 t_sam *= 1e-12
+
+# E_sam = genetic_deno(t_ref, E_ref, t_sam, E_sam_raw)
 
 # plot(t_sam, E_sam, label='org')
 # print('Denoising')
@@ -93,8 +108,8 @@ delta_t_ref = mean(diff(t_ref))
 ref_pulse_idx = centre_loc(E_ref)
 window = tukey(2 * ref_pulse_idx)
 window = zero_padding(window, 0, E_ref.size - window.size)
-E_ref *= window
-E_sam *= window
+# E_ref *= window
+# E_sam *= window
 enlargement = 0 * E_ref.size
 E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
@@ -134,41 +149,67 @@ hgr_bnds = array((1e-3, 5e-3, 5, 10, 100e-6, 5, 10, 100e-6, 5, 10, 100e-6))
 # print(H_sim(f_ref, 20e-6, 2.0, 0.1, 50e-6, 2.0, 0.1, 50e-6, 2.0, 0.1, 50e-6))
 # quit()
 
+
+k_bounds = [  # calibration
+    (-1e-3, 1e-3),  # air thickness
+    (2.5, 3.5e-3),  # substrate thickness
+    (2, 5), (0, 1), (20e-6, 100e-6),  # White Coat
+    (2, 5), (0, 1), (10e-6, 50e-6),   # Green Coat
+    (2, 5), (0, 1), (1e-6, 25e-6)     # Primer
+]
+
+
 print('Fitting')
-
-
-def E_sim(times, d_air, d_subs, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3):
-    H_0 = H_sim(f_ref, d_air, d_subs, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3)
-    E_0 = irfft(H_0 * E_ref_w)
-    return E_0
-
-
 t1 = time_ns()
-popt, pcov = curve_fit(E_sim, t_sam, E_sam, p0,
-                       bounds=(lwr_bnds, hgr_bnds),
-                       method='dogbox'
-                       )
+res = differential_evolution(cost_function,
+                             k_bounds,
+                             args=(E_sam, E_ref_w, f_ref),
+                             popsize=45,
+                             maxiter=2000,
+                             disp=True,  # step cost_function value
+                             polish=True
+                             )
 t2 = time_ns()
 # print('popt =', popt)
 # print('pcov =', pcov)
 
 print('Results:')
-print('White coat --- n:', round(popt[2], 2), 'k:', round(popt[3], 2), 'd:', round(popt[4] * 1e6, 0))
-print('Green coat --- n:', round(popt[5], 2), 'k:', round(popt[6], 2), 'd:', round(popt[7] * 1e6, 0))
-print('Primer --- n:', round(popt[8], 2), 'k:', round(popt[9], 2), 'd:', round(popt[10] * 1e6, 0))
-print('Cork --- d:', round(popt[1], 2) * 1e3)
+print()
+d_air = res.x[0]
+d_subs = res.x[1]
+# print(res)
+# res.x = res.x[2:]
+print('White coat -', 'n:', round(res.x[2], 2), 'k:', round(res.x[3], 2), 'd:', round(res.x[4] * 1e6, 2), 'um')
+print('Green coat -', 'n:', round(res.x[5], 2), 'k:', round(res.x[6], 2), 'd:', round(res.x[7] * 1e6, 2), 'um')
+print('Primer coat -', 'n:', round(res.x[8], 2), 'k:', round(res.x[9], 2), 'd:', round(res.x[10] * 1e6, 2), 'um')
+print('Total:', round((res.x[4] + res.x[7] + res.x[10]) * 1e6, 2), 'um')
 
+print('Air -  d: ', round(d_air * 1e3, 2), 'mm')
+print('Subs -  d: ', round(d_subs * 1e3, 2), 'mm')
+
+print()
+secs = (t2-t1)*1e-9
+if secs < 3600:
+    print('Processing time (mm:ss):', strftime('%M:%S', gmtime(secs)))
+else:
+    print('Processing time (mm:ss):', strftime('%H:%M:%S', gmtime(secs)))
+print()
+
+
+H_fit = H_sim(f_ref, res.x)
+E_fit = irfft(H_fit * E_ref_w)
 figure(1)
-plot(t_ref, E_ref, label='ref')
-plot(t_sam, E_sam, label='sam') 
-plot(t_sam, E_sim(t_sam, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9], popt[10]), label='fit')
+# plot(t_ref, E_ref, label='ref')
+plot(t_sam, E_sam_raw, label='raw')
+plot(t_sam, E_sam, label='sam')
+plot(t_sam, E_fit, label='fit')
 legend()
 
 figure(2)
 plot(f_ref, abs(H_w))
-plot(f_ref, abs(H_sim(f_ref, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9], popt[10])))
+plot(f_ref, abs(H_fit))
 
 figure(3)
 plot(f_ref, unwrap(angle(H_w)))
-plot(f_ref, unwrap(angle(H_sim(f_ref, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5], popt[6], popt[7], popt[8], popt[9], popt[10]))))
+plot(f_ref, unwrap(angle(H_fit)))
 show()
