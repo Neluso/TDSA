@@ -1,0 +1,4 @@
+cork con pintura blanca, grosor por determinar
+
+ref metal cork = referencia metal
+ref cork = parte del corcho sin pintura

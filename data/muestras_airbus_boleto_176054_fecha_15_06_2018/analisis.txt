@@ -1,0 +1,292 @@
+Results sam metal wcoat1_avg_f.txt -  narrow bounds:
+
+White coat - n: 2.79 k: 0.29 d: 97.64 um
+Green coat - n: 1.84 k: 7.56 d: 22.92 um
+Primer coat - n: 3.0 k: 8.92 d: 8.55 um
+Total: 129.11 um
+
+Processing time: 2.109457931666667 min,  126.5674759 sec
+
+
+Results sam metal wcoat3_avg_f.txt -  narrow bounds:
+White coat - n: 3.23 k: 0.29 d: 81.81 um
+Green coat - n: 3.89 k: 7.77 d: 19.92 um
+Primer coat - n: 4.17 k: 7.62 d: 5.02 um
+Total: 106.76 um
+
+Processing time: 4.226535291666667 min,  253.59211750000003 sec
+
+
+Results sam metal wcoat3_avg_f.txt -  tailored optics bounds:
+White coat - n: 3.23 k: 0.29 d: 81.63 um
+Green coat - n: 3.94 k: 7.53 d: 11.93 um
+Primer coat - n: 4.21 k: 8.87 d: 13.19 um
+Total: 106.75 um
+
+
+Results sam metal wcoat3_avg_f.txt -  very narrow bounds::
+White coat - n: 3.22 k: 0.29 d: 81.92 um
+Green coat - n: 3.73 k: 7.69 d: 22.28 um
+Primer coat - n: 4.4 k: 7.69 d: 3.14 um
+Total: 107.34 um
+
+
+--------- MODEL DEBYE ---------
+
+alpha = 650
+     fun: 1.4625579462359446
+     jac: array([ 1.46036738e-02,  1.93965999e-01,  3.48785480e+08,  4.85793138e+04,
+        7.12867543e-03,  3.03873149e-02,  2.58788069e+09,  3.09239611e+05,
+        2.40252263e-05, -5.82844883e-04, -6.13544668e+03,  5.04629091e+05])
+ message: 'Optimization terminated successfully.'
+    nfev: 122787
+     nit: 674
+ success: True
+       x: array([1.31237544e+02, 1.00444364e+01, 8.59419803e-11, 7.70326152e-05,
+       4.45271111e+02, 1.15699914e+00, 4.62458718e-12, 2.17502287e-05,
+       1.60140876e+02, 1.88023626e+02, 7.44290433e-10, 5.66707037e-06])
+
+Results:
+White coat - n: 3.17 k: 0.1 d: 77.03 um
+Green coat - n: 4.73 k: 4.03 d: 21.75 um
+Primer coat - n: 13.71 k: 0.0 d: 5.67 um
+Total: 104.45 um
+
+Processing time (mm:ss): 0:57
+
+
+alpha = 600
+     fun: 1.2854355481360695
+ message: 'Optimization terminated successfully.'
+    nfev: 113783
+     nit: 626
+ success: True
+       x: array([5.49123552e+02, 1.00958092e+01, 3.26891292e-10, 7.70072858e-05,
+       1.78533849e+02, 1.02910624e+00, 1.63900322e-12, 2.14445171e-05,
+       1.69509195e+02, 5.77126042e+02, 6.73058052e-10, 3.20534252e-06])
+
+Results:
+White coat - n: 3.18 k: 0.12 d: 77.01 um
+Green coat - n: 5.2 k: 3.66 d: 21.44 um
+Primer coat - n: 24.02 k: 0.01 d: 3.21 um
+Total: 101.66 um
+
+Processing time (mm:ss): 0:48
+
+
+alpha = 550
+     fun: 1.2908489120313278
+ message: 'Optimization terminated successfully.'
+    nfev: 119053
+     nit: 656
+ success: True
+       x: array([1.30041782e+02, 1.00467787e+01, 7.20961871e-11, 7.71402206e-05,
+       1.81241251e+02, 1.00086126e+00, 1.69091108e-12, 2.14801455e-05,
+       5.25733628e+02, 5.46478070e+02, 3.38299842e-10, 3.28898880e-06])
+
+Results:
+White coat - n: 3.17 k: 0.12 d: 77.14 um
+Green coat - n: 5.15 k: 3.66 d: 21.48 um
+Primer coat - n: 23.38 k: 0.0 d: 3.29 um
+Total: 101.91 um
+
+Processing time (mm:ss): 0:52
+
+
+alpha = 500
+     fun: 1.3047326647059432
+ message: 'Optimization terminated successfully.'
+    nfev: 102224
+     nit: 562
+ success: True
+       x: array([4.97923535e+02, 1.00649699e+01, 2.97175593e-10, 7.70310532e-05,
+       1.81993671e+02, 1.02231487e+00, 1.70250770e-12, 2.14182463e-05,
+       1.34500724e+02, 4.90425583e+02, 5.39964119e-10, 3.44320195e-06])
+
+Results:
+White coat - n: 3.18 k: 0.12 d: 77.03 um
+Green coat - n: 5.15 k: 3.66 d: 21.42 um
+Primer coat - n: 22.15 k: 0.01 d: 3.44 um
+Total: 101.89 um
+
+Processing time (mm:ss): 0:46
+
+
+alpha = 450
+     fun: 1.3220135729821956
+ message: 'Optimization terminated successfully.'
+    nfev: 100201
+     nit: 553
+ success: True
+       x: array([1.28973429e+02, 1.00725539e+01, 7.28706385e-11, 7.71392715e-05,
+       1.89546359e+02, 1.08117740e+00, 1.73885659e-12, 2.10331708e-05,
+       2.07944045e+02, 4.29072423e+02, 3.43840840e-10, 3.67775486e-06])
+
+Results:
+White coat - n: 3.18 k: 0.12 d: 77.14 um
+Green coat - n: 5.2 k: 3.71 d: 21.03 um
+Primer coat - n: 20.71 k: 0.01 d: 3.68 um
+Total: 101.85 um
+
+Processing time (mm:ss): 0:45
+
+alpha = 400
+     fun: 1.3276609845788838
+ message: 'Optimization terminated successfully.'
+    nfev: 106340
+     nit: 584
+ success: True
+       x: array([3.90393120e+02, 1.00559941e+01, 2.37536307e-10, 7.70757517e-05,
+       1.93980640e+02, 1.05106918e+00, 1.83315303e-12, 2.12539173e-05,
+       2.19995424e+02, 3.99183992e+02, 7.87199063e-10, 3.83367598e-06])
+
+Results:
+White coat - n: 3.18 k: 0.12 d: 77.08 um
+Green coat - n: 5.11 k: 3.7 d: 21.25 um
+Primer coat - n: 19.98 k: 0.0 d: 3.83 um
+Total: 102.16 um
+
+Processing time (mm:ss): 0:46
+
+
+alpha = 350
+     fun: 1.3378908588536262
+     jac: array([ 9.30888699e-03,  1.13442566e-01,  4.02418216e+08,  4.92825410e+04,
+        1.56068491e-02,  9.59644142e-02,  2.48253457e+09,  3.29367979e+05,
+        2.69340106e-05, -3.70592446e-05, -1.97943321e+04,  3.84383024e+05])
+ message: 'Optimization terminated successfully.'
+    nfev: 160782
+     nit: 884
+ success: True
+       x: array([2.40648203e+02, 1.00965466e+01, 1.45368335e-10, 7.70220740e-05,
+       2.07297516e+02, 1.01039712e+00, 1.94700818e-12, 2.09610556e-05,
+       1.11470544e+02, 3.42116006e+02, 5.02797157e-10, 4.14422217e-06])
+
+Results:
+White coat - n: 3.18 k: 0.12 d: 77.02 um
+Green coat - n: 5.12 k: 3.77 d: 20.96 um
+Primer coat - n: 18.5 k: 0.01 d: 4.14 um
+Total: 102.13 um
+
+Processing time (mm:ss): 1:9
+
+
+alpha = 300
+     fun: 1.3607129511550535
+ message: 'Optimization terminated successfully.'
+    nfev: 89132
+     nit: 491
+ success: True
+       x: array([2.82629052e+02, 9.97626844e+00, 1.74935005e-10, 7.71837234e-05,
+       2.00421354e+02, 1.02973017e+00, 1.94765938e-12, 2.11944701e-05,
+       5.18185550e+01, 2.94748685e+02, 5.68193997e-10, 4.39147806e-06])
+
+Results:
+White coat - n: 3.16 k: 0.11 d: 77.18 um
+Green coat - n: 5.04 k: 3.7 d: 21.19 um
+Primer coat - n: 17.17 k: 0.01 d: 4.39 um
+Total: 102.77 um
+
+Processing time (mm:ss): 0:39
+
+
+alpha = 250
+     fun: 1.3783175172406328
+ message: 'Optimization terminated successfully.'
+    nfev: 91481
+     nit: 506
+ success: True
+       x: array([1.38254147e+02, 1.00079979e+01, 8.17833111e-11, 7.74346994e-05,
+       2.04835824e+02, 1.01947639e+00, 1.90299318e-12, 2.02568537e-05,
+       1.54470493e+02, 2.33303796e+02, 5.57817448e-10, 4.86075248e-06])
+
+Results:
+White coat - n: 3.17 k: 0.11 d: 77.43 um
+Green coat - n: 5.15 k: 3.77 d: 20.26 um
+Primer coat - n: 15.27 k: 0.0 d: 4.86 um
+Total: 102.55 um
+
+Processing time (mm:ss): 0:40
+
+
+alpha = 200
+     fun: 1.4009762460690114
+ message: 'Optimization terminated successfully.'
+    nfev: 67295
+     nit: 366
+ success: True
+       x: array([1.81212419e+02, 9.94226603e+00, 1.12612578e-10, 7.71352574e-05,
+       1.99577940e+02, 1.04722223e+00, 1.98197296e-12, 2.07770724e-05,
+       1.45677062e+02, 1.97359802e+02, 3.92693441e-12, 5.18082287e-06])
+
+Results:
+White coat - n: 3.16 k: 0.11 d: 77.14 um
+Green coat - n: 4.98 k: 3.67 d: 20.78 um
+Primer coat - n: 14.01 k: 0.21 d: 5.18 um
+Total: 103.09 um
+
+Processing time (mm:ss): 0:29
+
+
+alpha = 150
+     fun: 1.4707816505151123
+ message: 'Optimization terminated successfully.'
+    nfev: 83560
+     nit: 456
+ success: True
+       x: array([1.37738771e+02, 9.85876827e+00, 8.01777600e-11, 7.70087428e-05,
+       1.49944040e+02, 1.02116972e+00, 1.48204345e-12, 2.04500802e-05,
+       1.01913655e+02, 1.47214392e+02, 5.35985923e-10, 5.25654750e-06])
+
+Results:
+White coat - n: 3.14 k: 0.12 d: 77.01 um
+Green coat - n: 5.02 k: 3.44 d: 20.45 um
+Primer coat - n: 12.13 k: 0.0 d: 5.26 um
+Total: 102.72 um
+
+Processing time (mm:ss): 0:37
+
+
+alpha = 100
+     fun: 1.3803405372883362
+ message: 'Optimization terminated successfully.'
+    nfev: 122849
+     nit: 669
+ success: True
+       x: array([1.38474270e+01, 9.48763418e+00, 1.19047930e-12, 7.70189145e-05,
+       9.75328667e+01, 1.41739577e+00, 8.97416295e-13, 2.00754454e-05,
+       3.07918136e+01, 6.77796994e+01, 9.75838955e-10, 1.01520777e-06])
+
+Results:
+White coat - n: 3.18 k: 0.19 d: 77.02 um
+Green coat - n: 5.19 k: 2.99 d: 20.08 um
+Primer coat - n: 8.23 k: 0.0 d: 1.02 um
+Total: 98.11 um
+
+Processing time (mm:ss): 0:56
+
+
+alpha = 50
+     fun: 1.4654685070964333
+     jac: array([-6.84106971e-01, -5.66107605e-02,  1.25223643e+09,  5.41117078e+04,
+        8.92732555e-03,  3.51174645e-03,  1.19343935e+09, -2.41857351e+04,
+        5.10702591e-07,  1.53210777e-06,  1.09285789e+00, -2.47119486e+04])
+ message: 'Optimization terminated successfully.'
+    nfev: 84812
+     nit: 467
+ success: True
+       x: array([
+       1.37157533e+01, 8.87807979e+00, 9.27295197e-13, 7.70040590e-05,
+       4.98838824e+01, 1.00590286e+00, 5.77662442e-13, 2.00918736e-05,
+       1.52596520e+01, 2.60364895e+01, 4.54303290e-10, 1.01517677e-06
+       ])
+
+Results:
+White coat - n: 3.14 k: 0.24 d: 77.0 um
+Green coat - n: 4.49 k: 2.17 d: 20.09 um
+Primer coat - n: 5.1 k: 0.0 d: 1.02 um
+Total: 98.11 um
+
+Processing time (mm:ss): 0:42
+
+
