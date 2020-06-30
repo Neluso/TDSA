@@ -27,12 +27,12 @@ def cr(n_1, n_2):
 
 def phase_factor(n, thick, freq):  # theta in radians
     omg = 2 * pi * freq
-    phi = 2 * omg * thick / c_0
+    phi = omg * thick / c_0
     return np.exp(- 1j * n * phi)
 
 
 def fabry_perot(n_in, n_out, n_l, d_l, freq):
-    return 1 / (1 - cr(n_in, n_l) * cr(n_l, n_out) * phase_factor(n_l, d_l, freq))
+    return 1 / (1 - cr(n_in, n_l) * cr(n_l, n_out) * phase_factor(n_l, 2*d_l, freq))
 
 
 def H_sim(freq, d_air, d_subs, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_3, d_3):
