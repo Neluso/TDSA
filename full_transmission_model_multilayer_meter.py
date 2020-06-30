@@ -40,15 +40,6 @@ def cr_l_1_l(n_l, n_l_1):  # from n_l-1 to n_l
     return - (n_l_1 - n_l) / (n_l_1 + n_l)
 
 
-# def phase_factor(n, k, thick_n, thick_k, freq):  # theta in radians
-#     omg = 2 * pi * freq
-#     thick_n *= cos(theta(n))
-#     phi_n = 2 * omg * thick_n / c_0
-#     thick_k *= cos(theta(n))
-#     phi_k = 2 * omg * thick_k / c_0
-#     return exp(- 1j * phi_n) * exp(- k * phi_k)
-
-
 def phase_factor(n, thick, freq):  # theta in radians
     omg = 2 * pi * freq
     thick *= cos(theta(n))
@@ -62,21 +53,8 @@ def epsilon(e_s, e_inf, tau, freq):  # Debye model
     return e_w
 
 
-def epsilon_cc(e_s, e_inf, tau, alpha, freq):  # Cole-Cole mode
-    omg = 2 * pi * freq
-    e_w = e_inf + (e_s - e_inf) / (1 + (1j * omg * tau)**(alpha))
-    return e_w
-
-
 def nk_from_eps(e_s, e_inf, tau, freq):
     e_w = epsilon(e_s, e_inf, tau, freq)
-    n = sqrt((abs(e_w) + real(e_w)) / 2)
-    k = sqrt((abs(e_w) - real(e_w)) / 2)
-    return n, k
-
-
-def nk_from_eps_cc(e_s, e_inf, tau, alpha, freq):
-    e_w = epsilon_cc(e_s, e_inf, tau, alpha, freq)
     n = sqrt((abs(e_w) + real(e_w)) / 2)
     k = sqrt((abs(e_w) - real(e_w)) / 2)
     return n, k
@@ -98,7 +76,7 @@ def H_sim(freq, params):  # d_air, d_subs, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_
     # k_2 *= freq * 1e-12
     # k_3 *= freq * 1e-12
     
-    # d_air = - d_subs - d_1 - d_2 - d_3
+    # d_air1 = - d_subs - d_1 - d_2 - d_3
     
     H_0 = phase_factor(n_air_cplx, d_air, freq)
     
@@ -171,7 +149,7 @@ f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
 
 H_w = E_sam_w / E_ref_w
-alpha = 1
+alpha = 3
 beta = 15
 k_bounds = [  # calibration
     (-3e-3, 0),  # 3e-3),  # air thickness
@@ -250,9 +228,11 @@ plot(f_ref, unwrap(angle(H_fit)))
 
 figure(4)
 title('n')
+xlim([0, 2e12])
 legend()
 figure(5)
 title('k')
+xlim([0, 2e12])
 legend()
 
 show()
