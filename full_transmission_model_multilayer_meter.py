@@ -150,14 +150,14 @@ f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
 
 H_w = E_sam_w / E_ref_w
 alpha = 3
-beta = 15
+beta = 12
 k_bounds = [  # calibration
-    (-3e-3, 0),  # 3e-3),  # air thickness
+    (-3.5e-3, -2.5e-3),  # 3e-3),  # air thickness
     (2.5e-3, 3.5e-3),  # substrate thickness
     (alpha, beta), (alpha, beta), (1e-14, 1e-11), (20e-6, 100e-6),
     (alpha, beta), (alpha, beta), (1e-14, 1e-11), (20e-6, 100e-6),
     (alpha, beta), (alpha, beta), (1e-14, 1e-11), (1e-6, 20e-6)
-    , (1, 1.5)  # substrate index
+    , (1.15, 1.3)  # substrate index
 ]
 
 print('Fitting')
@@ -166,6 +166,7 @@ res = differential_evolution(cost_function,
                              k_bounds,
                              args=(E_sam, E_ref_w, f_ref),
                              # popsize=150,
+                             popsize=45,
                              maxiter=2000,
                              disp=True,  # step cost_function value
                              polish=True
@@ -229,6 +230,7 @@ plot(f_ref, unwrap(angle(H_fit)))
 figure(4)
 title('n')
 xlim([0, 2e12])
+ylim([1, 4])
 legend()
 figure(5)
 title('k')
