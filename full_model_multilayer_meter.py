@@ -9,9 +9,9 @@ snell_sin = n_air * sin(deg_in * pi / 180)
 layers = 3
 # epsilon_model = 'debye'
 # epsilon_model = 'cole'
-n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
+# n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
 # n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index -- metal
-# n_subs = 1.25 - 0.0 * 1j  # substrate refractive index -- cork 2.0
+n_subs = 1.25 - 0.0 * 1j  # substrate refractive index -- cork 2.0
 
 
 # function definitions
@@ -97,7 +97,12 @@ def cost_function(params, *args):
     H_teo = H_sim(ns, ks, thicks, d_air, freqs)
     E_sam_teo_w = E_ref_w * H_teo
     E_sam_teo = irfft(E_sam_teo_w, n=E_sam.size)
-    return sum((E_sam_teo - E_sam)**2)  # + sum(params**2)
+    aus, E_sam_w = fourier_analysis(freqs, E_sam)
+    f_min_idx, f_max_idx = f_min_max_idx(freqs, 0.1, 1.1)
+    H_w = E_sam_w / E_ref_w
+    H_w = H_w[f_min_idx:f_max_idx]
+    H_teo = H_teo[f_min_idx:f_max_idx]
+    return sum((E_sam_teo - E_sam)**2) + sum((abs(H_teo) - abs(H_w))**2) + sum((unwrap(angle(H_teo)) - unwrap(angle(H_w)))**2)
 
 
 # Main script
@@ -107,7 +112,7 @@ def cost_function(params, *args):
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
 t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat3_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat2_avg_f.txt')
 
 # Boleto 180881
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
@@ -156,12 +161,12 @@ H_w = E_sam_w / E_ref_w
 # ]
 
 alpha = 3
-beta = 12
+beta = 20
 k_bounds = [  # calibration
     (-100e-6, 100e-6),  # air thickness
-    (alpha, beta), (alpha, beta), (1e-15, 1e-9), (1e-6, 100e-6),
-    (alpha, beta), (alpha, beta), (1e-15, 1e-9), (1e-6, 100e-6),
-    (alpha, beta), (alpha, beta), (1e-15, 1e-9), (1e-6, 100e-6)
+    (alpha, beta), (alpha, beta), (1e-15, 2e-12), (1e-6, 100e-6),
+    (alpha, beta), (alpha, beta), (1e-15, 2e-12), (1e-6, 100e-6),
+    (alpha, beta), (alpha, beta), (1e-15, 2e-12), (1e-6, 100e-6)
 ]
 
 print('Fitting')
@@ -217,13 +222,24 @@ thicks = array(thicks)
 H_fit = H_sim(ns, ks, thicks, d_air, f_ref)
 E_fit = irfft(H_fit * E_ref_w)
 
-f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0, 1.5)
+f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0.05, 1.5)
 
 
 t_sam *= 1e12
 t_ref *= 1e12
 f_ref *= 1e-12
 f_sam *= 1e-12
+
+f_ref = f_ref[f_min_idx:f_max_idx]
+H_w = H_w[f_min_idx:f_max_idx]
+H_fit = H_fit[f_min_idx:f_max_idx]
+n1 = n1[f_min_idx:f_max_idx]
+k1 = k1[f_min_idx:f_max_idx]
+n2 = n2[f_min_idx:f_max_idx]
+k2 = k2[f_min_idx:f_max_idx]
+n3 = n3[f_min_idx:f_max_idx]
+k3 = k3[f_min_idx:f_max_idx]
+
 
 figure(1)
 plot(t_sam, E_sam, label='sam')
@@ -235,8 +251,7 @@ legend()
 figure(2)
 plot(f_ref, abs(H_w), label='sam')
 plot(f_ref, abs(H_fit), label='fit')
-xlim([0, f_ref[f_max_idx]])
-ylim([0, 1.1 * max(abs(H_w)[f_min_idx:f_max_idx])])
+xlim([f_ref[0], f_ref[-1]])
 ylabel('Abs')
 xlabel('f (THz)')
 legend()
@@ -244,8 +259,7 @@ legend()
 figure(3)
 plot(f_ref[f_min_idx:f_max_idx], unwrap(angle(H_w))[f_min_idx:f_max_idx], label='sam')
 plot(f_ref[f_min_idx:f_max_idx], unwrap(angle(H_fit))[f_min_idx:f_max_idx], label='fit')
-xlim([0, f_ref[f_max_idx]])
-# ylim([0.9 * min(unwrap(angle(H_w))[f_min_idx:f_max_idx]), 1.1 * max(unwrap(angle(H_w))[f_min_idx:f_max_idx])])
+xlim([f_ref[0], f_ref[-1]])
 ylabel('Arg')
 xlabel('f (THz)')
 legend()
@@ -256,8 +270,7 @@ plot(f_ref, n2, label='g')
 if layers == 3:
     plot(f_ref, n3, label='p')
 title('n')
-xlim([0, f_ref[f_max_idx]])
-# ylim([1, sqrt(beta) * 1.1])
+xlim([f_ref[0], f_ref[-1]])
 ylabel('n')
 xlabel('f (THz)')
 legend()
@@ -268,8 +281,7 @@ plot(f_ref, k2, label='g')
 if layers == 3:
     plot(f_ref, k3, label='p')
 title('k')
-xlim([0, f_ref[f_max_idx]])
-ylim([0, 1])
+xlim([f_ref[0], f_ref[-1]])
 ylabel('k')
 xlabel('f (THz)')
 legend()

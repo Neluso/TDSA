@@ -34,8 +34,8 @@ def cr(ni, nt):  # from n_l-1 to n_l
 def phase_factor(n, k, thick, freq):  # theta in radians
     omg = 2 * pi * freq
     thick *= cos(theta(n))
-    phi_n = 2 * omg * thick / c_0
-    phi_k = 2 * omg * thick / c_0
+    phi_n = omg * thick / c_0
+    phi_k = omg * thick / c_0
     return exp(- 1j * phi_n) * exp(- k * phi_k)
 
 
@@ -85,7 +85,7 @@ def H_sim(ns, ks, thicks, d_air, freq):
     r01 = cr(ns[0] - 1j * ks[0], ns[1] - 1j * ks[1])
     r0a = cr(ns[0] - 1j * ks[0], n_air_cplx)
     exp_phi = phase_factor(ns[0], ks[0], thicks[0], freq)
-    H_t.append(ta0 * exp_phi * t01 / (1 - r01 * r0a * exp_phi))
+    H_t.append(phase_factor(n_air, 0, d_air, freq) * ta0 * exp_phi * t01 / (1 - r01 * r0a * exp_phi))
     
     # Mid layers through
     for i in range(1, layers - 1):
@@ -99,7 +99,7 @@ def H_sim(ns, ks, thicks, d_air, freq):
     rpl = cr(ns[-2] - 1j * ns[-2], ns[-1] - 1j * ns[-1])
     tlp = ct(ns[-1] - 1j * ns[-1], ns[-2] - 1j * ns[-2])
     rls = cr(ns[-1] - 1j * ns[-1], n_subs)  # s = substrate
-    exp_phi = phase_factor(ns[-1], ks[-1], thicks[-1], freq)
+    exp_phi = phase_factor(ns[-1], ks[-1], 2 * thicks[-1], freq)
     H_r = rpl + H_t[-1] * tlp * rls * exp_phi / (1 + rpl * rls * exp_phi)
     
     # Mid layers reflection
@@ -108,14 +108,14 @@ def H_sim(ns, ks, thicks, d_air, freq):
         rpl = cr(ns[j-1] - 1j * ns[j-1], ns[j] - 1j * ns[j])
         tlp = ct(ns[j] - 1j * ns[j], ns[j-1] - 1j * ns[j-1])
         rlf = cr(ns[j] - 1j * ns[j], ns[j+1] - 1j * ns[j+1])
-        exp_phi = phase_factor(ns[j], ks[j], thicks[j], freq)
+        exp_phi = phase_factor(ns[j], ks[j], 2 * thicks[j], freq)
         H_r = rpl + H_t[j-1] * tlp * H_r * exp_phi / (1 + rpl * H_r * exp_phi)
         
     # First layer reflection
     ta0 = ct(n_air_cplx, ns[0] - 1j * ks[0])
     t0a = ct(ns[0] - 1j * ks[0], n_air_cplx)
     r0a = cr(ns[0] - 1j * ks[0], n_air_cplx)
-    exp_phi = phase_factor(ns[0], ks[0], thicks[0], freq)
+    exp_phi = phase_factor(ns[0], ks[0], 2 * thicks[0], freq)
     H_r = r0a + ta0 * t0a * H_r * exp_phi / (1 + r0a * H_r * exp_phi)
     
     return H_r * phase_factor(n_air, 0, d_air, freq)
@@ -172,8 +172,8 @@ delta_t_ref = mean(diff(t_ref))
 ref_pulse_idx = centre_loc(E_ref)
 window = tukey(2 * ref_pulse_idx)
 window = zero_padding(window, 0, E_ref.size - window.size)
-E_ref *= window
-E_sam *= window
+# E_ref *= window
+# E_sam *= window
 enlargement = 0 * E_ref.size
 E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
@@ -189,13 +189,13 @@ f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
 H_w = E_sam_w / E_ref_w
 
-alpha = 3
-beta = 15
+alpha = 1
+beta = 100
 k_bounds = [  # calibration
-    (-100e-6, 100e-6),  # air thickness
-    (alpha, beta), (alpha, beta), (0, 1e-13), (10e-6, 200e-6),
-    (alpha, beta), (alpha, beta), (0, 1e-13), (10e-6, 200e-6),
-    (alpha, beta), (alpha, beta), (0, 1e-13), (1e-6, 20e-6)
+    (-200e-6, 200e-6),  # air thickness
+    (alpha, beta), (alpha, beta), (0, 1), (1e-6, 1000e-6),
+    (alpha, beta), (alpha, beta), (0, 1), (1e-6, 1000e-6),
+    (alpha, beta), (alpha, beta), (0, 1), (1e-6, 1000e-6)
 ]
 
 print('Fitting')
@@ -203,8 +203,8 @@ t1 = time_ns()
 res = differential_evolution(cost_function,
                              k_bounds,
                              args=(E_sam, E_ref_w, f_ref),
-                             popsize=45,
-                             # maxiter=2000,
+                             popsize=60,
+                             maxiter=2000,
                              disp=True,  # step cost_function value
                              polish=True
                              )
