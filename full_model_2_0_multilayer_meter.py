@@ -147,12 +147,12 @@ def cost_function(params, *args):
 
 # Main script
 # Boleto 176054
-t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat3_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
-# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat2_avg_f.txt')
+t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat1_avg_f.txt')
 
 # Boleto 180881
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
@@ -189,13 +189,22 @@ f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
 H_w = E_sam_w / E_ref_w
 
-alpha = 1
-beta = 100
+# alpha = 1
+# beta = 100
+# k_bounds = [  # calibration
+#     (-200e-6, 200e-6),  # air thickness
+#     (alpha, beta), (alpha, beta), (0, 1), (1e-6, 1000e-6),
+#     (alpha, beta), (alpha, beta), (0, 1), (1e-6, 1000e-6),
+#     (alpha, beta), (alpha, beta), (0, 1), (1e-6, 1000e-6)
+# ]
+
+alpha = 10
+beta = 12
 k_bounds = [  # calibration
-    (-200e-6, 200e-6),  # air thickness
-    (alpha, beta), (alpha, beta), (0, 1), (1e-6, 1000e-6),
-    (alpha, beta), (alpha, beta), (0, 1), (1e-6, 1000e-6),
-    (alpha, beta), (alpha, beta), (0, 1), (1e-6, 1000e-6)
+    (-100e-6, 100e-6),  # air thickness
+    (alpha, beta), (alpha, beta), (0, 1), (1e-6, 100e-6),
+    (alpha, beta), (alpha, beta), (0, 1), (1e-6, 100e-6),
+    (alpha, beta), (alpha, beta), (0, 1), (1e-6, 100e-6)
 ]
 
 print('Fitting')
@@ -213,22 +222,22 @@ print()
 d_air = res.x[0]
 print(res)
 n1, k1 = nk_from_eps(res.x[1], res.x[2], res.x[3], f_ref)
-print('White coat -', 'n:', round(mean(n1), 2), 'k:', round(mean(k1), 2), 'd:', round(res.x[4] * 1e6, 2), 'um')
-print('\t\t e_s:', res.x[2], 'e_inf', res.x[1], 'tau', res.x[3])
+print('White coat -', 'n:', round(mean(n1), 2), 'k:', round(mean(k1), 2), 'd:', round(res.x[4] * 1e6, 0), 'um')
+print('\t\t e_s:', round(res.x[2], 2), 'e_inf', round(res.x[1], 2), 'tau', res.x[3])
 n2, k2 = nk_from_eps(res.x[5], res.x[6], res.x[7], f_ref)
-print('Green coat -', 'n:', round(mean(n2), 2), 'k:', round(mean(k2), 2), 'd:', round(res.x[8] * 1e6, 2), 'um')
-print('\t\t e_s:', res.x[6], 'e_inf', res.x[5], 'tau', res.x[7])
+print('Green coat -', 'n:', round(mean(n2), 2), 'k:', round(mean(k2), 2), 'd:', round(res.x[8] * 1e6, 0), 'um')
+print('\t\t e_s:', res.x[6], 'e_inf:', res.x[5], 'tau:', res.x[7])
 n3, k3 = nk_from_eps(res.x[9], res.x[10], res.x[11], f_ref)
-print('Primer coat -', 'n:', round(mean(n3), 2), 'k:', round(mean(k3), 2), 'd:', round(res.x[12] * 1e6, 2), 'um')
-print('\t\t e_s:', res.x[10], 'e_inf', res.x[9], 'tau', res.x[11])
-print('Total:', round((res.x[4] + res.x[8] + res.x[12]) * 1e6, 2), 'um')
+print('Primer coat -', 'n:', round(mean(n3), 2), 'k:', round(mean(k3), 2), 'd:', round(res.x[12] * 1e6, 0), 'um')
+print('\t\t e_s:', res.x[10], 'e_inf:', res.x[9], 'tau:', res.x[11])
+print('Total:', round((res.x[4] + res.x[8] + res.x[12]) * 1e6, 0), 'um')
 print()
 print('Air - d: ', round(d_air * 1e6, 2), 'um')
 secs = (t2-t1)*1e-9
 if secs < 3600:
     print('Processing time (mm:ss):', strftime('%M:%S', gmtime(secs)))
 else:
-    print('Processing time (mm:ss):', strftime('%H:%M:%S', gmtime(secs)))
+    print('Processing time (hh:mm:ss):', strftime('%H:%M:%S', gmtime(secs)))
 print()
 
 
@@ -251,13 +260,24 @@ thicks = array(thicks)
 H_fit = H_sim(ns, ks, thicks, d_air, f_ref)
 E_fit = irfft(H_fit * E_ref_w)
 
-f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0, 1.5)
+f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0.05, 1.5)
 
 
 t_sam *= 1e12
 t_ref *= 1e12
 f_ref *= 1e-12
 f_sam *= 1e-12
+
+f_ref = f_ref[f_min_idx:f_max_idx]
+H_w = H_w[f_min_idx:f_max_idx]
+H_fit = H_fit[f_min_idx:f_max_idx]
+n1 = n1[f_min_idx:f_max_idx]
+k1 = k1[f_min_idx:f_max_idx]
+n2 = n2[f_min_idx:f_max_idx]
+k2 = k2[f_min_idx:f_max_idx]
+n3 = n3[f_min_idx:f_max_idx]
+k3 = k3[f_min_idx:f_max_idx]
+
 
 figure(1)
 plot(t_sam, E_sam, label='sam')
@@ -269,8 +289,7 @@ legend()
 figure(2)
 plot(f_ref, abs(H_w), label='sam')
 plot(f_ref, abs(H_fit), label='fit')
-xlim([0, f_ref[f_max_idx]])
-ylim([0, 1.1 * max(abs(H_w)[f_min_idx:f_max_idx])])
+xlim([f_ref[0], f_ref[-1]])
 ylabel('Abs')
 xlabel('f (THz)')
 legend()
@@ -278,8 +297,7 @@ legend()
 figure(3)
 plot(f_ref[f_min_idx:f_max_idx], unwrap(angle(H_w))[f_min_idx:f_max_idx], label='sam')
 plot(f_ref[f_min_idx:f_max_idx], unwrap(angle(H_fit))[f_min_idx:f_max_idx], label='fit')
-xlim([0, f_ref[f_max_idx]])
-# ylim([0.9 * min(unwrap(angle(H_w))[f_min_idx:f_max_idx]), 1.1 * max(unwrap(angle(H_w))[f_min_idx:f_max_idx])])
+xlim([f_ref[0], f_ref[-1]])
 ylabel('Arg')
 xlabel('f (THz)')
 legend()
@@ -290,8 +308,7 @@ plot(f_ref, n2, label='g')
 if layers == 3:
     plot(f_ref, n3, label='p')
 title('n')
-xlim([0, f_ref[f_max_idx]])
-# ylim([1, sqrt(beta) * 1.1])
+xlim([f_ref[0], f_ref[-1]])
 ylabel('n')
 xlabel('f (THz)')
 legend()
@@ -302,8 +319,7 @@ plot(f_ref, k2, label='g')
 if layers == 3:
     plot(f_ref, k3, label='p')
 title('k')
-xlim([0, f_ref[f_max_idx]])
-ylim([0, 1])
+xlim([f_ref[0], f_ref[-1]])
 ylabel('k')
 xlabel('f (THz)')
 legend()

@@ -9,9 +9,9 @@ snell_sin = n_air * sin(deg_in * pi / 180)
 layers = 3
 # epsilon_model = 'debye'
 # epsilon_model = 'cole'
-# n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
+n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
 # n_subs = 1.17e20 - 0.0 * 1j  # substrate refractive index -- metal
-n_subs = 1.25 - 0.0 * 1j  # substrate refractive index -- cork 2.0
+# n_subs = 1.25 - 0.0 * 1j  # substrate refractive index -- cork 2.0
 
 
 # function definitions
@@ -112,7 +112,7 @@ def cost_function(params, *args):
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/ref metal gcoat_avg_f.txt')
 # t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_g_coat/sam metal gcoat1_avg_f.txt')
 t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/ref metal cork wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat2_avg_f.txt')
+t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/cork_w_coat/sam cork wcoat1_avg_f.txt')
 
 # Boleto 180881
 # t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_180881_fecha_24_11_2017/metal_w_coat/ref metal wcoat_avg_f.txt')
@@ -160,13 +160,20 @@ H_w = E_sam_w / E_ref_w
 #     (alpha, beta), (alpha, beta), (1e-14, 1e-12), (1e-6, 20e-6)
 # ]
 
-alpha = 3
-beta = 20
+alpha = 10
+beta = 15
+# k_bounds = [  # calibration
+#     (-100e-6, 100e-6),  # air thickness
+#     (alpha, beta), (alpha, beta), (1e-15, 2e-12), (1e-6, 100e-6),
+#     (alpha, beta), (alpha, beta), (1e-15, 2e-12), (1e-6, 100e-6),
+#     (alpha, beta), (alpha, beta), (1e-15, 2e-12), (1e-6, 100e-6)
+# ]
+
 k_bounds = [  # calibration
     (-100e-6, 100e-6),  # air thickness
-    (alpha, beta), (alpha, beta), (1e-15, 2e-12), (1e-6, 100e-6),
-    (alpha, beta), (alpha, beta), (1e-15, 2e-12), (1e-6, 100e-6),
-    (alpha, beta), (alpha, beta), (1e-15, 2e-12), (1e-6, 100e-6)
+    (alpha, beta), (alpha, beta), (0, 1e-13), (1e-6, 100e-6),
+    (alpha, beta), (alpha, beta), (0, 1e-13), (1e-6, 100e-6),
+    (alpha, beta), (alpha, beta), (0, 1e-13), (1e-6, 100e-6)
 ]
 
 print('Fitting')
