@@ -52,18 +52,18 @@ def H_sim(freq, params):  # d_air, d_subs, n_1, k_1, d_1, n_2, k_2, d_2, n_3, k_
     H_2 = H_1 * ct(n_2 - 1j * k_2, n_3 - 1j * k_3) * phase_factor(n_2 - 1j * k_2, d_2, freq)
     H_2 *= fabry_perot(n_1 - 1j * k_1, n_3 - 1j * k_3, n_2 - 1j * k_2, d_2, freq)
 
-    # Layer 3
-    # H_3 = ct(n_2 - 1j * k_2, n_3 - 1j * k_3) * ct(n_3 - 1j * k_3, n_subs) * phase_factor(n_3 - 1j * k_3, d_3, freq)
-    H_3 = H_2 * ct(n_3 - 1j * k_3, n_subs) * phase_factor(n_3 - 1j * k_3, d_3, freq)
-    H_3 *= fabry_perot(n_2 - 1j * k_2, n_subs, n_3 - 1j * k_3, d_3, freq)
+    # # Layer 3
+    # # H_3 = ct(n_2 - 1j * k_2, n_3 - 1j * k_3) * ct(n_3 - 1j * k_3, n_subs) * phase_factor(n_3 - 1j * k_3, d_3, freq)
+    # H_3 = H_2 * ct(n_3 - 1j * k_3, n_subs) * phase_factor(n_3 - 1j * k_3, d_3, freq)
+    # H_3 *= fabry_perot(n_2 - 1j * k_2, n_subs, n_3 - 1j * k_3, d_3, freq)
 
-    # Substrate
-    # H_subs = ct(n_3 - 1j * k_3, n_subs) * ct(n_subs, n_air_cplx) * phase_factor(n_subs, d_subs, freq)
-    H_subs = H_3 * ct(n_subs, n_air_cplx) * phase_factor(n_subs, d_subs, freq)
-    # H_subs *= fabry_perot(n_3 - 1j * k_3, n_air_cplx, n_subs, d_subs, freq)
+    # # Substrate
+    # # H_subs = ct(n_3 - 1j * k_3, n_subs) * ct(n_subs, n_air_cplx) * phase_factor(n_subs, d_subs, freq)
+    # H_subs = H_3 * ct(n_subs, n_air_cplx) * phase_factor(n_subs, d_subs, freq)
+    # # H_subs *= fabry_perot(n_3 - 1j * k_3, n_air_cplx, n_subs, d_subs, freq)
 
-    return H_1 * H_2 * H_3 * H_subs
-    # return H_0 * H_1 * H_2 * H_3 * H_subs
+    # return H_1 * H_2  # * H_3 * H_subs
+    return H_0 * H_1 * H_2  # * H_3 * H_subs
 
 
 def cost_function(params, *args):
@@ -78,8 +78,8 @@ def cost_function(params, *args):
 # Main script
 # Main script
 # Boleto 176054
-t_ref, E_ref = read_1file('./data/airbus_transmision/ref_176054.txt')
-t_sam, E_sam = read_1file('./data/airbus_transmision/sam1_176054.txt')
+# t_ref, E_ref = read_1file('./data/airbus_transmision/ref_176054.txt')
+# t_sam, E_sam = read_1file('./data/airbus_transmision/sam1_176054.txt')
 
 # Boleto 180881
 # t_ref, E_ref = read_1file('./data/airbus_transmision/ref_180881.txt')
@@ -88,6 +88,11 @@ t_sam, E_sam = read_1file('./data/airbus_transmision/sam1_176054.txt')
 # Boleto 177910
 # t_ref, E_ref = read_1file('./data/airbus_transmision/ref_177910.txt')
 # t_sam, E_sam = read_1file('./data/airbus_transmision/sam1_177910.txt')
+
+
+# Plaster
+t_ref, E_ref = read_1file('./data/2_layer/ref_plaster.txt')
+t_sam, E_sam = read_1file('./data/2_layer/sam_plaster.txt')
 
 
 E_sam_raw = E_sam
@@ -151,9 +156,9 @@ hgr_bnds = array((1e-3, 5e-3, 5, 10, 100e-6, 5, 10, 100e-6, 5, 10, 100e-6))
 
 
 k_bounds = [  # calibration
-    (-1e-3, 1e-3),  # air thickness
+    (-5e-3, 5e-3),  # air thickness
     (2.5, 3.5e-3),  # substrate thickness
-    (2, 5), (0, 1), (20e-6, 100e-6),  # White Coat
+    # (2, 5), (0, 1), (20e-6, 100e-6),  # White Coat
     (2, 5), (0, 1), (10e-6, 50e-6),   # Green Coat
     (2, 5), (0, 1), (1e-6, 25e-6)     # Primer
 ]

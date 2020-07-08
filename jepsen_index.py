@@ -40,8 +40,8 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):
     n_avg = 1 + (t_0sam - t_0ref) * c_0 / thickness
 
     # Step 2: Fourier transform of measures
-    f_ref, E_ref_w = fourier_analysis(t_ref, E_ref, nSamp_pow)
-    f_sam, E_sam_w = fourier_analysis(t_sam, E_sam, nSamp_pow)
+    f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)  # , nSamp_pow)
+    f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)  # , nSamp_pow)
     H_w = E_sam_w / E_ref_w  # complex transfer function
 
     # Step 3: Calculate reduced phases
