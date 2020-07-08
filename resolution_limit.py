@@ -2,6 +2,7 @@ from TDSA import *
 from scipy.optimize import differential_evolution
 
 
+
 deg_in = 0  # incidence angle in degrees
 snell_sin = n_air * sin(deg_in * pi / 180)
 # n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
@@ -82,7 +83,9 @@ n_sim, k_sim = nk_from_eps(e_s_sim, e_inf_sim, tau_sim, f_ref)
 
 
 # d_mat = 100e-6
-for d_mat in tqdm([1e-6, 10e-6, 50e-6, 100e-6, 150e-6, 500e-6, 1e-3]):
+for d_mat in trange(250):
+    d_mat *= 1e-6
+    
     H_sim_teo = H_sim(f_ref, n_sim, k_sim, d_mat, 0)
     E_sim_w = H_sim_teo * E_ref_w
     E_sim = irfft(E_sim_w)
@@ -119,16 +122,18 @@ for d_mat in tqdm([1e-6, 10e-6, 50e-6, 100e-6, 150e-6, 500e-6, 1e-3]):
     tau_fit = res.x[3]
     d_mat_fit = res.x[4]
     
-    figure(50)
-    plot(d_mat*1e6, d_mat_fit*1e6, 'ro')
-    title('Fitted vs actual thickness')
-    xlabel('d_mat (um)')
-    ylabel('d_mat_fit (um)')
-    figure(51)
-    plot(d_mat*1e6, 100 * abs(d_mat-d_mat_fit) / d_mat, 'ro')
-    xlabel('d_mat (um)')
-    ylabel('delta_d')
-    title('Error vs actual thickness')
+    str(d_mat) + ',' + str(d_mat) + ',' + str(d_mat) + ',' + str(d_mat) + ','
+    
+    # figure(50)
+    # plot(d_mat*1e6, d_mat_fit*1e6, 'ro')
+    # title('Fitted vs actual thickness')
+    # xlabel('d_mat (um)')
+    # ylabel('d_mat_fit (um)')
+    # figure(51)
+    # plot(d_mat*1e6, 100 * abs(d_mat-d_mat_fit) / d_mat, 'ro')
+    # xlabel('d_mat (um)')
+    # ylabel('delta_d')
+    # title('Error vs actual thickness')
 
 show()
 quit()
