@@ -22,6 +22,10 @@ def toDb(x):
     return 20 * log10(abs(x))
 
 
+def toDb_0(x):
+    return 20 * log10(abs(x)/max(abs(x)))
+
+
 def fromDb(x):
     return 10**(x / 20)
 
