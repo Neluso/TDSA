@@ -2,7 +2,6 @@ from TDSA import *
 from scipy.optimize import differential_evolution
 
 
-
 deg_in = 0  # incidence angle in degrees
 snell_sin = n_air * sin(deg_in * pi / 180)
 # n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
@@ -68,109 +67,120 @@ def cost_function(params, *args):
     return sum((E_sam - E_teo)**2)
 
 
-t_ref, E_ref = read_1file('./data/sim_resources/transmision_ref.txt')  # t_ref in ps
-f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)  # f_ref in THz
+t0 = time_ns()
+out_dir = './output/'
 
-t_ref *= 1e-12  # t_ref in s
-f_ref *= 1e12  # f_ref in Hz
-
-
-# material data
-e_s_sim = 2**2
-e_inf_sim = 2.2**2
-tau_sim = 1e-14
-n_sim, k_sim = nk_from_eps(e_s_sim, e_inf_sim, tau_sim, f_ref)
-
-
-# d_mat = 100e-6
-for d_mat in trange(250):
-    d_mat *= 1e-6
+if __name__ == '__main__':
+    t_ref, E_ref = read_1file('./data/sim_resources/transmision_ref.txt')  # t_ref in ps
+    f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)  # f_ref in THz
     
-    H_sim_teo = H_sim(f_ref, n_sim, k_sim, d_mat, 0)
-    E_sim_w = H_sim_teo * E_ref_w
-    E_sim = irfft(E_sim_w)
+    t_ref *= 1e-12  # t_ref in s
+    f_ref *= 1e12   # f_ref in Hz
     
-    # k_bounds = [
-    #     (0, 20e-6),  # d_air
-    #     (1, 3 * e_s_sim + 1),  # e_s
-    #     (1, 3 * e_inf_sim + 1),  # e_inf
-    #     (0.0001 * tau_sim, 3 * tau_sim),  # tau
-    #     (0, 3 * d_mat)  # d_mat
-    # ]
-
-    k_bounds = [
-        (0, 100e-6),  # d_air
-        (1, 15),  # e_s
-        (1, 15),  # e_inf
-        (1e-15, 1e-9),  # tau
-        (1e-6, 5 * d_mat)  # d_mat
-    ]
     
-    res = differential_evolution(cost_function,
-                                 k_bounds,
-                                 args=(E_sim, E_ref_w, f_ref),
-                                 popsize=45,
-                                 maxiter=3000,
-                                 disp=False,  # step cost_function value
-                                 polish=True
-                                 )
+    # material data
+    e_s_sim = 1.4**2
+    e_inf_sim = 1.8**2
+    tau_sim = 1e-12
+    n_sim, k_sim = nk_from_eps(e_s_sim, e_inf_sim, tau_sim, f_ref)
     
-    # print(res)
-    d_air_fit = res.x[0]
-    e_s_fit = res.x[1]
-    e_inf_fit = res.x[2]
-    tau_fit = res.x[3]
-    d_mat_fit = res.x[4]
+    wh = open(out_dir + 'resolution_limit.csv', 'w')
     
-    str(d_mat) + ',' + str(d_mat) + ',' + str(d_mat) + ',' + str(d_mat) + ','
+    for d_mat in tqdm([0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500, 1000]):
+        
+        print()
+        print('Simulating for', d_mat, 'um')
+        
+        d_mat *= 1e-6
+        d_air_sim = 0
+        
+        H_sim_teo = H_sim(f_ref, n_sim, k_sim, d_mat, d_air_sim)
+        E_sim_w = H_sim_teo * E_ref_w
+        E_sim = irfft(E_sim_w)
+        
+        name_trace = str(d_mat*1e6) + '_' + str(e_s_sim) + '_' + str(e_inf_sim) + '_' + str(tau_sim) + '.txt'
+        print('Saving trace as', name_trace)
+        tw = open(out_dir + name_trace, 'w')
+        for i in range(E_sim.size):
+            tw.write(str(t_ref[i]) + ',' + str(E_sim[i]) + '\n')
+        tw.close()
+        
+        # k_bounds = [
+        #     (0, 20e-6),  # d_air
+        #     (1, 3 * e_s_sim + 1),  # e_s
+        #     (1, 3 * e_inf_sim + 1),  # e_inf
+        #     (0.0001 * tau_sim, 3 * tau_sim),  # tau
+        #     (0, 3 * d_mat)  # d_mat
+        # ]
     
-    # figure(50)
-    # plot(d_mat*1e6, d_mat_fit*1e6, 'ro')
-    # title('Fitted vs actual thickness')
-    # xlabel('d_mat (um)')
-    # ylabel('d_mat_fit (um)')
-    # figure(51)
-    # plot(d_mat*1e6, 100 * abs(d_mat-d_mat_fit) / d_mat, 'ro')
-    # xlabel('d_mat (um)')
-    # ylabel('delta_d')
-    # title('Error vs actual thickness')
-
-show()
-quit()
-
-#
-# print('Fitted values')
-# print('d_mat =', d_mat_fit*1e6, '- err', 100 * abs(d_mat-d_mat_fit) / d_mat, '%')
-# print('e_s =', e_s_fit, '- err', 100 * abs(e_s_fit-e_s_sim) / e_s_sim, '%')
-# print('e_inf =', e_s_fit, '- err', 100 * abs(e_inf_fit-e_inf_sim) / e_inf_sim, '%')
-# print('tau =', tau_fit, '- err', 100 * abs(tau_fit-tau_sim) / tau_sim, '%')
-#
-# n_fit, k_fit = nk_from_eps(e_s_fit, e_inf_fit, tau_fit, f_ref)
-# H_fit = H_sim(f_ref, n_fit, k_fit, d_mat_fit, d_air_fit)
-# E_fit_w = H_fit * E_ref_w
-# E_fit = irfft(E_fit_w)
-#
-# figure(1)
-# # plot(t_ref, E_ref, label='ref')
-# plot(t_ref, E_sim, label='sim')
-# plot(t_ref, E_fit, label='fit')
-# legend()
-#
-# # figure(2)
-# # plot(f_ref, toDb(E_ref_w), label='ref')
-# # plot(f_ref, toDb(E_sam_w), label='sam')
-# # legend()
-#
-# figure(3)
-# plot(f_ref, n_sim, label='sim')
-# plot(f_ref, n_fit, label='fit')
-# title('n')
-# legend()
-#
-# figure(4)
-# plot(f_ref, k_sim, label='sim')
-# plot(f_ref, k_fit, label='fit')
-# title('k')
-# legend()
-#
-# show()
+        k_bounds = [
+            (-100, 100e-6),       # d_air
+            (1, 15),           # e_s
+            (1, 15),           # e_inf
+            (1e-15, 1e-9),     # tau
+            (1e-6, 5 * d_mat)  # d_mat
+        ]
+        
+        d_air_fit = list()
+        e_s_fit = list()
+        e_inf_fit = list()
+        tau_fit = list()
+        d_mat_fit = list()
+        
+        num_statistics = 10
+        for i in range(num_statistics):
+            print('Fitting', i + 1, 'of', num_statistics, 'for', d_mat * 1e6, 'um')
+            t1 = time_ns()
+            res = differential_evolution(cost_function,
+                                         k_bounds,
+                                         args=(E_sim, E_ref_w, f_ref),
+                                         popsize=45,
+                                         maxiter=3000,
+                                         updating='deferred',
+                                         workers=-1,
+                                         disp=False,  # step cost_function value
+                                         polish=True
+                                         )
+            t2 = time_ns()
+            secs1 = (t2 - t1) * 1e-9
+            if secs1 < 3600:
+                print('Fitting time (mm:ss):', strftime('%M:%S', gmtime(secs1)))
+            else:
+                print('Fitting time (hh:mm:ss):', strftime('%H:%M:%S', gmtime(secs1)))
+            
+            d_air_fit.append(res.x[0])
+            e_s_fit.append(res.x[1])
+            e_inf_fit.append(res.x[2])
+            tau_fit.append(res.x[3])
+            d_mat_fit.append(res.x[4])
+    
+        d_air_fit = array(d_air_fit)
+        d_mat_fit = array(d_mat_fit)
+        e_s_fit = array(e_s_fit)
+        e_inf_fit = array(e_inf_fit)
+        tau_sim = array(tau_sim)
+        
+        print('Saving simulation data for', d_mat * 1e6, 'um')
+        data = str(d_mat) + ',' + str(mean(d_mat_fit)) + ',' + str(std(d_mat_fit)) + ','
+        data += str(e_s_sim) + ',' + str(mean(e_s_fit)) + ',' + str(std(e_s_fit)) + ','
+        data += str(e_inf_sim) + ',' + str(mean(e_inf_fit)) + ',' + str(std(e_inf_fit)) + ','
+        data += str(tau_sim) + ',' + str(mean(tau_fit)) + ',' + str(std(tau_fit)) + ','
+        data += str(d_air_sim) + ',' + str(mean(d_air_fit)) + ',' + str(std(d_air_fit)) + '\n'
+        
+        wh.write(data)
+        t3 = time_ns()
+        secs0 = (t3 - t0) * 1e-9
+        if secs0 < 3600:
+            print('Time since start (mm:ss):', strftime('%M:%S', gmtime(secs0)))
+        else:
+            print('Time since start (hh:mm:ss):', strftime('%H:%M:%S', gmtime(secs0)))
+    
+    wh.close()
+    print()
+    print('Finished')
+    t3 = time_ns()
+    secs0 = (t3 - t0) * 1e-9
+    if secs0 < 3600:
+        print('Total processing time (mm:ss):', strftime('%M:%S', gmtime(secs0)))
+    else:
+        print('Total processing time (hh:mm:ss):', strftime('%H:%M:%S', gmtime(secs0)))
