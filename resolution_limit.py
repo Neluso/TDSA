@@ -86,7 +86,7 @@ if __name__ == '__main__':
     
     wh = open(out_dir + 'resolution_limit.csv', 'w')
     
-    for d_mat in tqdm([0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500, 1000]):
+    for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500, 1000]:
         
         print()
         print('Simulating for', d_mat, 'um')
