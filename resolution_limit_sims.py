@@ -80,10 +80,14 @@ f_ref *= 1e12   # f_ref in Hz
 # material data
 e_s_sim = 1.4**2
 e_inf_sim = 1.8**2
-tau_sim = 1e-12
+tau_sim = 1e-20
 n_sim, k_sim = nk_from_eps(e_s_sim, e_inf_sim, tau_sim, f_ref)
 
-for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500, 1000]:
+# for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5]:
+# for d_mat in [1, 2, 3, 4, 5]:
+# for d_mat in [10, 20, 30, 40, 50]
+# for d_mat in [100, 200, 300, 400, 500]:
+for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
     
     print()
     print('Simulating for', d_mat, 'um')
