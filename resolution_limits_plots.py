@@ -25,6 +25,10 @@ d_air = list()
 d_air_mean = list()
 d_air_std = list()
 
+f_cuttof = list()
+pDr = list()
+
+# rows = list()
 
 with open('./output/resolution_limit.csv', 'r') as f:
     reader = csv.reader(f)
@@ -44,11 +48,13 @@ with open('./output/resolution_limit.csv', 'r') as f:
         d_air.append(float(row[12]))
         d_air_mean.append(float(row[13]))
         d_air_std.append(float(row[14]))
+        f_cuttof.append(float(row[15]))
+        pDr.append(float(row[16]))
 
 
-d_mat = array(d_mat) * 1e6
-d_mat_mean = array(d_mat_mean) * 1e6
-d_mat_std = array(d_mat_std) * 1e6
+d_mat = array(d_mat)  # * 1e6
+d_mat_mean = array(d_mat_mean)  # * 1e6
+d_mat_std = array(d_mat_std)  # * 1e6
 e_s = array(e_s)
 e_s_mean = array(e_s_mean)
 e_s_std = array(e_s_std)
@@ -61,6 +67,8 @@ tau_std = array(tau_std)
 d_air = array(tau)
 d_air_mean = array(tau_mean)
 d_air_std = array(tau_std)
+f_cuttof = array(f_cuttof)
+pDr = array(pDr)
 
 
 fig1 = figure(1)
@@ -73,6 +81,19 @@ xlabel(r'$d_{sim}\ (\mu m)$')
 ylabel(r'$d_{fit}\ (\mu m)$')
 xlim([d_mat[0], d_mat[-1]])
 legend(loc='upper left')
+
+
+# fig2 = figure(2)
+# ax = axes()
+# ax.set_xscale('log')
+# ax.set_yscale('log')
+# ax.plot(d_mat, f_cuttof, 'r--', label='expected')
+# ax.plot(d_mat, pDr, 'b.', label='fitted')
+# xlabel(r'$d_{sim}\ (\mu m)$')
+# ylabel(r'$d_{fit}\ (\mu m)$')
+# xlim([d_mat[0], d_mat[-1]])
+# legend(loc='upper left')
+
 
 print('$d_{sim}\ (\mu m)$ & $\epsilon_{s}\ (sim)$ & $\epsilon_{s}\ (fit)$ & $\\frac{\Delta\epsilon_{s}}{\epsilon_{s}}$ \\\\')
 for i in range(d_mat.size):
