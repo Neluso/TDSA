@@ -2,6 +2,19 @@ from TDSA import *
 import csv
 
 
+def epsilon(e_s, e_inf, tau, freq):  # Debye model
+    omg = 2 * pi * freq
+    e_w = e_inf + (e_s - e_inf) / (1 + 1j * omg * tau)
+    return e_w
+
+
+def nk_from_eps(e_s, e_inf, tau, freq):
+    e_w = epsilon(e_s, e_inf, tau, freq)
+    n = sqrt((abs(e_w) + real(e_w)) / 2)
+    k = sqrt((abs(e_w) - real(e_w)) / 2)
+    return n, k
+
+
 # fh = open('resolution_limit.csv', 'r')
 # csvfile = csv.reader('resolution_limit.csv')
 
@@ -81,18 +94,53 @@ xlabel(r'$d_{sim}\ (\mu m)$')
 ylabel(r'$d_{fit}\ (\mu m)$')
 xlim([d_mat[0], d_mat[-1]])
 legend(loc='upper left')
+savefig('./output/d_mat_fit_1_100.png')
 
 
-# fig2 = figure(2)
-# ax = axes()
+freqs = arange(100) * 1e10
+# print(freqs)
+# quit()
+n_sim, k_sim = nk_from_eps(mean(e_s), mean(e_inf), mean(tau), freqs)
+n_fit, k_fit = nk_from_eps(mean(e_s_mean), mean(e_inf_mean), mean(tau_mean), freqs)
+n_fit_upp, k_fit_upp = nk_from_eps(mean(e_s_mean + e_s_std), mean(e_inf_mean + e_inf_std), mean(tau_mean + tau_std), freqs)
+n_fit_dwn, k_fit_dwn = nk_from_eps(mean(e_s_mean - e_s_std), mean(e_inf_mean - e_inf_std), mean(tau_mean - tau_std), freqs)
+freqs *= 1e-12
+fig2 = figure(2)
+ax = axes()
 # ax.set_xscale('log')
 # ax.set_yscale('log')
-# ax.plot(d_mat, f_cuttof, 'r--', label='expected')
+ax.plot(freqs, n_sim, 'r-', label='expected')
+ax.plot(freqs, n_fit, label='fitted')
+# ax.errorbar(freqs, n_fit, yerr=(n_fit_upp, n_fit_dwn), label='fitted')
+xlabel(r'$f\ (THz)$')
+# ylabel(r'$n$')
+xlim([freqs[0], freqs[-1]])
+legend(loc='upper left')
+savefig('./output/n_fit_1_100.png')
+fig3 = figure(3)
+ax = axes()
+# ax.set_xscale('log')
+# ax.set_yscale('log')
+ax.plot(freqs, k_sim, 'r-', label='expected')
+ax.plot(freqs, k_fit, label='fitted')
+# ax.errorbar(freqs, k_fit, yerr=(k_fit_upp, k_fit_dwn), label='fitted')
+xlabel(r'$f\ (THz)$')
+# ylabel(r'$n$')
+xlim([freqs[0], freqs[-1]])
+legend(loc='upper left')
+savefig('./output/k_fit_1_100.png')
+
+
+fig4 = figure(4)
+ax = axes()
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.plot(d_mat, f_cuttof, label='expected')
 # ax.plot(d_mat, pDr, 'b.', label='fitted')
-# xlabel(r'$d_{sim}\ (\mu m)$')
-# ylabel(r'$d_{fit}\ (\mu m)$')
-# xlim([d_mat[0], d_mat[-1]])
-# legend(loc='upper left')
+xlabel(r'$d_{sim}\ (\mu m)$')
+ylabel(r'$f\ (THz)$')
+xlim([d_mat[0], d_mat[-1]])
+legend(loc='upper left')
 
 
 print('$d_{sim}\ (\mu m)$ & $\epsilon_{s}\ (sim)$ & $\epsilon_{s}\ (fit)$ & $\\frac{\Delta\epsilon_{s}}{\epsilon_{s}}$ \\\\')
@@ -105,9 +153,9 @@ for i in range(d_mat.size):
     print(round(d_mat[i], 1), '&', round(e_inf[i], 3), '&', round(e_inf_mean[i], 3), '$\pm$', round(e_inf_std[i], 3), '&', round(abs(e_inf[i] - e_inf_mean[i])/e_inf[i], 3), '\\\\')
 
 print()
-print('$d_{sim}\ (\mu m)$ & $\\tau\ (THz) (sim)$ & $\\tau\ (THz) (fit)$ & $\\frac{\Delta\\tau}{\\tau}$ \\\\')
+print('$d_{sim}\ (\mu m)$ & $\\tau\ (fs) (sim)$ & $\\tau\ (fs) (fit)$ & $\\frac{\Delta\\tau}{\\tau}$ \\\\')
 for i in range(d_mat.size):
-    print(round(d_mat[i], 1), '&', round(tau[i]*1e12, 3), '&', round(tau_mean[i]*1e12, 3), '$\pm$', round(tau_std[i]*1e12, 3), '&', round(abs(tau[i] - tau_mean[i])/tau[i], 3), '\\\\')
+    print(round(d_mat[i], 1), '&', round(tau[i]*1e15, 3), '&', round(tau_mean[i]*1e15, 3), '$\pm$', round(tau_std[i]*1e15, 3), '&', round(abs(tau[i] - tau_mean[i])/tau[i], 3), '\\\\')
 
 
 show()
