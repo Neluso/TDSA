@@ -137,7 +137,6 @@ if __name__ == '__main__':
     
             m_bF, b_bF = p0[0], p0[1]
         
-        
         # k_bounds = [  # 1% uncertainty in optical paramaters
         #         (-1e-12, 1e-12),  # d_air
         #         (0.99 * e_s_sim, 1.01 * e_s_sim),  # e_s
@@ -159,14 +158,34 @@ if __name__ == '__main__':
         #     (0.9 * tau_sim, 1.1 * tau_sim),  # tau
         #     (0, 2e-3)  # d_mat
         # ]
-        k_bounds = [  # 15% uncertainty in optical paramaters
+        # k_bounds = [  # 15% uncertainty in optical paramaters
+        #     (-1e-12, 1e-12),  # d_air
+        #     (0.85 * e_s_sim, 1.15 * e_s_sim),  # e_s
+        #     (0.85 * e_inf_sim, 1.15 * e_inf_sim),  # e_inf
+        #     (0.85 * tau_sim, 1.15 * tau_sim),  # tau
+        #     (0, 2e-3)  # d_mat
+        # ]
+        # k_bounds = [  # 50% uncertainty in optical paramaters
+        #     (-1e-12, 1e-12),  # d_air
+        #     (0.5 * e_s_sim, 1.5 * e_s_sim),  # e_s
+        #     (0.5 * e_inf_sim, 1.5 * e_inf_sim),  # e_inf
+        #     (0.5 * tau_sim, 1.5 * tau_sim),  # tau
+        #     (0, 2e-3)  # d_mat
+        # ]
+        # k_bounds = [  # 100% uncertainty in optical paramaters
+        #     (-1e-12, 1e-12),  # d_air
+        #     (0.05 * e_s_sim, 2 * e_s_sim),  # e_s
+        #     (0.05 * e_inf_sim, 2 * e_inf_sim),  # e_inf
+        #     (0.05 * tau_sim, 2 * tau_sim),  # tau
+        #     (0, 2e-3)  # d_mat
+        # ]
+        k_bounds = [  # >100% uncertainty in optical paramaters
             (-1e-12, 1e-12),  # d_air
-            (0.85 * e_s_sim, 1.15 * e_s_sim),  # e_s
-            (0.85 * e_inf_sim, 1.15 * e_inf_sim),  # e_inf
-            (0.85 * tau_sim, 1.15 * tau_sim),  # tau
+            (1, 3 * e_s_sim),  # e_s
+            (1, 3 * e_inf_sim),  # e_inf
+            (0, 1),  # tau
             (0, 2e-3)  # d_mat
         ]
-    
         d_air_fit = list()
         e_s_fit = list()
         e_inf_fit = list()
@@ -180,11 +199,11 @@ if __name__ == '__main__':
             res = differential_evolution(cost_function,
                                          k_bounds,
                                          args=(E_sim, E_ref_w, f_ref),
-                                         popsize=90,
-                                         maxiter=3000,
+                                         # popsize=90,
+                                         # maxiter=3000,
                                          updating='deferred',
                                          workers=-1,
-                                         disp=False,  # step cost_function value
+                                         disp=True,  # step cost_function value
                                          polish=True
                                          )
             t2 = time_ns()
@@ -196,11 +215,17 @@ if __name__ == '__main__':
             # plot(t_sim, irfft(H_fit * E_ref_w))
             # show()
             # quit()
-            # secs1 = (t2 - t1) * 1e-9
-            # if secs1 < 3600:
-            #     print('Fitting time (mm:ss):', strftime('%M:%S', gmtime(secs1)))
-            # else:
-            #     print('Fitting time (hh:mm:ss):', strftime('%H:%M:%S', gmtime(secs1)))
+            secs1 = (t2 - t1) * 1e-9
+            if secs1 < 3600:
+                print('Fitting time (mm:ss):', strftime('%M:%S', gmtime(secs1)))
+            else:
+                print('Fitting time (hh:mm:ss):', strftime('%H:%M:%S', gmtime(secs1)))
+            t3 = time_ns()
+            secs0 = (t3 - t0) * 1e-9
+            if secs0 < 3600:
+                print('Time since start (mm:ss):', strftime('%M:%S', gmtime(secs0)))
+            else:
+                print('Time since start (hh:mm:ss):', strftime('%H:%M:%S', gmtime(secs0)))
     
             d_air_fit.append(res.x[0] * 1e6)
             e_s_fit.append(res.x[1])
