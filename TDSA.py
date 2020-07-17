@@ -9,6 +9,7 @@ from DSP_functions import *
 from read_data import *
 from jepsen_index import jepsen_index
 from optical_functions import *
+from write_data import *
 
 
 # TODO review imports

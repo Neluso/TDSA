@@ -89,8 +89,8 @@ error_analisis = 'p100_100'
 
 fig1 = figure(1)
 ax = axes()
-ax.set_xscale('log')
-ax.set_yscale('log')
+# ax.set_xscale('log')
+# ax.set_yscale('log')
 ax.plot(d_mat, d_mat, 'r--', label='expected')
 ax.errorbar(d_mat, d_mat_mean, yerr=d_mat_std, label='fitted')
 xlabel(r'$d_{sim}\ (\mu m)$')
@@ -108,6 +108,7 @@ n_fit, k_fit = nk_from_eps(mean(e_s_mean), mean(e_inf_mean), mean(tau_mean), fre
 n_fit_upp, k_fit_upp = nk_from_eps(mean(e_s_mean + e_s_std), mean(e_inf_mean + e_inf_std), mean(tau_mean + tau_std), freqs)
 n_fit_dwn, k_fit_dwn = nk_from_eps(mean(e_s_mean - e_s_std), mean(e_inf_mean - e_inf_std), mean(tau_mean - tau_std), freqs)
 freqs *= 1e-12
+
 fig2 = figure(2)
 ax = axes()
 # ax.set_xscale('log')
@@ -120,6 +121,7 @@ xlabel(r'$f\ (THz)$')
 xlim([freqs[0], freqs[-1]])
 legend(loc='upper left')
 savefig('./output/n_fit_' + error_analisis + '.png')
+
 fig3 = figure(3)
 ax = axes()
 # ax.set_xscale('log')

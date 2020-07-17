@@ -68,55 +68,62 @@ def cost_function(params, *args):
 
 t0 = time_ns()
 out_dir = './output/traces/'
+in_dir = './output/refs/'
+ref_list = os.listdir(in_dir)
 
-t_ref, E_ref = read_1file('./data/sim_resources/noise_ref.txt')  # t_ref in ps
-f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)  # f_ref in THz
-
-t_ref *= 1e-12  # t_ref in s
-f_ref *= 1e12   # f_ref in Hz
-
-
-# material data
-e_s_sim = 1.4**2
-e_inf_sim = 1.8**2
-tau_sim = 5e-14
-n_sim, k_sim = nk_from_eps(e_s_sim, e_inf_sim, tau_sim, f_ref)
-f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0, 1)
-f_ref *= 1e-12
-figure()
-plot(f_ref, n_sim)
-xlabel(r'$f\ (THz)$')
-xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
-ylim([0.9 * n_sim[f_min_idx], 1.1 * n_sim[f_max_idx]])
-savefig('./output/n_sim.png')
-
-figure()
-plot(f_ref, k_sim)
-xlabel(r'$f\ (THz)$')
-xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
-ylim([k_sim[f_min_idx], k_sim[f_max_idx]])
-savefig('./output/k_sim.png')
-
-
-# for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5]:
-# for d_mat in [1, 2, 3, 4, 5]:
-# for d_mat in [10, 20, 30, 40, 50]
-# for d_mat in [100, 200, 300, 400, 500]:
-for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
+for ref_file in ref_list:
+    t_ref, E_ref = read_1file(in_dir + ref_file)  # t_ref in ps
+    f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)  # f_ref in THz
     
-    print()
-    print('Simulating for', d_mat, 'um')
-    name_trace = str(d_mat).zfill(6) + '_' + str(e_s_sim) + '_' + str(e_inf_sim) + '_' + str(tau_sim) + '.txt'
+    t_ref *= 1e-12  # t_ref in s
+    f_ref *= 1e12   # f_ref in Hz
     
-    d_mat *= 1e-6
-    d_air_sim = 0
+    ns_level = ref_file.split('_')[0]
     
-    H_sim_teo = H_sim(f_ref, n_sim, k_sim, d_mat, d_air_sim)
-    E_sim_w = H_sim_teo * E_ref_w
-    E_sim = irfft(E_sim_w)
+    # material data
+    e_s_sim = 1.4**2
+    e_inf_sim = 1.8**2
+    tau_sim = 5e-14
+    n_sim, k_sim = nk_from_eps(e_s_sim, e_inf_sim, tau_sim, f_ref)
+    f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0, 1)
+    f_ref *= 1e-12
+    figure()
+    plot(f_ref, n_sim)
+    xlabel(r'$f\ (THz)$')
+    xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
+    ylim([0.9 * n_sim[f_min_idx], 1.1 * n_sim[f_max_idx]])
+    savefig('./output/n_sim.png')
+    close()
     
-    print('Saving trace as', name_trace)
-    tw = open(out_dir + name_trace, 'w')
-    for i in range(E_sim.size):
-        tw.write(str(t_ref[i]) + ',' + str(E_sim[i]) + '\n')
-    tw.close()
+    figure()
+    plot(f_ref, k_sim)
+    xlabel(r'$f\ (THz)$')
+    xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
+    ylim([k_sim[f_min_idx], k_sim[f_max_idx]])
+    savefig('./output/k_sim.png')
+    close()
+    
+    # for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5]:
+    # for d_mat in [1, 2, 3, 4, 5]:
+    # for d_mat in [10, 20, 30, 40, 50]
+    # for d_mat in [100, 200, 300, 400, 500]:
+    # for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
+    for d_mat in [0.1, 0.5, 1, 5, 10, 50, 100, 500]:
+        
+        print()
+        print('Simulating for', d_mat, 'um')
+        name_trace = str(d_mat).zfill(6) + '_' + str(e_s_sim) + '_' + str(e_inf_sim) + '_'
+        name_trace = name_trace + str(tau_sim) + '_' + ns_level + '.txt'
+        
+        d_mat *= 1e-6
+        d_air_sim = 0
+        
+        H_sim_teo = H_sim(f_ref, n_sim, k_sim, d_mat, d_air_sim)
+        E_sim_w = H_sim_teo * E_ref_w
+        E_sim = irfft(E_sim_w)
+        
+        print('Saving trace as', name_trace)
+        tw = open(out_dir + name_trace, 'w')
+        for i in range(E_sim.size):
+            tw.write(str(t_ref[i]) + ',' + str(E_sim[i]) + '\n')
+        tw.close()

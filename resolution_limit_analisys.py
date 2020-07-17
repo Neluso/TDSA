@@ -91,14 +91,22 @@ f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)  # f_ref in THz
 wh = open(out_dir + 'resolution_limit.csv', 'a')
 
 in_dir = './output/traces/'
+in_refs = './output/refs/'
+
 dir_list = os.listdir(in_dir)
 
 if __name__ == '__main__':
     for file_i in dir_list:
         t_sim, E_sim = read_1file(in_dir + file_i)  # t_ref in s
         f_sim, E_sim_w = fourier_analysis(t_sim, E_sim)  # f_ref in Hz
+        
+        ns_level = file_i.split('_')[-1]
+        ns_level = ns_level.replace('.', '_ref.')
+        
+        t_ref, E_ref = read_1file(in_refs + ns_level)  # t_ref in ps
+        f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)  # f_ref in THz
     
-        d_mat_str, e_s_sim_str, e_inf_sim_str, tau_sim_str = file_i[:-4].split('_')
+        d_mat_str, e_s_sim_str, e_inf_sim_str, tau_sim_str, pDr_aux = file_i[:-4].split('_')
         d_mat = float(d_mat_str)
         e_s_sim = float(e_s_sim_str)
         e_inf_sim = float(e_inf_sim_str)
@@ -165,13 +173,13 @@ if __name__ == '__main__':
         #     (0.85 * tau_sim, 1.15 * tau_sim),  # tau
         #     (0, 2e-3)  # d_mat
         # ]
-        # k_bounds = [  # 50% uncertainty in optical paramaters
-        #     (-1e-12, 1e-12),  # d_air
-        #     (0.5 * e_s_sim, 1.5 * e_s_sim),  # e_s
-        #     (0.5 * e_inf_sim, 1.5 * e_inf_sim),  # e_inf
-        #     (0.5 * tau_sim, 1.5 * tau_sim),  # tau
-        #     (0, 2e-3)  # d_mat
-        # ]
+        k_bounds = [  # 50% uncertainty in optical paramaters
+            (-1e-12, 1e-12),  # d_air
+            (0.5 * e_s_sim, 1.5 * e_s_sim),  # e_s
+            (0.5 * e_inf_sim, 1.5 * e_inf_sim),  # e_inf
+            (0.5 * tau_sim, 1.5 * tau_sim),  # tau
+            (0, 2e-3)  # d_mat
+        ]
         # k_bounds = [  # 100% uncertainty in optical paramaters
         #     (-1e-12, 1e-12),  # d_air
         #     (0.05 * e_s_sim, 2 * e_s_sim),  # e_s
@@ -179,20 +187,20 @@ if __name__ == '__main__':
         #     (0.05 * tau_sim, 2 * tau_sim),  # tau
         #     (0, 2e-3)  # d_mat
         # ]
-        k_bounds = [  # >100% uncertainty in optical paramaters
-            (-1e-12, 1e-12),  # d_air
-            (1, 3 * e_s_sim),  # e_s
-            (1, 3 * e_inf_sim),  # e_inf
-            (0, 1),  # tau
-            (0, 2e-3)  # d_mat
-        ]
+        # k_bounds = [  # >100% uncertainty in optical paramaters
+        #     (-1e-12, 1e-12),  # d_air
+        #     (1, 3 * e_s_sim),  # e_s
+        #     (1, 3 * e_inf_sim),  # e_inf
+        #     (0, 1),  # tau
+        #     (0, 2e-3)  # d_mat
+        # ]
         d_air_fit = list()
         e_s_fit = list()
         e_inf_fit = list()
         tau_fit = list()
         d_mat_fit = list()
     
-        num_statistics = 10
+        num_statistics = 2
         for i in range(num_statistics):
             print('Fitting', i + 1, 'of', num_statistics, 'for', d_mat, 'um')
             t1 = time_ns()
