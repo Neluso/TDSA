@@ -56,28 +56,31 @@ def abs_spec(freq, s, sigma=1, mu=0):
     return exp
 
 
-out_dir = './output/refs/'
-for trash_file in os.listdir(out_dir):
-    os.remove(out_dir + trash_file)
+def sim_refs():
+    out_dir = './output/refs/'
+    for trash_file in os.listdir(out_dir):
+        os.remove(out_dir + trash_file)
+    
+    num_points = 2500
+    freqs = arange(num_points) * 1e10  # Hz
+    freqs *= 1e-12  # THz
+    
+    times = arange(2 * (num_points - 1))
+    times = times / (mean(diff(freqs)) * 2 * (num_points - 1))  # ps
+    
+    E_sim_w_abs = stats.lognorm.pdf(freqs, 0.5, scale=0.4)
+    
+    E_sim_w_abs /= max(E_sim_w_abs)
+    
+    # E_sim_w_abs = fromDb(30 + toDb(E_sim_w_abs))
+    E_sim_w_arg = phase_factor(n_air, 0, 1.6e-3, freqs*1e12)
+    # plot(freqs, E_sim_w_arg)
+    E_sim_ref = irfft(E_sim_w_abs * E_sim_w_arg)  # * 100
+    
+    # for ns_floor in [-120, -100, -90, -80, -70, -60, -50, -40, -30, -20, -10]:
+    for ns_floor in [-90, -60, -30]:
+        E_sim_ref += fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref.size)
+        write_data(times, 100 * E_sim_ref, str(ns_floor) + '_ref', out_dir)  # THz
 
 
-num_points = 2500
-freqs = arange(num_points) * 1e10
-freqs *= 1e-12
-
-times = arange(2 * (num_points - 1))
-times = times / (mean(diff(freqs)) * 2 * (num_points - 1))
-
-E_sim_w_abs = stats.lognorm.pdf(freqs, 0.5, scale=0.4)
-
-E_sim_w_abs /= max(E_sim_w_abs)
-
-# E_sim_w_abs = fromDb(30 + toDb(E_sim_w_abs))
-E_sim_w_arg = phase_factor(n_air, 0, 2e-3, freqs*1e12)
-# plot(freqs, E_sim_w_arg)
-E_sim_ref = irfft(E_sim_w_abs * E_sim_w_arg)
-
-# for ns_floor in [-120, -100, -90, -80, -70, -60, -50, -40, -30, -20, -10]:
-for ns_floor in [-90, -60, -30]:
-    E_sim_ref += fromDb(- ns_floor) * random.normal(0, 0.02, E_sim_ref.size)
-    write_data(times, E_sim_ref, str(ns_floor) + '_ref', out_dir)
+sim_refs()

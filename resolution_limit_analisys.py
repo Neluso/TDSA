@@ -97,53 +97,28 @@ dir_list = os.listdir(in_dir)
 
 if __name__ == '__main__':
     for file_i in dir_list:
-        t_sim, E_sim = read_1file(in_dir + file_i)  # t_ref in s
-        f_sim, E_sim_w = fourier_analysis(t_sim, E_sim)  # f_ref in Hz
+        t_sim, E_sim = read_1file(in_dir + file_i)  # t_ref in ps
+        f_sim, E_sim_w = fourier_analysis(t_sim, E_sim)  # f_ref in THz
         
         ns_level = file_i.split('_')[-1]
-        ns_level = ns_level.replace('.', '_ref.')
+        ns_level_file = ns_level.replace('.', '_ref.')
         
-        t_ref, E_ref = read_1file(in_refs + ns_level)  # t_ref in ps
+        t_ref, E_ref = read_1file(in_refs + ns_level_file)  # t_ref in ps
         f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)  # f_ref in THz
     
-        d_mat_str, e_s_sim_str, e_inf_sim_str, tau_sim_str, pDr_aux = file_i[:-4].split('_')
+        d_mat_str, e_s_sim_str, e_inf_sim_str, tau_sim_str, pDr_ref = file_i[:-4].split('_')
+        
         d_mat = float(d_mat_str)
         e_s_sim = float(e_s_sim_str)
         e_inf_sim = float(e_inf_sim_str)
         tau_sim = float(tau_sim_str)
-    
-        f_min_idx, f_max_idx = f_min_max_idx(f_sim, 0, 20)
-    
-        # f_sim *= 1e-12   # f_ref in THz
-    
-        f_sim_cut = f_sim[f_min_idx:f_max_idx]
-        E_sim_w_cut = E_sim_w[f_min_idx:f_max_idx]
-    
-        # plot(f_sim, toDb_0(E_sim_w), lw=0.75)
-    
-        peak_list = find_peaks(abs(E_sim_w), height=0.9 * amax(abs(E_sim_w)))
-        peak_idx = peak_list[0][0]
-    
-        p_bF = polyfit(f_sim_cut[peak_idx:], toDb_0(E_sim_w_cut)[peak_idx:], 1)
-        m_bF = p_bF[0]
-        b_bF = p_bF[1]  # m_bF: m  before fit, b_bF: b before fit
-    
-        for i in range(peak_idx + 1, f_sim_cut.size - 1):
-            f_sim_4fit = f_sim_cut[i:]
-            E_sim_w_4fit = toDb_0(E_sim_w_cut)[i:]
-            p0 = polyfit(f_sim_4fit, E_sim_w_4fit, 1)
-            delta_m = abs((m_bF - p0[0]) / m_bF)
-            delta_b = abs((b_bF - p0[1]) / b_bF)
-    
-            # plot(i, delta_m, 'r.', i, delta_b, 'b.')
-    
-            if delta_m <= 0.001 and delta_b <= 0.001:
-                # plot(f_sim, p0[0] * f_sim + p0[1], lw=0.75)
-                f_cutoff = f_sim[i]  # cut off freq in THz
-                pDr = abs(E_sim_w[peak_idx]) - abs(E_sim_w[i])  # PEak Dynamic Range in dB
-                break
-    
-            m_bF, b_bF = p0[0], p0[1]
+        
+        f_min_idx, f_max_idx = f_min_max_idx(f_sim*1e12, 0.35, 1.5)
+        p1 = polyfit(f_sim[f_min_idx:f_max_idx], toDb_0(E_sim_w[f_min_idx:f_max_idx]), 1)
+        m, b = p1[0], p1[1]
+        f_cutoff = (float(ns_level.split('.')[0]) - b) / m
+        # plot(f_sim, toDb_0(E_sim_w))
+        # plot(f_sim, m * f_sim + b)
         
         # k_bounds = [  # 1% uncertainty in optical paramaters
         #         (-1e-12, 1e-12),  # d_air
@@ -178,7 +153,7 @@ if __name__ == '__main__':
             (0.5 * e_s_sim, 1.5 * e_s_sim),  # e_s
             (0.5 * e_inf_sim, 1.5 * e_inf_sim),  # e_inf
             (0.5 * tau_sim, 1.5 * tau_sim),  # tau
-            (0, 2e-3)  # d_mat
+            (0, 1e-3)  # d_mat
         ]
         # k_bounds = [  # 100% uncertainty in optical paramaters
         #     (-1e-12, 1e-12),  # d_air
@@ -200,7 +175,7 @@ if __name__ == '__main__':
         tau_fit = list()
         d_mat_fit = list()
     
-        num_statistics = 2
+        num_statistics = 10
         for i in range(num_statistics):
             print('Fitting', i + 1, 'of', num_statistics, 'for', d_mat, 'um')
             t1 = time_ns()
@@ -218,7 +193,6 @@ if __name__ == '__main__':
             print(res)
             # n_sim, k_sim = nk_from_eps(res.x[1], res.x[2], res.x[3], f_sim)
             # H_fit = H_sim(f_sim, n_sim, k_sim, res.x[4], res.x[0])
-            # print(res.x)
             # plot(t_sim, E_sim)
             # plot(t_sim, irfft(H_fit * E_ref_w))
             # show()
@@ -253,7 +227,7 @@ if __name__ == '__main__':
         data += str(e_inf_sim) + ',' + str(mean(e_inf_fit)) + ',' + str(std(e_inf_fit)) + ','
         data += str(tau_sim) + ',' + str(mean(tau_fit)) + ',' + str(std(tau_fit)) + ','
         data += '0.0,' + str(mean(d_air_fit)) + ',' + str(std(d_air_fit)) + ','
-        data += str(f_cutoff) + ',' + str(pDr) + '\n'
+        data += str(f_cutoff) + ',' + str(pDr_ref) + '\n'
     
         wh.write(data)
         t3 = time_ns()

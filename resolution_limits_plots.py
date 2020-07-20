@@ -65,9 +65,11 @@ with open('./output/resolution_limit.csv', 'r') as f:
         pDr.append(float(row[16]))
 
 
+
 d_mat = array(d_mat)  # * 1e6
 d_mat_mean = array(d_mat_mean)  # * 1e6
 d_mat_std = array(d_mat_std)  # * 1e6
+d_mat_pDr = array(pDr)
 e_s = array(e_s)
 e_s_mean = array(e_s_mean)
 e_s_std = array(e_s_std)
@@ -89,15 +91,25 @@ error_analisis = 'p100_100'
 
 fig1 = figure(1)
 ax = axes()
-# ax.set_xscale('log')
-# ax.set_yscale('log')
+ax.set_xscale('log')
+ax.set_yscale('log')
 ax.plot(d_mat, d_mat, 'r--', label='expected')
-ax.errorbar(d_mat, d_mat_mean, yerr=d_mat_std, label='fitted')
+ax.errorbar(d_mat, d_mat_mean,
+            yerr=d_mat_std, label='fitted',
+            ls='', marker='.', capsize=2, lw=1
+            # uplims=True, lolims=True
+            )
+for i in range(d_mat.size):
+    ax.annotate('(' + str(d_mat_pDr[i]) + ', ' + str(round(d_mat_mean[i], 1)) + ')',
+                (d_mat[i], d_mat_mean[i])
+                )
 xlabel(r'$d_{sim}\ (\mu m)$')
 ylabel(r'$d_{fit}\ (\mu m)$')
-xlim([d_mat[0], d_mat[-1]])
+# xlim([d_mat[0], d_mat[-1]])
 legend(loc='upper left')
 savefig('./output/d_mat_fit_' + error_analisis + '.png')
+show()
+quit()
 
 
 freqs = arange(100) * 1e10
@@ -140,7 +152,7 @@ fig4 = figure(4)
 ax = axes()
 # ax.set_xscale('log')
 # ax.set_yscale('log')
-ax.plot(d_mat_std / d_mat, f_cuttof, 'o')  # , label='expected')
+ax.plot(d_mat_std, f_cuttof, 'o')  # , label='expected')
 # ax.plot(d_mat, pDr, 'b.', label='fitted')
 xlabel(r'$\frac{\sigma_{d_{fit}}}{d_{sim}}$')
 ylabel(r'$f\ (THz)$')
@@ -151,7 +163,7 @@ fig5 = figure(5)
 ax = axes()
 # ax.set_xscale('log')
 # ax.set_yscale('log')
-ax.plot(d_mat_std / d_mat, toDb(pDr), 'o')  # , label='expected')
+ax.plot(d_mat_std, toDb(pDr), 'o')  # , label='expected')
 # ax.plot(d_mat, pDr, 'b.', label='fitted')
 xlabel(r'$\frac{\sigma_{d_{fit}}}{d_{sim}}$')
 ylabel('PDR (dB)')
