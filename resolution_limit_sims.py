@@ -112,8 +112,8 @@ def sim_traces():
         # for d_mat in [1, 2, 3, 4, 5]:
         # for d_mat in [10, 20, 30, 40, 50]
         # for d_mat in [100, 200, 300, 400, 500]:
-        # for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
-        for d_mat in [1, 5, 10, 50, 100]:
+        for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
+        # for d_mat in [1, 5, 10, 50, 100]:
         # for d_mat in [1]:
             
             print()
@@ -137,4 +137,4 @@ def sim_traces():
 
 sim_refs()
 sim_traces()
-# sim_refs()
+sim_refs()

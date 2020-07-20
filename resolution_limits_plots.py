@@ -99,10 +99,10 @@ ax.errorbar(d_mat, d_mat_mean,
             ls='', marker='.', capsize=2, lw=1
             # uplims=True, lolims=True
             )
-for i in range(d_mat.size):
-    ax.annotate('(' + str(d_mat_pDr[i]) + ', ' + str(round(d_mat_mean[i], 1)) + ')',
-                (d_mat[i], d_mat_mean[i])
-                )
+# for i in range(d_mat.size):
+#     ax.annotate('(' + str(d_mat_pDr[i]) + ', ' + str(round(d_mat_mean[i], 1)) + ')',
+#                 (d_mat[i], d_mat_mean[i])
+#                 )
 xlabel(r'$d_{sim}\ (\mu m)$')
 ylabel(r'$d_{fit}\ (\mu m)$')
 # xlim([d_mat[0], d_mat[-1]])
