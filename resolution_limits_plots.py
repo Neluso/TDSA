@@ -91,14 +91,23 @@ error_analisis = 'p100_100'
 
 fig1 = figure(1)
 ax = axes()
-ax.set_xscale('log')
-ax.set_yscale('log')
+# ax.set_xscale('log')
+# ax.set_yscale('log')
 ax.plot(d_mat, d_mat, 'r--', label='expected')
-ax.errorbar(d_mat, d_mat_mean,
-            yerr=d_mat_std, label='fitted',
-            ls='', marker='.', capsize=2, lw=1
-            # uplims=True, lolims=True
-            )
+line_expected = Line2D([0], [0], color='red', ls='--')
+for i in range(d_mat.size):
+    if pDr[i] == -90:
+        ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
+                    ls='', marker='.', capsize=2, lw=1, c='blue')
+        line90 = Line2D([0], [0], color='blue', ls='', marker='.')
+    elif pDr[i] == -60:
+        ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
+                    ls='', marker='.', capsize=2, lw=1, c='green')
+        line60 = Line2D([0], [0], color='green', ls='', marker='.')
+    elif pDr[i] == -30:
+        ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
+                    ls='', marker='.', capsize=2, lw=1, c='orange')
+        line30 = Line2D([0], [0], color='orange', ls='', marker='.')
 # for i in range(d_mat.size):
 #     ax.annotate('(' + str(d_mat_pDr[i]) + ', ' + str(round(d_mat_mean[i], 1)) + ')',
 #                 (d_mat[i], d_mat_mean[i])
@@ -106,20 +115,22 @@ ax.errorbar(d_mat, d_mat_mean,
 xlabel(r'$d_{sim}\ (\mu m)$')
 ylabel(r'$d_{fit}\ (\mu m)$')
 # xlim([d_mat[0], d_mat[-1]])
-legend(loc='upper left')
+legend()  # loc='upper left')
+custom_lines = [line_expected, line90, line60, line30]
+ax.legend(custom_lines, ['sim', -90, -60, -30])
 savefig('./output/d_mat_fit_' + error_analisis + '.png')
 show()
 quit()
 
 
-freqs = arange(100) * 1e10
+freqs = arange(100) * 1e10  # Hz
 # print(freqs)
 # quit()
 n_sim, k_sim = nk_from_eps(mean(e_s), mean(e_inf), mean(tau), freqs)
 n_fit, k_fit = nk_from_eps(mean(e_s_mean), mean(e_inf_mean), mean(tau_mean), freqs)
 n_fit_upp, k_fit_upp = nk_from_eps(mean(e_s_mean + e_s_std), mean(e_inf_mean + e_inf_std), mean(tau_mean + tau_std), freqs)
 n_fit_dwn, k_fit_dwn = nk_from_eps(mean(e_s_mean - e_s_std), mean(e_inf_mean - e_inf_std), mean(tau_mean - tau_std), freqs)
-freqs *= 1e-12
+freqs *= 1e-12  # THz
 
 fig2 = figure(2)
 ax = axes()

@@ -116,17 +116,17 @@ if __name__ == '__main__':
         f_min_idx, f_max_idx = f_min_max_idx(f_sim*1e12, 0.35, 1.5)
         p1 = polyfit(f_sim[f_min_idx:f_max_idx], toDb_0(E_sim_w[f_min_idx:f_max_idx]), 1)
         m, b = p1[0], p1[1]
-        f_cutoff = (float(ns_level.split('.')[0]) - b) / m
+        f_cutoff = (float(ns_level.split('.')[0]) - b) / m  # THz
         # plot(f_sim, toDb_0(E_sim_w))
         # plot(f_sim, m * f_sim + b)
         
-        # k_bounds = [  # 1% uncertainty in optical paramaters
-        #         (-1e-12, 1e-12),  # d_air
-        #         (0.99 * e_s_sim, 1.01 * e_s_sim),  # e_s
-        #         (0.99 * e_inf_sim, 1.01 * e_inf_sim),  # e_inf
-        #         (0.99 * tau_sim, 1.01 * tau_sim),  # tau
-        #         (0, 2e-3)  # d_mat
-        # ]
+        k_bounds = [  # 1% uncertainty in optical paramaters
+                (-1e-12, 1e-12),  # d_air
+                (0.99 * e_s_sim, 1.01 * e_s_sim),  # e_s
+                (0.99 * e_inf_sim, 1.01 * e_inf_sim),  # e_inf
+                (0.99 * tau_sim, 1.01 * tau_sim),  # tau
+                (0.1e-6, 200e-6)  # d_mat
+        ]
         # k_bounds = [  # 5% uncertainty in optical paramaters
         #     (-1e-12, 1e-12),  # d_air
         #     (0.95 * e_s_sim, 1.05 * e_s_sim),  # e_s
@@ -148,13 +148,13 @@ if __name__ == '__main__':
         #     (0.85 * tau_sim, 1.15 * tau_sim),  # tau
         #     (0, 2e-3)  # d_mat
         # ]
-        k_bounds = [  # 50% uncertainty in optical paramaters
-            (-1e-12, 1e-12),  # d_air
-            (0.5 * e_s_sim, 1.5 * e_s_sim),  # e_s
-            (0.5 * e_inf_sim, 1.5 * e_inf_sim),  # e_inf
-            (0.5 * tau_sim, 1.5 * tau_sim),  # tau
-            (0, 1e-3)  # d_mat
-        ]
+        # k_bounds = [  # 50% uncertainty in optical paramaters
+        #     (-1e-12, 1e-12),  # d_air
+        #     (0.5 * e_s_sim, 1.5 * e_s_sim),  # e_s
+        #     (0.5 * e_inf_sim, 1.5 * e_inf_sim),  # e_inf
+        #     (0.5 * tau_sim, 1.5 * tau_sim),  # tau
+        #     (0, 1e-3)  # d_mat
+        # ]
         # k_bounds = [  # 100% uncertainty in optical paramaters
         #     (-1e-12, 1e-12),  # d_air
         #     (0.05 * e_s_sim, 2 * e_s_sim),  # e_s
@@ -174,16 +174,18 @@ if __name__ == '__main__':
         e_inf_fit = list()
         tau_fit = list()
         d_mat_fit = list()
-    
-        num_statistics = 10
+        
+        f_ref *= 1e12  # Hz
+        f_sim *= 1e12  # Hz
+        num_statistics = 5
         for i in range(num_statistics):
-            print('Fitting', i + 1, 'of', num_statistics, 'for', d_mat, 'um')
+            print('Fitting', i + 1, 'of', num_statistics, 'for', d_mat, 'um at', ns_level.split('.')[0], 'dB')
             t1 = time_ns()
             res = differential_evolution(cost_function,
                                          k_bounds,
                                          args=(E_sim, E_ref_w, f_ref),
-                                         # popsize=90,
-                                         # maxiter=3000,
+                                         popsize=45,
+                                         maxiter=3000,
                                          updating='deferred',
                                          workers=-1,
                                          disp=True,  # step cost_function value
@@ -191,8 +193,8 @@ if __name__ == '__main__':
                                          )
             t2 = time_ns()
             print(res)
-            # n_sim, k_sim = nk_from_eps(res.x[1], res.x[2], res.x[3], f_sim)
-            # H_fit = H_sim(f_sim, n_sim, k_sim, res.x[4], res.x[0])
+            n_sim, k_sim = nk_from_eps(res.x[1], res.x[2], res.x[3], f_sim)
+            H_fit = H_sim(f_sim, n_sim, k_sim, res.x[4], res.x[0])
             # plot(t_sim, E_sim)
             # plot(t_sim, irfft(H_fit * E_ref_w))
             # show()

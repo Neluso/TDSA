@@ -28,9 +28,8 @@ def cr_l_1_l(n_l, n_l_1):  # from n_l-1 to n_l
 def phase_factor(n, k, thick, freq):  # theta in radians
     omg = 2 * pi * freq
     thick *= cos(theta(n))
-    phi_n = 2 * omg * thick / c_0
-    phi_k = 2 * omg * thick / c_0
-    return exp(- 1j * phi_n) * exp(- k * phi_k)
+    phi = 2 * omg * thick / c_0
+    return exp(- 1j * phi) * exp(- k * phi)
 
 
 def epsilon(e_s, e_inf, tau, freq):  # Debye model
@@ -75,7 +74,6 @@ def sim_traces():
     for trash_file in os.listdir(out_dir):
         os.remove(out_dir + trash_file)
     
-    
     for ref_file in ref_list:
         t_ref, E_ref = read_1file(in_dir + ref_file)  # t_ref in ps
         f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)  # f_ref in THz
@@ -91,7 +89,7 @@ def sim_traces():
         tau_sim = 5e-14
         n_sim, k_sim = nk_from_eps(e_s_sim, e_inf_sim, tau_sim, f_ref)
         f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0, 1)
-        f_ref *= 1e-12
+        f_ref *= 1e-12  # THz
         figure()
         plot(f_ref, n_sim)
         xlabel(r'$f\ (THz)$')
@@ -112,9 +110,8 @@ def sim_traces():
         # for d_mat in [1, 2, 3, 4, 5]:
         # for d_mat in [10, 20, 30, 40, 50]
         # for d_mat in [100, 200, 300, 400, 500]:
-        for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
-        # for d_mat in [1, 5, 10, 50, 100]:
-        # for d_mat in [1]:
+        # for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
+        for d_mat in [5, 10, 50]:
             
             print()
             print('Simulating for', d_mat, 'um')
@@ -123,6 +120,7 @@ def sim_traces():
             
             d_mat *= 1e-6
             d_air_sim = 0
+            f_ref *= 1e12  # Hz
             
             H_sim_teo = H_sim(f_ref, n_sim, k_sim, d_mat, d_air_sim)
             E_sim_w = H_sim_teo * E_ref_w
@@ -134,7 +132,15 @@ def sim_traces():
                 tw.write(str(t_ref[i]*1e12) + ',' + str(E_sim[i]) + '\n')
             tw.close()
 
-
+print('Simulating refs to "measure" samples')
+print()
 sim_refs()
+print('Simulating traces - "measuring" samples')
 sim_traces()
-sim_refs()
+print()
+print('Simulating refs to "measure" references')
+# sim_refs()
+print()
+print('----------------------------')
+print('Done')
+print('----------------------------')

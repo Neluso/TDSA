@@ -77,9 +77,11 @@ def sim_refs():
     # plot(freqs, E_sim_w_arg)
     E_sim_ref = irfft(E_sim_w_abs * E_sim_w_arg)  # * 100
     
-    for ns_floor in [-120, -100, -90, -80, -70, -60, -50, -40, -30, -20, -10]:
-    # for ns_floor in [-90, -60, -30]:
-        E_sim_ref += fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref.size)
+    # for ns_floor in [-90, -70, -60, -40, -30, -20, -10]:
+    for ns_floor in [-90, -60, -30]:
+        E_sim_ref += fromDb(ns_floor) * random.normal(0, 0.01, E_sim_ref.size)
+        # plot(freqs, toDb_0(rfft(100*E_sim_ref)))
+        # show()
         write_data(times, 100 * E_sim_ref, str(ns_floor) + '_ref', out_dir)  # THz
 
 
