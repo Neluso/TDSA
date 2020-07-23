@@ -61,8 +61,11 @@ def sim_refs():
     for trash_file in os.listdir(out_dir):
         os.remove(out_dir + trash_file)
     
-    num_points = 2500
+    num_points = 1251
     freqs = arange(num_points) * 1e10  # Hz
+    freqs /= 1.25
+    # print(freqs)
+    # quit()
     freqs *= 1e-12  # THz
     
     times = arange(2 * (num_points - 1))
@@ -74,15 +77,22 @@ def sim_refs():
     
     # E_sim_w_abs = fromDb(30 + toDb(E_sim_w_abs))
     E_sim_w_arg = phase_factor(n_air, 0, 1.6e-3, freqs*1e12)
+    
     # plot(freqs, E_sim_w_arg)
     E_sim_ref = irfft(E_sim_w_abs * E_sim_w_arg)  # * 100
     
     # for ns_floor in [-90, -70, -60, -40, -30, -20, -10]:
-    for ns_floor in [-90, -60, -30]:
-        E_sim_ref += fromDb(ns_floor) * random.normal(0, 0.01, E_sim_ref.size)
-        # plot(freqs, toDb_0(rfft(100*E_sim_ref)))
-        # show()
-        write_data(times, 100 * E_sim_ref, str(ns_floor) + '_ref', out_dir)  # THz
+    # for ns_floor in [-90, -60, -30, -10]:
+    for ns_floor in [-50, -40, -30, -20, -10]:
+        num_traces = 10
+        trace_statitics = zeros(E_sim_ref.shape)
+        for j in range(num_traces):
+            # E_sim_ref += fromDb(ns_floor) * random.normal(0, 0.01, E_sim_ref.size)
+            trace_statitics += E_sim_ref + fromDb(ns_floor) * random.normal(0, 0.01, E_sim_ref.size)
+        # plot(freqs, toDb_0(rfft(100*trace_statitics)))
+        write_data(times, 100 * trace_statitics / num_traces, str(ns_floor) + '_ref', out_dir)  # THz
 
 
 sim_refs()
+# show()
+

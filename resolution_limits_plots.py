@@ -86,28 +86,36 @@ f_cuttof = array(f_cuttof)
 pDr = array(pDr)
 
 
-error_analisis = 'p100_100'
+error_analisis = '10_100_var_pdr'
 
 
 fig1 = figure(1)
 ax = axes()
-# ax.set_xscale('log')
-# ax.set_yscale('log')
-ax.plot(d_mat, d_mat, 'r--', label='expected')
-line_expected = Line2D([0], [0], color='red', ls='--')
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.plot(d_mat, d_mat, '--', c='black', label='expected')
+line_expected = Line2D([0], [0], color='black', ls='--')
 for i in range(d_mat.size):
-    if pDr[i] == -90:
+    if pDr[i] == -10:
+        ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
+                    ls='', marker='.', capsize=2, lw=1, c='purple')
+        line10 = Line2D([0], [0], color='purple', ls='', marker='.')
+    elif pDr[i] == -20:
         ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
                     ls='', marker='.', capsize=2, lw=1, c='blue')
-        line90 = Line2D([0], [0], color='blue', ls='', marker='.')
-    elif pDr[i] == -60:
-        ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
-                    ls='', marker='.', capsize=2, lw=1, c='green')
-        line60 = Line2D([0], [0], color='green', ls='', marker='.')
+        line20 = Line2D([0], [0], color='blue', ls='', marker='+')
     elif pDr[i] == -30:
         ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
+                    ls='', marker='.', capsize=2, lw=1, c='green')
+        line30 = Line2D([0], [0], color='green', ls='', marker='^')
+    elif pDr[i] == -40:
+        ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
                     ls='', marker='.', capsize=2, lw=1, c='orange')
-        line30 = Line2D([0], [0], color='orange', ls='', marker='.')
+        line40 = Line2D([0], [0], color='orange', ls='', marker='v')
+    elif pDr[i] == -50:
+        ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
+                    ls='', marker='.', capsize=2, lw=1, c='red')
+        line50 = Line2D([0], [0], color='red', ls='', marker='.')
 # for i in range(d_mat.size):
 #     ax.annotate('(' + str(d_mat_pDr[i]) + ', ' + str(round(d_mat_mean[i], 1)) + ')',
 #                 (d_mat[i], d_mat_mean[i])
@@ -116,11 +124,9 @@ xlabel(r'$d_{sim}\ (\mu m)$')
 ylabel(r'$d_{fit}\ (\mu m)$')
 # xlim([d_mat[0], d_mat[-1]])
 legend()  # loc='upper left')
-custom_lines = [line_expected, line90, line60, line30]
-ax.legend(custom_lines, ['sim', -90, -60, -30])
+custom_lines = [line_expected, line10, line20, line30, line40, line50]
+ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50])
 savefig('./output/d_mat_fit_' + error_analisis + '.png')
-show()
-quit()
 
 
 freqs = arange(100) * 1e10  # Hz
@@ -174,7 +180,7 @@ fig5 = figure(5)
 ax = axes()
 # ax.set_xscale('log')
 # ax.set_yscale('log')
-ax.plot(d_mat_std, toDb(pDr), 'o')  # , label='expected')
+ax.plot(d_mat_std, pDr, 'o')  # , label='expected')
 # ax.plot(d_mat, pDr, 'b.', label='fitted')
 xlabel(r'$\frac{\sigma_{d_{fit}}}{d_{sim}}$')
 ylabel('PDR (dB)')
@@ -183,30 +189,30 @@ ylabel('PDR (dB)')
 
 print('\\begin{table}[H]')
 print('\t\\centering\n\t\\begin{tabular}{rrrr}')
-print('\t\t$d_{sim}\ (\mu m)$ & $\epsilon_{s}\ (sim)$ & $\epsilon_{s}\ (fit)$ & $\\frac{\Delta\epsilon_{s}}{\epsilon_{s}}$ \\\\')
+print('\t\t$d_{sim}\ (\mu m)$ & pDr (dB) & $\epsilon_{s}\ (sim)$ & $\epsilon_{s}\ (fit)$ & $\\frac{\Delta\epsilon_{s}}{\epsilon_{s}}$ \\\\')
 for i in range(d_mat.size - 1):
-    print('\t\t' + str(round(d_mat[i], 1)), '&', round(e_s[i], 3), '&', round(e_s_mean[i], 3), '$\pm$', round(e_s_std[i], 3), '&', round(abs(e_s[i] - e_s_mean[i])/e_s[i], 3), '\\\\')
-print('\t\t' + str(round(d_mat[-1], 1)), '&', round(e_s[-1], 3), '&', round(e_s_mean[-1], 3), '$\pm$', round(e_s_std[-1], 3), '&', round(abs(e_s[-1] - e_s_mean[-1])/e_s[-1], 3))
+    print('\t\t' + str(round(d_mat[i], 1)), '&',  abs(d_mat_pDr[i]), '&', round(e_s[i], 3), '&', round(e_s_mean[i], 3), '$\pm$', round(e_s_std[i], 3), '&', round(abs(e_s[i] - e_s_mean[i])/e_s[i], 3), '\\\\')
+print('\t\t' + str(round(d_mat[-1], 1)), '&',  abs(d_mat_pDr[-1]), '&', round(e_s[-1], 3), '&', round(e_s_mean[-1], 3), '$\pm$', round(e_s_std[-1], 3), '&', round(abs(e_s[-1] - e_s_mean[-1])/e_s[-1], 3))
 print('\t\\end{tabular}\n\t\\caption{$\\epsilon_s$}\n\t\\label{tab:e_s_' + error_analisis + '}')
 print('\\end{table}')
 print()
 
 print('\\begin{table}[H]')
 print('\t\\centering\n\t\\begin{tabular}{rrrr}')
-print('\t\t$d_{sim}\ (\\mu m)$ & $\\epsilon_{\\infty}\ (sim)$ & $\epsilon_{\\infty}\ (fit)$ & $\\frac{\Delta\epsilon_{\inf}}{\epsilon_{\inf}}$ \\\\')
+print('\t\t$d_{sim}\ (\\mu m)$ & pDr (dB) & $\\epsilon_{\\infty}\ (sim)$ & $\epsilon_{\\infty}\ (fit)$ & $\\frac{\Delta\epsilon_{\inf}}{\epsilon_{\inf}}$ \\\\')
 for i in range(d_mat.size - 1):
-    print('\t\t' + str(round(d_mat[i], 1)), '&', round(e_inf[i], 3), '&', round(e_inf_mean[i], 3), '$\pm$', round(e_inf_std[i], 3), '&', round(abs(e_inf[i] - e_inf_mean[i])/e_inf[i], 3), '\\\\')
-print('\t\t' + str(round(d_mat[-1], 1)), '&', round(e_inf[-1], 3), '&', round(e_inf_mean[-1], 3), '$\pm$', round(e_inf_std[-1], 3), '&', round(abs(e_inf[-1] - e_inf_mean[-1])/e_inf[-1], 3))
+    print('\t\t' + str(round(d_mat[i], 1)), '&',  abs(d_mat_pDr[i]), '&', round(e_inf[i], 3), '&', round(e_inf_mean[i], 3), '$\pm$', round(e_inf_std[i], 3), '&', round(abs(e_inf[i] - e_inf_mean[i])/e_inf[i], 3), '\\\\')
+print('\t\t' + str(round(d_mat[-1], 1)), '&',  abs(d_mat_pDr[-1]), '&', round(e_inf[-1], 3), '&', round(e_inf_mean[-1], 3), '$\pm$', round(e_inf_std[-1], 3), '&', round(abs(e_inf[-1] - e_inf_mean[-1])/e_inf[-1], 3))
 print('\t\\end{tabular}\n\t\\caption{$\\epsilon_{\\infty}$}\n\t\\label{tab:e_inf_' + error_analisis + '}')
 print('\\end{table}')
 print()
 
 print('\\begin{table}[H]')
 print('\t\\centering\n\t\\begin{tabular}{rrrr}')
-print('\t\t$d_{sim}\ (\mu m)$ & $\\tau\ (fs) (sim)$ & $\\tau\ (fs) (fit)$ & $\\frac{\Delta\\tau}{\\tau}$ \\\\')
+print('\t\t$d_{sim}\ (\mu m)$ & pDr (dB) & $\\tau\ (fs) (sim)$ & $\\tau\ (fs) (fit)$ & $\\frac{\Delta\\tau}{\\tau}$ \\\\')
 for i in range(d_mat.size - 1):
-    print('\t\t' + str(round(d_mat[i], 1)), '&', round(tau[i]*1e15, 3), '&', round(tau_mean[i]*1e15, 3), '$\pm$', round(tau_std[i]*1e15, 3), '&', round(abs(tau[i] - tau_mean[i])/tau[i], 3), '\\\\')
-print('\t\t' + str(round(d_mat[-1], 1)), '&', round(tau[-1]*1e15, 3), '&', round(tau_mean[-1]*1e15, 3), '$\pm$', round(tau_std[-1]*1e15, 3), '&', round(abs(tau[-1] - tau_mean[-1])/tau[-1], 3))
+    print('\t\t' + str(round(d_mat[i], 1)), '&',  abs(d_mat_pDr[i]), '&', round(tau[i]*1e15, 3), '&', round(tau_mean[i]*1e15, 3), '$\pm$', round(tau_std[i]*1e15, 3), '&', round(abs(tau[i] - tau_mean[i])/tau[i], 3), '\\\\')
+print('\t\t' + str(round(d_mat[-1], 1)), '&',  abs(d_mat_pDr[-1]), '&', round(tau[-1]*1e15, 3), '&', round(tau_mean[-1]*1e15, 3), '$\pm$', round(tau_std[-1]*1e15, 3), '&', round(abs(tau[-1] - tau_mean[-1])/tau[-1], 3))
 print('\t\\end{tabular}\n\t\\caption{$\\tau$}\n\t\\label{tab:tau_' + error_analisis + '}')
 print('\\end{table}')
 

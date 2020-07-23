@@ -93,44 +93,54 @@ def sim_traces():
         figure()
         plot(f_ref, n_sim)
         xlabel(r'$f\ (THz)$')
-        xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
-        ylim([0.9 * n_sim[f_min_idx], 1.1 * n_sim[f_max_idx]])
+        # xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
+        # ylim([0.9 * n_sim[f_min_idx], 1.1 * n_sim[f_max_idx]])
         savefig('./output/n_sim.png')
         close()
         
         figure()
         plot(f_ref, k_sim)
         xlabel(r'$f\ (THz)$')
-        xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
-        ylim([k_sim[f_min_idx], k_sim[f_max_idx]])
+        # xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
+        # ylim([k_sim[f_min_idx], k_sim[f_max_idx]])
         savefig('./output/k_sim.png')
         close()
+        # plot(t_ref*1e12, - E_ref, label='ref')
         
+        # plot(f_ref*1e12, unwrap(angle(E_ref_w)), label='ref')
         # for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5]:
         # for d_mat in [1, 2, 3, 4, 5]:
         # for d_mat in [10, 20, 30, 40, 50]
         # for d_mat in [100, 200, 300, 400, 500]:
         # for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
-        for d_mat in [5, 10, 50]:
+        # for d_mat in [0.1, 0.5, 1, 5, 10, 50, 100, 500]:
+        
+        f_ref *= 1e12  # Hz
+        for d_mat in [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100]:
             
             print()
             print('Simulating for', d_mat, 'um')
             name_trace = str(d_mat).zfill(6) + '_' + str(e_s_sim) + '_' + str(e_inf_sim) + '_'
             name_trace = name_trace + str(tau_sim) + '_' + ns_level + '.txt'
+
+            d_mat *= 1e-6  # um
             
-            d_mat *= 1e-6
-            d_air_sim = 0
-            f_ref *= 1e12  # Hz
-            
-            H_sim_teo = H_sim(f_ref, n_sim, k_sim, d_mat, d_air_sim)
+            H_sim_teo = H_sim(f_ref, n_sim, k_sim, d_mat, 0)  # -d_mat)
+            # plot(f_ref, unwrap(angle(H_sim_teo)))
+            # show()
+            # quit()
             E_sim_w = H_sim_teo * E_ref_w
             E_sim = irfft(E_sim_w)
+            # plot(t_ref*1e12, E_sim, label=round(d_mat*1e6, 1))
+            # plot(f_ref, unwrap(angle(E_sim_w)), label=round(d_mat * 1e6, 1))
             
             print('Saving trace as', name_trace)
             tw = open(out_dir + name_trace, 'w')
             for i in range(E_sim.size):
                 tw.write(str(t_ref[i]*1e12) + ',' + str(E_sim[i]) + '\n')
             tw.close()
+        # legend()
+        # show()
 
 print('Simulating refs to "measure" samples')
 print()
@@ -139,7 +149,7 @@ print('Simulating traces - "measuring" samples')
 sim_traces()
 print()
 print('Simulating refs to "measure" references')
-# sim_refs()
+sim_refs()
 print()
 print('----------------------------')
 print('Done')
