@@ -102,20 +102,20 @@ for i in range(d_mat.size):
         line10 = Line2D([0], [0], color='purple', ls='', marker='.')
     elif pDr[i] == -20:
         ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
-                    ls='', marker='.', capsize=2, lw=1, c='blue')
+                    ls='', marker='+', capsize=2, lw=1, c='blue')
         line20 = Line2D([0], [0], color='blue', ls='', marker='+')
     elif pDr[i] == -30:
         ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
-                    ls='', marker='.', capsize=2, lw=1, c='green')
+                    ls='', marker='^', capsize=2, lw=1, c='green')
         line30 = Line2D([0], [0], color='green', ls='', marker='^')
     elif pDr[i] == -40:
         ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
-                    ls='', marker='.', capsize=2, lw=1, c='orange')
+                    ls='', marker='v', capsize=2, lw=1, c='orange')
         line40 = Line2D([0], [0], color='orange', ls='', marker='v')
     elif pDr[i] == -50:
         ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
-                    ls='', marker='.', capsize=2, lw=1, c='red')
-        line50 = Line2D([0], [0], color='red', ls='', marker='.')
+                    ls='', marker='1', capsize=2, lw=1, c='red')
+        line50 = Line2D([0], [0], color='red', ls='', marker='1')
 # for i in range(d_mat.size):
 #     ax.annotate('(' + str(d_mat_pDr[i]) + ', ' + str(round(d_mat_mean[i], 1)) + ')',
 #                 (d_mat[i], d_mat_mean[i])
@@ -127,6 +127,8 @@ legend()  # loc='upper left')
 custom_lines = [line_expected, line10, line20, line30, line40, line50]
 ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50])
 savefig('./output/d_mat_fit_' + error_analisis + '.png')
+show()
+quit()  
 
 
 freqs = arange(100) * 1e10  # Hz
