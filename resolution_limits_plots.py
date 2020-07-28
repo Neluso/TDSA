@@ -38,7 +38,7 @@ d_air = list()
 d_air_mean = list()
 d_air_std = list()
 
-f_cuttof = list()
+f_cutoff = list()
 pDr = list()
 
 # rows = list()
@@ -61,7 +61,7 @@ with open('./output/resolution_limit.csv', 'r') as f:
         d_air.append(float(row[12]))
         d_air_mean.append(float(row[13]))
         d_air_std.append(float(row[14]))
-        f_cuttof.append(float(row[15]))
+        f_cutoff.append(float(row[15]))
         pDr.append(float(row[16]))
 
 
@@ -82,8 +82,20 @@ tau_std = array(tau_std)
 d_air = array(tau)
 d_air_mean = array(tau_mean)
 d_air_std = array(tau_std)
-f_cuttof = array(f_cuttof)
+f_cutoff = array(f_cutoff)
 pDr = array(pDr)
+lmda = (c_0 / (f_cutoff * 1e12)) * 1e6  # um
+lmda10 = list()
+lmda20 = list()
+lmda30 = list()
+lmda40 = list()
+lmda50 = list()
+
+d_mat_mean10 = list()
+d_mat_mean20 = list()
+d_mat_mean30 = list()
+d_mat_mean40 = list()
+d_mat_mean50 = list()
 
 
 error_analisis = '10_100_var_pdr'
@@ -100,22 +112,37 @@ for i in range(d_mat.size):
         ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
                     ls='', marker='.', capsize=2, lw=1, c='purple')
         line10 = Line2D([0], [0], color='purple', ls='', marker='.')
+        lmda10.append(lmda[i])
+        if abs(d_mat[i] - d_mat_mean[i]) / d_mat[i] > 0.1:
+            d_mat_mean10.append(d_mat_mean[i])
     elif pDr[i] == -20:
         ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
                     ls='', marker='+', capsize=2, lw=1, c='blue')
         line20 = Line2D([0], [0], color='blue', ls='', marker='+')
+        lmda20.append(lmda[i])
+        if abs(d_mat[i] - d_mat_mean[i]) / d_mat[i] > 0.1:
+            d_mat_mean20.append(d_mat_mean[i])
     elif pDr[i] == -30:
         ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
                     ls='', marker='^', capsize=2, lw=1, c='green')
         line30 = Line2D([0], [0], color='green', ls='', marker='^')
+        lmda30.append(lmda[i])
+        if abs(d_mat[i] - d_mat_mean[i]) / d_mat[i] > 0.1:
+            d_mat_mean30.append(d_mat_mean[i])
     elif pDr[i] == -40:
         ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
                     ls='', marker='v', capsize=2, lw=1, c='orange')
         line40 = Line2D([0], [0], color='orange', ls='', marker='v')
+        lmda40.append(lmda[i])
+        if abs(d_mat[i] - d_mat_mean[i]) / d_mat[i] > 0.1:
+            d_mat_mean40.append(d_mat_mean[i])
     elif pDr[i] == -50:
         ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
                     ls='', marker='1', capsize=2, lw=1, c='red')
         line50 = Line2D([0], [0], color='red', ls='', marker='1')
+        lmda50.append(lmda[i])
+        if abs(d_mat[i] - d_mat_mean[i]) / d_mat[i] > 0.1:
+            d_mat_mean50.append(d_mat_mean[i])
 # for i in range(d_mat.size):
 #     ax.annotate('(' + str(d_mat_pDr[i]) + ', ' + str(round(d_mat_mean[i], 1)) + ')',
 #                 (d_mat[i], d_mat_mean[i])
@@ -127,8 +154,41 @@ legend()  # loc='upper left')
 custom_lines = [line_expected, line10, line20, line30, line40, line50]
 ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50])
 savefig('./output/d_mat_fit_' + error_analisis + '.png')
-show()
-quit()  
+# show()
+
+figure(33)
+ax = axes()
+# ax.set_xscale('log')
+ax.set_yscale('log')
+medians_d_mat = array((median(d_mat_mean10), median(d_mat_mean20), median(d_mat_mean30), median(d_mat_mean40), median(d_mat_mean50)))
+medians_lmda = array((median(lmda10), median(lmda20), median(lmda30), median(lmda40), median(lmda50)))
+d_mat_vs_lmda = array((medians_d_mat, medians_lmda))
+plot(medians_lmda, medians_d_mat, '.')
+xlabel(r'$\lambda\ (\mu m)$')
+ylabel(r'$d_{lim}\ (\mu m)$')
+
+figure(44)
+ax = axes()
+# ax.set_xscale('log')
+ax.set_yscale('log')
+medians_d_mat = array((median(d_mat_mean10), median(d_mat_mean20), median(d_mat_mean30), median(d_mat_mean40), median(d_mat_mean50)))
+medians_lmda = array((median(lmda10), median(lmda20), median(lmda30), median(lmda40), median(lmda50)))
+d_mat_vs_lmda = array((medians_d_mat, medians_lmda))
+plot(medians_lmda, medians_d_mat, '.')
+xlabel(r'$\lambda\ (\mu m)$')
+ylabel(r'$d_{lim}\ (\mu m)$')
+
+# show()
+# quit()
+
+
+fig22 = figure(22)
+ax = axes()
+ax.set_xscale('log')
+ax.set_yscale('log')
+plot(d_mat, lmda, '.')
+# show()
+# quit()
 
 
 freqs = arange(100) * 1e10  # Hz
@@ -171,7 +231,7 @@ fig4 = figure(4)
 ax = axes()
 # ax.set_xscale('log')
 # ax.set_yscale('log')
-ax.plot(d_mat_std, f_cuttof, 'o')  # , label='expected')
+ax.plot(d_mat_std, f_cutoff, 'o')  # , label='expected')
 # ax.plot(d_mat, pDr, 'b.', label='fitted')
 xlabel(r'$\frac{\sigma_{d_{fit}}}{d_{sim}}$')
 ylabel(r'$f\ (THz)$')
@@ -179,7 +239,7 @@ ylabel(r'$f\ (THz)$')
 # legend(loc='upper left')
 
 fig5 = figure(5)
-ax = axes()
+# ax = axes()
 # ax.set_xscale('log')
 # ax.set_yscale('log')
 ax.plot(d_mat_std, pDr, 'o')  # , label='expected')

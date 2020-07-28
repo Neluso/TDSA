@@ -72,27 +72,57 @@ def sim_refs():
     times = times / (mean(diff(freqs)) * 2 * (num_points - 1))  # ps
     
     E_sim_w_abs = stats.lognorm.pdf(freqs, 0.5, scale=0.4)
+    # E_sim_w_abs = stats.lognorm.pdf(freqs, 1, scale=0.4, loc=0.15)
+    E_sim_w_abs2 = stats.lognorm.pdf(freqs, 1, scale=0.4, loc=0.158)
+    E_sim_w_abs3 = stats.lognorm.pdf(freqs, 0.2, scale=0.4, loc=-0.08)
     
     E_sim_w_abs /= max(E_sim_w_abs)
+    E_sim_w_abs2 /= max(E_sim_w_abs2)
+    E_sim_w_abs3 /= max(E_sim_w_abs3)
     
     # E_sim_w_abs = fromDb(30 + toDb(E_sim_w_abs))
     E_sim_w_arg = phase_factor(n_air, 0, 1.6e-3, freqs*1e12)
+    E_sim_w_arg2 = phase_factor(n_air, 0, 1.6e-3, freqs * 1e12)
+    E_sim_w_arg3 = phase_factor(n_air, 0, 1.6e-3, freqs * 1e12)
     
     # plot(freqs, E_sim_w_arg)
     E_sim_ref = irfft(E_sim_w_abs * E_sim_w_arg)  # * 100
+    E_sim_ref2 = irfft(E_sim_w_abs2 * E_sim_w_arg2)  # * 100
+    E_sim_ref3 = irfft(E_sim_w_abs3 * E_sim_w_arg3)  # * 100
+    # E_sim_ref /= max(abs(E_sim_ref))
+    # E_sim_ref2 /= max(abs(E_sim_ref2))
+    # E_sim_ref3 /= max(abs(E_sim_ref3))
     
     # for ns_floor in [-90, -70, -60, -40, -30, -20, -10]:
     # for ns_floor in [-90, -60, -30, -10]:
-    for ns_floor in [-50, -40, -30, -20, -10]:
+    for ns_floor in [-10]:  # -50, -40, -30, -20, -10]:
         num_traces = 10
         trace_statitics = zeros(E_sim_ref.shape)
+        trace_statitics2 = zeros(E_sim_ref2.shape)
+        trace_statitics3 = zeros(E_sim_ref3.shape)
         for j in range(num_traces):
             # E_sim_ref += fromDb(ns_floor) * random.normal(0, 0.01, E_sim_ref.size)
-            trace_statitics += E_sim_ref + fromDb(ns_floor) * random.normal(0, 0.01, E_sim_ref.size)
-        # plot(freqs, toDb_0(rfft(100*trace_statitics)))
-        write_data(times, 100 * trace_statitics / num_traces, str(ns_floor) + '_ref', out_dir)  # THz
+            trace_statitics += E_sim_ref + fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref.size)
+            trace_statitics2 += E_sim_ref2 + fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref2.size)
+            trace_statitics3 += E_sim_ref3 + fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref3.size)
+        if ns_floor == -10:
+            figure()
+            plot(freqs, toDb_0(rfft(trace_statitics / num_traces)), lw=1, label='old')
+            plot(freqs, toDb_0(rfft(trace_statitics2 / num_traces)), lw=1, label='new')
+            plot(freqs, toDb_0(rfft(trace_statitics3 / num_traces)), lw=1, label='newer')
+            legend()
+            xlabel(r'$f\ (THz)$')
+            ylabel('dB')
+            savefig('./output/ref_spectra.png')
+            figure()
+            plot(times, 100 * trace_statitics / num_traces, lw=1, label='old')
+            plot(times, 100 * trace_statitics2 / num_traces, lw=1, label='new')
+            plot(times, 100 * trace_statitics3 / num_traces, lw=1, label='newer')
+            legend()
+            xlabel(r'$t\ (ps)$')
+            savefig('./output/ref_traces.png')
+        write_data(times, 100 * trace_statitics3 / num_traces, str(ns_floor) + '_ref', out_dir)  # THz
 
 
 sim_refs()
-# show()
-
+show()
