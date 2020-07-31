@@ -62,11 +62,15 @@ def sim_refs():
         os.remove(out_dir + trash_file)
     
     num_points = 1251
+    # num_points = 10001
     freqs = arange(num_points) * 1e10  # Hz
-    freqs /= 1.25
+    freqs *= 1000 / (num_points - 1)
     # print(freqs)
     # quit()
     freqs *= 1e-12  # THz
+    
+    print(mean(diff(freqs)))
+    quit()
     
     times = arange(2 * (num_points - 1))
     times = times / (mean(diff(freqs)) * 2 * (num_points - 1))  # ps
@@ -75,54 +79,62 @@ def sim_refs():
     # E_sim_w_abs = stats.lognorm.pdf(freqs, 1, scale=0.4, loc=0.15)
     E_sim_w_abs2 = stats.lognorm.pdf(freqs, 1, scale=0.4, loc=0.158)
     E_sim_w_abs3 = stats.lognorm.pdf(freqs, 0.2, scale=0.4, loc=-0.08)
+    E_sim_w_abs4 = stats.lognorm.pdf(freqs, 1.5, scale=1, loc=0.2)
     
     E_sim_w_abs /= max(E_sim_w_abs)
     E_sim_w_abs2 /= max(E_sim_w_abs2)
     E_sim_w_abs3 /= max(E_sim_w_abs3)
+    E_sim_w_abs4 /= max(E_sim_w_abs4)
     
     # E_sim_w_abs = fromDb(30 + toDb(E_sim_w_abs))
     E_sim_w_arg = phase_factor(n_air, 0, 1.6e-3, freqs*1e12)
-    E_sim_w_arg2 = phase_factor(n_air, 0, 1.6e-3, freqs * 1e12)
-    E_sim_w_arg3 = phase_factor(n_air, 0, 1.6e-3, freqs * 1e12)
+    # E_sim_w_arg2 = phase_factor(n_air, 0, 1.6e-3, freqs * 1e12)
+    # E_sim_w_arg3 = phase_factor(n_air, 0, 1.6e-3, freqs * 1e12)
+    # E_sim_w_arg4 = phase_factor(n_air, 0, 1.6e-3, freqs * 1e12)
     
     # plot(freqs, E_sim_w_arg)
     E_sim_ref = irfft(E_sim_w_abs * E_sim_w_arg)  # * 100
-    E_sim_ref2 = irfft(E_sim_w_abs2 * E_sim_w_arg2)  # * 100
-    E_sim_ref3 = irfft(E_sim_w_abs3 * E_sim_w_arg3)  # * 100
+    E_sim_ref2 = irfft(E_sim_w_abs2 * E_sim_w_arg)  # * 100
+    E_sim_ref3 = irfft(E_sim_w_abs3 * E_sim_w_arg)  # * 100
+    E_sim_ref4 = irfft(E_sim_w_abs4 * E_sim_w_arg)  # * 100
     # E_sim_ref /= max(abs(E_sim_ref))
     # E_sim_ref2 /= max(abs(E_sim_ref2))
     # E_sim_ref3 /= max(abs(E_sim_ref3))
     
     # for ns_floor in [-90, -70, -60, -40, -30, -20, -10]:
     # for ns_floor in [-90, -60, -30, -10]:
-    for ns_floor in [-10]:  # -50, -40, -30, -20, -10]:
+    for ns_floor in [-60, -50, -40, -30, -20, -10]:
         num_traces = 10
         trace_statitics = zeros(E_sim_ref.shape)
         trace_statitics2 = zeros(E_sim_ref2.shape)
         trace_statitics3 = zeros(E_sim_ref3.shape)
+        trace_statitics4 = zeros(E_sim_ref4.shape)
         for j in range(num_traces):
             # E_sim_ref += fromDb(ns_floor) * random.normal(0, 0.01, E_sim_ref.size)
             trace_statitics += E_sim_ref + fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref.size)
             trace_statitics2 += E_sim_ref2 + fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref2.size)
             trace_statitics3 += E_sim_ref3 + fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref3.size)
-        if ns_floor == -10:
+            trace_statitics4 += E_sim_ref4 + fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref4.size)
+        if ns_floor == -50:
             figure()
-            plot(freqs, toDb_0(rfft(trace_statitics / num_traces)), lw=1, label='old')
-            plot(freqs, toDb_0(rfft(trace_statitics2 / num_traces)), lw=1, label='new')
-            plot(freqs, toDb_0(rfft(trace_statitics3 / num_traces)), lw=1, label='newer')
+            # plot(freqs, toDb_0(rfft(trace_statitics / num_traces)), lw=1, label='old')
+            # plot(freqs, toDb_0(rfft(trace_statitics2 / num_traces)), lw=1, label='new')
+            # plot(freqs, toDb_0(rfft(trace_statitics3 / num_traces)), lw=1, label='newer')
+            plot(freqs, toDb_0(rfft(trace_statitics4 / num_traces)), lw=1, label='newest')
             legend()
             xlabel(r'$f\ (THz)$')
             ylabel('dB')
-            savefig('./output/ref_spectra.png')
+            savefig('./output/ref_spectra_newest.png')
             figure()
-            plot(times, 100 * trace_statitics / num_traces, lw=1, label='old')
-            plot(times, 100 * trace_statitics2 / num_traces, lw=1, label='new')
-            plot(times, 100 * trace_statitics3 / num_traces, lw=1, label='newer')
+            # plot(times, 100 * trace_statitics / num_traces, lw=1, label='old')
+            # plot(times, 100 * trace_statitics2 / num_traces, lw=1, label='new')
+            # plot(times, 100 * trace_statitics3 / num_traces, lw=1, label='newer')
+            plot(times, 100 * trace_statitics4 / num_traces, lw=1, label='newest')
             legend()
             xlabel(r'$t\ (ps)$')
-            savefig('./output/ref_traces.png')
-        write_data(times, 100 * trace_statitics3 / num_traces, str(ns_floor) + '_ref', out_dir)  # THz
+            savefig('./output/ref_traces_newest.png')
+        write_data(times, 100 * trace_statitics4 / num_traces, str(ns_floor) + '_ref', out_dir)  # THz
 
 
 sim_refs()
-show()
+# show()

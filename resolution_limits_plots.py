@@ -90,15 +90,17 @@ lmda20 = list()
 lmda30 = list()
 lmda40 = list()
 lmda50 = list()
+lmda60 = list()
 
 d_mat_mean10 = list()
 d_mat_mean20 = list()
 d_mat_mean30 = list()
 d_mat_mean40 = list()
 d_mat_mean50 = list()
+d_mat_mean60 = list()
 
 
-error_analisis = '10_100_var_pdr'
+error_analisis = '10_100_var_pdr_newest_ref'
 
 
 fig1 = figure(1)
@@ -143,6 +145,13 @@ for i in range(d_mat.size):
         lmda50.append(lmda[i])
         if abs(d_mat[i] - d_mat_mean[i]) / d_mat[i] > 0.1:
             d_mat_mean50.append(d_mat_mean[i])
+    elif pDr[i] == -60:
+        ax.errorbar(d_mat[i], d_mat_mean[i], yerr=d_mat_std[i],
+                    ls='', marker='1', capsize=2, lw=1, c='pink')
+        line60 = Line2D([0], [0], color='pink', ls='', marker='2')
+        lmda60.append(lmda[i])
+        if abs(d_mat[i] - d_mat_mean[i]) / d_mat[i] > 0.1:
+            d_mat_mean60.append(d_mat_mean[i])
 # for i in range(d_mat.size):
 #     ax.annotate('(' + str(d_mat_pDr[i]) + ', ' + str(round(d_mat_mean[i], 1)) + ')',
 #                 (d_mat[i], d_mat_mean[i])
@@ -151,8 +160,8 @@ xlabel(r'$d_{sim}\ (\mu m)$')
 ylabel(r'$d_{fit}\ (\mu m)$')
 # xlim([d_mat[0], d_mat[-1]])
 legend()  # loc='upper left')
-custom_lines = [line_expected, line10, line20, line30, line40, line50]
-ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50])
+custom_lines = [line_expected, line10, line20, line30, line40, line50, line60]
+ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50, -60])
 savefig('./output/d_mat_fit_' + error_analisis + '.png')
 # show()
 

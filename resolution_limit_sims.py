@@ -85,6 +85,7 @@ def sim_traces():
         
         # material data
         e_s_sim = 1.4**2
+        # e_inf_sim = e_s_sim
         e_inf_sim = 1.8**2
         tau_sim = 5e-14
         n_sim, k_sim = nk_from_eps(e_s_sim, e_inf_sim, tau_sim, f_ref)
@@ -115,6 +116,7 @@ def sim_traces():
         # for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
         # for d_mat in [0.1, 0.5, 1, 5, 10, 50, 100, 500]:
         # for d_mat in [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100]:
+        # for d_mat in [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e2, 1e3, 1.1e3]:
         
         f_ref *= 1e12  # Hz
         for d_mat in [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e2, 1e3]:
@@ -126,7 +128,7 @@ def sim_traces():
 
             d_mat *= 1e-6  # um
             
-            H_sim_teo = H_sim(f_ref, n_sim, k_sim, d_mat, 0)  # -d_mat)
+            H_sim_teo = H_sim(f_ref, n_sim, k_sim, d_mat, 0)  # - d_mat)
             # plot(f_ref, unwrap(angle(H_sim_teo)))
             # show()
             # quit()
@@ -142,6 +144,7 @@ def sim_traces():
             tw.close()
         # legend()
         # show()
+
 
 print('Simulating refs to "measure" samples')
 print()
