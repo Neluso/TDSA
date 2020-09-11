@@ -58,10 +58,14 @@ def abs_spec(freq, s, sigma=1, mu=0):
 
 def sim_refs():
     out_dir = './output/refs/'
+    if not os.path.isdir(out_dir):
+        os.mkdir(out_dir)
+        
     for trash_file in os.listdir(out_dir):
         os.remove(out_dir + trash_file)
     
-    num_points = 1251
+    # num_points = 1251
+    num_points = 2501
     # num_points = 10001
     freqs = arange(num_points) * 1e10  # Hz
     freqs *= 1000 / (num_points - 1)
@@ -69,8 +73,8 @@ def sim_refs():
     # quit()
     freqs *= 1e-12  # THz
     
-    print(mean(diff(freqs)))
-    quit()
+    # print(mean(diff(freqs)))
+    # quit()
     
     times = arange(2 * (num_points - 1))
     times = times / (mean(diff(freqs)) * 2 * (num_points - 1))  # ps
@@ -103,7 +107,7 @@ def sim_refs():
     
     # for ns_floor in [-90, -70, -60, -40, -30, -20, -10]:
     # for ns_floor in [-90, -60, -30, -10]:
-    for ns_floor in [-60, -50, -40, -30, -20, -10]:
+    for ns_floor in [-90, -60, -50, -40]:
         num_traces = 10
         trace_statitics = zeros(E_sim_ref.shape)
         trace_statitics2 = zeros(E_sim_ref2.shape)
@@ -115,7 +119,7 @@ def sim_refs():
             trace_statitics2 += E_sim_ref2 + fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref2.size)
             trace_statitics3 += E_sim_ref3 + fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref3.size)
             trace_statitics4 += E_sim_ref4 + fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref4.size)
-        if ns_floor == -50:
+        if ns_floor == -60:
             figure()
             # plot(freqs, toDb_0(rfft(trace_statitics / num_traces)), lw=1, label='old')
             # plot(freqs, toDb_0(rfft(trace_statitics2 / num_traces)), lw=1, label='new')
@@ -136,5 +140,5 @@ def sim_refs():
         write_data(times, 100 * trace_statitics4 / num_traces, str(ns_floor) + '_ref', out_dir)  # THz
 
 
-sim_refs()
+# sim_refs()
 # show()

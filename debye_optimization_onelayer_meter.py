@@ -116,9 +116,9 @@ f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
 k_bounds = []
 
 k_bounds.append((0, 100e-6))     # air thickness
-k_bounds.append((1, 1000))       # e_inf
-k_bounds.append((1, 1000))       # e_s
-k_bounds.append((0, 1e-14))  # tau
+k_bounds.append((1, 3**2))       # e_inf
+k_bounds.append((1, 3*22))       # e_s
+k_bounds.append((0, 1))  # tau
 k_bounds.append((1e-6, 150e-6))  # thickness
 
 
@@ -157,6 +157,7 @@ f_ref *= 1e-12
 f_sam *= 1e-12
 
 figure(1)
+plot(t_ref, E_ref, lw=1, label='ref')
 plot(t_sam, E_sam, lw=1, label='sam')
 plot(t_sam, E_sam_teo, lw=1, label='fit')
 legend()

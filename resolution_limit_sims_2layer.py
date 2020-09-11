@@ -45,23 +45,31 @@ def nk_from_eps(e_s, e_inf, tau, freq):
     return n, k
 
 
-def H_sim(freq, n, k, thick, d_air):
+def H_sim(freq, n_i, k_i, thick_i, n_o, k_o, thick_o, d_air):
     
-    H_i = cr_l_1_l(n_subs, n - 1j * k)
-    rlm1l = cr_l_1_l(n - 1j * k, n_air_cplx)
-    tt = ct2(n - 1j * k, n_air_cplx)
-    exp_phi = phase_factor(n, k, thick, freq)
+    H_i = cr_l_1_l(n_subs, n_i - 1j * k_i)
     
+    rlm1l = cr_l_1_l(n_i - 1j * k_i, n_o - 1j * k_o)
+    tt = ct2(n_i - 1j * k_i, n_o - 1j * k_o)
+    exp_phi = phase_factor(n_i, k_i, thick_i, freq)
+    
+    H_i = rlm1l + (tt * H_i * exp_phi) / (1 + rlm1l * H_i * exp_phi)
+
+    rlm1l = cr_l_1_l(n_o - 1j * k_o, n_air_cplx)
+    tt = ct2(n_o - 1j * k_o, n_air_cplx)
+    exp_phi = phase_factor(n_o, k_o, thick_o, freq)
+
     H_i = rlm1l + (tt * H_i * exp_phi) / (1 + rlm1l * H_i * exp_phi)
     
     return exp(- 1j * 2 * 2 * pi * freq * d_air / c_0) * H_i
 
 
 def cost_function(params, *args):
-    d_air, e_s, e_inf, tau, thick = params
+    d_air, e_s_i, e_inf_i, tau_i, thick_i, e_s_o, e_inf_o, tau_o, thick_o = params
     E_sam, E_ref_w, freqs = args
-    n, k = nk_from_eps(e_s, e_inf, tau, freqs)  # debye model
-    H_teo = H_sim(freqs, n, k, thick, d_air)
+    n_i, k_i = nk_from_eps(e_s_i, e_inf_i, tau_i, freqs)  # debye model
+    n_o, k_o = nk_from_eps(e_s_o, e_inf_o, tau_o, freqs)  # debye model
+    H_teo = H_sim(freqs, n_i, k_i, thick_i, n_o, k_o, thick_o, d_air)
     E_teo = irfft(H_teo * E_ref_w)
     return sum((E_sam - E_teo)**2)
 
@@ -86,15 +94,19 @@ def sim_traces():
         ns_level = ref_file.split('_')[0]
         
         # material data
-        e_s_sim = 1.4**2
-        # e_inf_sim = e_s_sim
-        e_inf_sim = 1.8**2
-        tau_sim = 5e-14
-        n_sim, k_sim = nk_from_eps(e_s_sim, e_inf_sim, tau_sim, f_ref)
+        e_s_sim_i = 1.4**2
+        e_inf_sim_i = 1.8**2
+        tau_sim_i = 5e-14
+        n_sim_i, k_sim_i = nk_from_eps(e_s_sim_i, e_inf_sim_i, tau_sim_i, f_ref)
+        e_s_sim_o = 1.6 ** 2
+        e_inf_sim_o = 1.8 ** 2
+        tau_sim_o = 5e-14
+        n_sim_o, k_sim_o = nk_from_eps(e_s_sim_o, e_inf_sim_o, tau_sim_o, f_ref)
+        
         f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0, 1)
         f_ref *= 1e-12  # THz
         figure()
-        plot(f_ref, n_sim)
+        plot(f_ref, n_sim_i, f_ref, n_sim_o)
         xlabel(r'$f\ (THz)$')
         # xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
         # ylim([0.9 * n_sim[f_min_idx], 1.1 * n_sim[f_max_idx]])
@@ -102,7 +114,7 @@ def sim_traces():
         close()
         
         figure()
-        plot(f_ref, k_sim)
+        plot(f_ref, k_sim_i, f_ref, k_sim_o)
         xlabel(r'$f\ (THz)$')
         # xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
         # ylim([k_sim[f_min_idx], k_sim[f_max_idx]])
@@ -119,18 +131,20 @@ def sim_traces():
         # for d_mat in [0.1, 0.5, 1, 5, 10, 50, 100, 500]:
         # for d_mat in [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100]:
         # for d_mat in [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e2, 1e3, 1.1e3]:
+        # for d_mat in [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e2, 1e3]:
         
         f_ref *= 1e12  # Hz
-        for d_mat in [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e2, 1e3]:
+        for d_mat in [10, 20, 30, 40, 50]:
             
             print()
             print('Simulating for', d_mat, 'um')
-            name_trace = str(d_mat).zfill(6) + '_' + str(e_s_sim) + '_' + str(e_inf_sim) + '_'
-            name_trace = name_trace + str(tau_sim) + '_' + ns_level + '.txt'
+            name_trace = str(d_mat).zfill(6) + '_' + str(e_s_sim_i) + '_' + str(e_inf_sim_i) + '_'
+            name_trace = name_trace + str(tau_sim_i) + '_' + str(e_s_sim_o) + '_' + str(e_inf_sim_o) + '_'
+            name_trace = name_trace + str(tau_sim_o) + '_' + ns_level + '.txt'
 
             d_mat *= 1e-6  # um
             
-            H_sim_teo = H_sim(f_ref, n_sim, k_sim, d_mat, 0)  # - d_mat)
+            H_sim_teo = H_sim(f_ref, n_sim_i, k_sim_i, d_mat, n_sim_o, k_sim_o, d_mat, 0)  # - d_mat)
             # plot(f_ref, unwrap(angle(H_sim_teo)))
             # show()
             # quit()

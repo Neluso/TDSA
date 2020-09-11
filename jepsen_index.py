@@ -71,6 +71,6 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):
         T_fk[i] = (2 * thickness / c_0) * abs(n[i] - n_avg + i * (n[i + 1] - n[i]))
 
     # Step 6.2: Obtaining the absorption coefficient in m^-1
-    alpha_f = alpha_w(n, H_w, thickness)
+    alpha_f = alpha_w(n, abs(H_w), thickness)
 
     return n, alpha_f, n_avg
