@@ -37,6 +37,8 @@ for i in range(7):
         if i == 0:
             plot(t_ref * 1e12, E_ref)
         plot(t_sam * 1e12, E_sam)
+        xlabel(r'$t\ (ps)$')
+        ylabel(r'Amp (a.u.)')
         savefig('./pinyol_olives/data/muestra_' + str(muestra_j) + '/trazas.jpg', format='JPG')
         clf()
         
@@ -50,6 +52,8 @@ for i in range(7):
         if i == 0:
             plot(f_ref * 1e-12, prettyfy(E_ref_w, max(abs(E_ref_w))))
         plot(f_sam * 1e-12, prettyfy(E_sam_w, max(abs(E_ref_w))))
+        xlabel(r'$f\ (THz)$')
+        ylabel(r'Abs (dB)')
         savefig('./pinyol_olives/data/muestra_' + str(muestra_j) + '/espectros.jpg', format='JPG')
         clf()
     
@@ -66,9 +70,13 @@ for i in range(7):
         alpha_r_std = alpha_r_std[f_min_idx:f_max_idx]
         figure(3)
         errorbar(f_ref * 1e-12, n_idx_mean, yerr=n_idx_std)
+        xlabel(r'$f\ (THz)$')
+        ylabel(r'n')
         savefig('./pinyol_olives/data/muestra_' + str(muestra_j) + '/indice.jpg', format='JPG')
         clf()
         figure(4)
         errorbar(f_ref * 1e-12, alpha_r_mean * 1e-2, yerr=alpha_r_std * 1e-2)
+        xlabel(r'$f\ (THz)$')
+        ylabel(r'$\alpha\ (cm^{-1})$')
         savefig('./pinyol_olives/data/muestra_' + str(muestra_j) + '/alpha.jpg', format='JPG')
         clf()
