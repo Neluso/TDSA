@@ -107,7 +107,7 @@ def sim_refs():
     
     # for ns_floor in [-90, -70, -60, -40, -30, -20, -10]:
     # for ns_floor in [-90, -60, -30, -10]:
-    for ns_floor in [-90, -60, -50, -40]:
+    for ns_floor in [-60]:  # , -60, -40]:
         num_traces = 10
         trace_statitics = zeros(E_sim_ref.shape)
         trace_statitics2 = zeros(E_sim_ref2.shape)
@@ -121,23 +121,23 @@ def sim_refs():
             trace_statitics4 += E_sim_ref4 + fromDb(ns_floor) * random.normal(0, 0.02, E_sim_ref4.size)
         if ns_floor == -60:
             figure()
-            # plot(freqs, toDb_0(rfft(trace_statitics / num_traces)), lw=1, label='old')
-            # plot(freqs, toDb_0(rfft(trace_statitics2 / num_traces)), lw=1, label='new')
-            # plot(freqs, toDb_0(rfft(trace_statitics3 / num_traces)), lw=1, label='newer')
+            plot(freqs, toDb_0(rfft(trace_statitics / num_traces)), lw=1, label='old')
+            plot(freqs, toDb_0(rfft(trace_statitics2 / num_traces)), lw=1, label='new')
+            plot(freqs, toDb_0(rfft(trace_statitics3 / num_traces)), lw=1, label='newer')
             plot(freqs, toDb_0(rfft(trace_statitics4 / num_traces)), lw=1, label='newest')
             legend()
             xlabel(r'$f\ (THz)$')
             ylabel('dB')
             savefig('./output/ref_spectra_newest.png')
             figure()
-            # plot(times, 100 * trace_statitics / num_traces, lw=1, label='old')
-            # plot(times, 100 * trace_statitics2 / num_traces, lw=1, label='new')
-            # plot(times, 100 * trace_statitics3 / num_traces, lw=1, label='newer')
+            plot(times, 100 * trace_statitics / num_traces, lw=1, label='old')
+            plot(times, 100 * trace_statitics2 / num_traces, lw=1, label='new')
+            plot(times, 100 * trace_statitics3 / num_traces, lw=1, label='newer')
             plot(times, 100 * trace_statitics4 / num_traces, lw=1, label='newest')
             legend()
             xlabel(r'$t\ (ps)$')
             savefig('./output/ref_traces_newest.png')
-        write_data(times, 100 * trace_statitics4 / num_traces, str(ns_floor) + '_ref', out_dir)  # THz
+        write_data(times, 100 * trace_statitics / num_traces, str(ns_floor) + '_ref', out_dir)  # THz
 
 
 # sim_refs()

@@ -145,7 +145,7 @@ def sim_traces():
         # for d_mat in [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e2, 1e3]:
         
         f_ref *= 1e12  # Hz
-        for d_mat in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]:
+        for d_mat in [40, 50, 100]:
             
             print()
             print('Simulating for', d_mat, 'um')

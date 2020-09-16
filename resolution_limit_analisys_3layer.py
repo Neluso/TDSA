@@ -193,8 +193,8 @@ if __name__ == '__main__':
             print(res)
             n_sim_i, k_sim_i = nk_from_eps(res.x[1], res.x[2], res.x[3], f_sim)
             n_sim_m, k_sim_m = nk_from_eps(res.x[5], res.x[6], res.x[7], f_sim)
-            n_sim_o, k_sim_o = nk_from_eps(res.x[5], res.x[6], res.x[7], f_sim)
-            H_fit = H_sim(f_sim, n_sim_i, k_sim_i, res.x[4], n_sim_i, k_sim_i, res.x[8], res.x[0])
+            n_sim_o, k_sim_o = nk_from_eps(res.x[9], res.x[10], res.x[11], f_sim)
+            H_fit = H_sim(f_sim, n_sim_i, k_sim_i, res.x[4], n_sim_i, k_sim_i, res.x[8], n_sim_o, k_sim_o, res.x[12], res.x[0])
             # plot(t_sim, E_sim)
             # plot(t_sim, irfft(H_fit * E_ref_w))
             # show()
@@ -226,6 +226,10 @@ if __name__ == '__main__':
         e_s_fit_i = array(e_s_fit_i)
         e_inf_fit_i = array(e_inf_fit_i)
         tau_fit_i = array(tau_fit_i)
+        d_mat_fit_m = array(d_mat_fit_m)
+        e_s_fit_m = array(e_s_fit_m)
+        e_inf_fit_m = array(e_inf_fit_m)
+        tau_fit_m = array(tau_fit_m)
         d_mat_fit_o = array(d_mat_fit_o)
         e_s_fit_o = array(e_s_fit_o)
         e_inf_fit_o = array(e_inf_fit_o)
@@ -236,6 +240,10 @@ if __name__ == '__main__':
         data += str(e_s_sim_i) + ',' + str(mean(e_s_fit_i)) + ',' + str(std(e_s_fit_i)) + ','
         data += str(e_inf_sim_i) + ',' + str(mean(e_inf_fit_i)) + ',' + str(std(e_inf_fit_i)) + ','
         data += str(tau_sim_i) + ',' + str(mean(tau_fit_i)) + ',' + str(std(tau_fit_i)) + ','
+        data += str(d_mat) + ',' + str(mean(d_mat_fit_m)) + ',' + str(std(d_mat_fit_m)) + ','
+        data += str(e_s_sim_m) + ',' + str(mean(e_s_fit_m)) + ',' + str(std(e_s_fit_m)) + ','
+        data += str(e_inf_sim_m) + ',' + str(mean(e_inf_fit_m)) + ',' + str(std(e_inf_fit_m)) + ','
+        data += str(tau_sim_m) + ',' + str(mean(tau_fit_m)) + ',' + str(std(tau_fit_m)) + ','
         data += str(d_mat) + ',' + str(mean(d_mat_fit_o)) + ',' + str(std(d_mat_fit_o)) + ','
         data += str(e_s_sim_o) + ',' + str(mean(e_s_fit_o)) + ',' + str(std(e_s_fit_o)) + ','
         data += str(e_inf_sim_o) + ',' + str(mean(e_inf_fit_o)) + ',' + str(std(e_inf_fit_o)) + ','
