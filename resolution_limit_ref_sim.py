@@ -107,7 +107,7 @@ def sim_refs():
     
     # for ns_floor in [-90, -70, -60, -40, -30, -20, -10]:
     # for ns_floor in [-90, -60, -30, -10]:
-    for ns_floor in [-60]:  # , -60, -40]:
+    for ns_floor in [-90, -60, -40]:
         num_traces = 10
         trace_statitics = zeros(E_sim_ref.shape)
         trace_statitics2 = zeros(E_sim_ref2.shape)
@@ -136,7 +136,7 @@ def sim_refs():
             plot(times, 100 * trace_statitics4 / num_traces, lw=1, label='newest')
             legend()
             xlabel(r'$t\ (ps)$')
-            savefig('./output/ref_traces_newest.png')
+            savefig('./output/ref_traces.png')
         write_data(times, 100 * trace_statitics / num_traces, str(ns_floor) + '_ref', out_dir)  # THz
 
 

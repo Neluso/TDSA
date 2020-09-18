@@ -133,6 +133,7 @@ lmda30 = list()
 lmda40 = list()
 lmda50 = list()
 lmda60 = list()
+lmda90 = list()
 
 d_mat_mean10 = list()
 d_mat_mean20 = list()
@@ -140,9 +141,10 @@ d_mat_mean30 = list()
 d_mat_mean40 = list()
 d_mat_mean50 = list()
 d_mat_mean60 = list()
+d_mat_mean90 = list()
 
 
-error_analisis = '10_100_var_pdr_newest_ref'
+error_analisis = '2_layer'
 
 
 fig1 = figure(1)
@@ -159,41 +161,48 @@ for i in range(d_mat_i.size):
         lmda10.append(lmda[i])
         if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
             d_mat_mean10.append(d_mat_mean_i[i])
-    elif pDr[i] == -20:
-        ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
-                    ls='', marker='+', capsize=2, lw=1, c='blue')
-        line20 = Line2D([0], [0], color='blue', ls='', marker='+')
-        lmda20.append(lmda[i])
-        if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
-            d_mat_mean10.append(d_mat_mean_i[i])
+    # elif pDr[i] == -20:
+    #     ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
+    #                 ls='', marker='+', capsize=2, lw=1, c='blue')
+    #     line20 = Line2D([0], [0], color='blue', ls='', marker='+')
+    #     lmda20.append(lmda[i])
+    #     if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
+    #         d_mat_mean20.append(d_mat_mean_i[i])
     elif pDr[i] == -30:
         ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
                     ls='', marker='^', capsize=2, lw=1, c='green')
         line30 = Line2D([0], [0], color='green', ls='', marker='^')
         lmda30.append(lmda[i])
         if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
-            d_mat_mean10.append(d_mat_mean_i[i])
+            d_mat_mean30.append(d_mat_mean_i[i])
     elif pDr[i] == -40:
         ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
                     ls='', marker='v', capsize=2, lw=1, c='orange')
         line40 = Line2D([0], [0], color='orange', ls='', marker='v')
         lmda40.append(lmda[i])
         if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
-            d_mat_mean10.append(d_mat_mean_i[i])
+            d_mat_mean40.append(d_mat_mean_i[i])
     elif pDr[i] == -50:
         ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
                     ls='', marker='1', capsize=2, lw=1, c='red')
         line50 = Line2D([0], [0], color='red', ls='', marker='1')
         lmda50.append(lmda[i])
         if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
-            d_mat_mean10.append(d_mat_mean_i[i])
+            d_mat_mean50.append(d_mat_mean_i[i])
     elif pDr[i] == -60:
         ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
                     ls='', marker='1', capsize=2, lw=1, c='pink')
         line60 = Line2D([0], [0], color='pink', ls='', marker='2')
         lmda60.append(lmda[i])
         if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
-            d_mat_mean10.append(d_mat_mean_i[i])
+            d_mat_mean60.append(d_mat_mean_i[i])
+    elif pDr[i] == -90:
+        ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
+                    ls='', marker='+', capsize=2, lw=1, c='blue')
+        line90 = Line2D([0], [0], color='blue', ls='', marker='+')
+        lmda90.append(lmda[i])
+        if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
+            d_mat_mean90.append(d_mat_mean_i[i])
 # for i in range(d_mat.size):
 #     ax.annotate('(' + str(d_mat_pDr[i]) + ', ' + str(round(d_mat_mean[i], 1)) + ')',
 #                 (d_mat[i], d_mat_mean[i])
@@ -204,160 +213,160 @@ ylabel(r'$d_{fit}\ (\mu m)$')
 legend()  # loc='upper left')
 # custom_lines = [line_expected, line10, line20, line30, line40, line50, line60]
 # ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50, -60])
-custom_lines = [line_expected, line60]
-ax.legend(custom_lines, ['sim', -60])
+custom_lines = [line_expected, line40, line60, line90]
+ax.legend(custom_lines, ['sim', -40, -60, -90])
 savefig('./output/d_mat_fit_' + error_analisis + '.png')
 # show()
 # quit()
-
-figure(33)
-ax = axes()
-# ax.set_xscale('log')
-ax.set_yscale('log')
-medians_d_mat = array((median(d_mat_mean10), median(d_mat_mean20), median(d_mat_mean30), median(d_mat_mean40), median(d_mat_mean50)))
-medians_lmda = array((median(lmda10), median(lmda20), median(lmda30), median(lmda40), median(lmda50)))
-d_mat_vs_lmda = array((medians_d_mat, medians_lmda))
-plot(medians_lmda, medians_d_mat, '.')
-xlabel(r'$\lambda\ (\mu m)$')
-ylabel(r'$d_{lim}\ (\mu m)$')
-
-figure(44)
-ax = axes()
-# ax.set_xscale('log')
-ax.set_yscale('log')
-medians_d_mat = array((median(d_mat_mean10), median(d_mat_mean20), median(d_mat_mean30), median(d_mat_mean40), median(d_mat_mean50)))
-medians_lmda = array((median(lmda10), median(lmda20), median(lmda30), median(lmda40), median(lmda50)))
-d_mat_vs_lmda = array((medians_d_mat, medians_lmda))
-plot(medians_lmda, medians_d_mat, '.')
-xlabel(r'$\lambda\ (\mu m)$')
-ylabel(r'$d_{lim}\ (\mu m)$')
-
-# show()
-# quit()
-
-
-fig22 = figure(22)
-ax = axes()
-ax.set_xscale('log')
-ax.set_yscale('log')
-plot(d_mat_i, lmda, '.')
-# show()
-# quit()
-
-
-freqs = arange(100) * 1e10  # Hz
-# print(freqs)
-# quit()
-n_sim_i, k_sim_i = nk_from_eps(mean(e_s_i), mean(e_inf_i), mean(tau_i), freqs)
-n_fit_i, k_fit_i = nk_from_eps(mean(e_s_mean_i), mean(e_inf_mean_i), mean(tau_mean_i), freqs)
-n_fit_upp, k_fit_upp = nk_from_eps(mean(e_s_mean_i + e_s_std_i), mean(e_inf_mean_i + e_inf_std_i), mean(tau_mean_i + tau_std_i), freqs)
-n_fit_dwn, k_fit_dwn = nk_from_eps(mean(e_s_mean_i - e_s_std_i), mean(e_inf_mean_i - e_inf_std_i), mean(tau_mean_i - tau_std_i), freqs)
-freqs *= 1e-12  # THz
-
-fig2 = figure(2)
-ax = axes()
-# ax.set_xscale('log')
+#
+# figure(33)
+# ax = axes()
+# # ax.set_xscale('log')
 # ax.set_yscale('log')
-ax.plot(freqs, n_sim_i, 'r-', label='expected')
-ax.plot(freqs, n_fit_i, label='fitted')
-# ax.errorbar(freqs, n_fit, yerr=(n_fit_upp, n_fit_dwn), label='fitted')
-xlabel(r'$f\ (THz)$')
-# ylabel(r'$n$')
-xlim([freqs[0], freqs[-1]])
-legend(loc='upper left')
-savefig('./output/n_fit_' + error_analisis + '.png')
-
-fig3 = figure(3)
-ax = axes()
-# ax.set_xscale('log')
+# medians_d_mat = array((median(d_mat_mean10), median(d_mat_mean20), median(d_mat_mean30), median(d_mat_mean40), median(d_mat_mean50)))
+# medians_lmda = array((median(lmda10), median(lmda20), median(lmda30), median(lmda40), median(lmda50)))
+# d_mat_vs_lmda = array((medians_d_mat, medians_lmda))
+# plot(medians_lmda, medians_d_mat, '.')
+# xlabel(r'$\lambda\ (\mu m)$')
+# ylabel(r'$d_{lim}\ (\mu m)$')
+#
+# figure(44)
+# ax = axes()
+# # ax.set_xscale('log')
 # ax.set_yscale('log')
-ax.plot(freqs, k_sim_i, 'r-', label='expected')
-ax.plot(freqs, k_fit_i, label='fitted')
-# ax.errorbar(freqs, k_fit, yerr=(k_fit_upp, k_fit_dwn), label='fitted')
-xlabel(r'$f\ (THz)$')
-# ylabel(r'$n$')
-xlim([freqs[0], freqs[-1]])
-legend(loc='upper left')
-savefig('./output/k_fit_' + error_analisis + '.png')
-
-
-fig4 = figure(4)
-ax = axes()
-# ax.set_xscale('log')
-# ax.set_yscale('log')
-ax.plot(d_mat_std_i, f_cutoff, 'o')  # , label='expected')
-# ax.plot(d_mat, pDr, 'b.', label='fitted')
-xlabel(r'$\frac{\sigma_{d_{fit}}}{d_{sim}}$')
-ylabel(r'$f\ (THz)$')
-# xlim([(d_mat_std / d_mat)[0], (d_mat_std / d_mat)[-1]])
-# legend(loc='upper left')
-
-fig5 = figure(5)
+# medians_d_mat = array((median(d_mat_mean10), median(d_mat_mean20), median(d_mat_mean30), median(d_mat_mean40), median(d_mat_mean50)))
+# medians_lmda = array((median(lmda10), median(lmda20), median(lmda30), median(lmda40), median(lmda50)))
+# d_mat_vs_lmda = array((medians_d_mat, medians_lmda))
+# plot(medians_lmda, medians_d_mat, '.')
+# xlabel(r'$\lambda\ (\mu m)$')
+# ylabel(r'$d_{lim}\ (\mu m)$')
+#
+# # show()
+# # quit()
+#
+#
+# fig22 = figure(22)
 # ax = axes()
 # ax.set_xscale('log')
 # ax.set_yscale('log')
-ax.plot(d_mat_std_i, pDr, 'o')  # , label='expected')
-# ax.plot(d_mat, pDr, 'b.', label='fitted')
-xlabel(r'$\frac{\sigma_{d_{fit}}}{d_{sim}}$')
-ylabel('PDR (dB)')
-# xlim([(d_mat_std / d_mat)[0], (d_mat_std / d_mat)[-1]])
+# plot(d_mat_i, lmda, '.')
+# # show()
+# # quit()
+#
+#
+# freqs = arange(100) * 1e10  # Hz
+# # print(freqs)
+# # quit()
+# n_sim_i, k_sim_i = nk_from_eps(mean(e_s_i), mean(e_inf_i), mean(tau_i), freqs)
+# n_fit_i, k_fit_i = nk_from_eps(mean(e_s_mean_i), mean(e_inf_mean_i), mean(tau_mean_i), freqs)
+# n_fit_upp, k_fit_upp = nk_from_eps(mean(e_s_mean_i + e_s_std_i), mean(e_inf_mean_i + e_inf_std_i), mean(tau_mean_i + tau_std_i), freqs)
+# n_fit_dwn, k_fit_dwn = nk_from_eps(mean(e_s_mean_i - e_s_std_i), mean(e_inf_mean_i - e_inf_std_i), mean(tau_mean_i - tau_std_i), freqs)
+# freqs *= 1e-12  # THz
+#
+# fig2 = figure(2)
+# ax = axes()
+# # ax.set_xscale('log')
+# # ax.set_yscale('log')
+# ax.plot(freqs, n_sim_i, 'r-', label='expected')
+# ax.plot(freqs, n_fit_i, label='fitted')
+# # ax.errorbar(freqs, n_fit, yerr=(n_fit_upp, n_fit_dwn), label='fitted')
+# xlabel(r'$f\ (THz)$')
+# # ylabel(r'$n$')
+# xlim([freqs[0], freqs[-1]])
 # legend(loc='upper left')
+# savefig('./output/n_fit_' + error_analisis + '.png')
+#
+# fig3 = figure(3)
+# ax = axes()
+# # ax.set_xscale('log')
+# # ax.set_yscale('log')
+# ax.plot(freqs, k_sim_i, 'r-', label='expected')
+# ax.plot(freqs, k_fit_i, label='fitted')
+# # ax.errorbar(freqs, k_fit, yerr=(k_fit_upp, k_fit_dwn), label='fitted')
+# xlabel(r'$f\ (THz)$')
+# # ylabel(r'$n$')
+# xlim([freqs[0], freqs[-1]])
+# legend(loc='upper left')
+# savefig('./output/k_fit_' + error_analisis + '.png')
+#
+#
+# fig4 = figure(4)
+# ax = axes()
+# # ax.set_xscale('log')
+# # ax.set_yscale('log')
+# ax.plot(d_mat_std_i, f_cutoff, 'o')  # , label='expected')
+# # ax.plot(d_mat, pDr, 'b.', label='fitted')
+# xlabel(r'$\frac{\sigma_{d_{fit}}}{d_{sim}}$')
+# ylabel(r'$f\ (THz)$')
+# # xlim([(d_mat_std / d_mat)[0], (d_mat_std / d_mat)[-1]])
+# # legend(loc='upper left')
+#
+# fig5 = figure(5)
+# # ax = axes()
+# # ax.set_xscale('log')
+# # ax.set_yscale('log')
+# ax.plot(d_mat_std_i, pDr, 'o')  # , label='expected')
+# # ax.plot(d_mat, pDr, 'b.', label='fitted')
+# xlabel(r'$\frac{\sigma_{d_{fit}}}{d_{sim}}$')
+# ylabel('PDR (dB)')
+# # xlim([(d_mat_std / d_mat)[0], (d_mat_std / d_mat)[-1]])
+# # legend(loc='upper left')
 show()
-quit()
-
-print('\\begin{table}[H]')
-print('\t\\centering\n\t\\begin{tabular}{rrrr}')
-print('\t\t$d_{sim}\ (\mu m)$ & pDr (dB) & $\epsilon_{s}\ (sim)$ & $\epsilon_{s}\ (fit)$ & $\\frac{\Delta\epsilon_{s}}{\epsilon_{s}}$ \\\\')
-for i in range(d_mat.size - 1):
-    print('\t\t' + str(round(d_mat[i], 1)), '&',  abs(d_mat_pDr[i]), '&', round(e_s[i], 3), '&', round(e_s_mean[i], 3), '$\pm$', round(e_s_std[i], 3), '&', round(abs(e_s[i] - e_s_mean[i])/e_s[i], 3), '\\\\')
-print('\t\t' + str(round(d_mat[-1], 1)), '&',  abs(d_mat_pDr[-1]), '&', round(e_s[-1], 3), '&', round(e_s_mean[-1], 3), '$\pm$', round(e_s_std[-1], 3), '&', round(abs(e_s[-1] - e_s_mean[-1])/e_s[-1], 3))
-print('\t\\end{tabular}\n\t\\caption{$\\epsilon_s$}\n\t\\label{tab:e_s_' + error_analisis + '}')
-print('\\end{table}')
-print()
-
-print('\\begin{table}[H]')
-print('\t\\centering\n\t\\begin{tabular}{rrrr}')
-print('\t\t$d_{sim}\ (\\mu m)$ & pDr (dB) & $\\epsilon_{\\infty}\ (sim)$ & $\epsilon_{\\infty}\ (fit)$ & $\\frac{\Delta\epsilon_{\inf}}{\epsilon_{\inf}}$ \\\\')
-for i in range(d_mat.size - 1):
-    print('\t\t' + str(round(d_mat[i], 1)), '&',  abs(d_mat_pDr[i]), '&', round(e_inf[i], 3), '&', round(e_inf_mean[i], 3), '$\pm$', round(e_inf_std[i], 3), '&', round(abs(e_inf[i] - e_inf_mean[i])/e_inf[i], 3), '\\\\')
-print('\t\t' + str(round(d_mat[-1], 1)), '&',  abs(d_mat_pDr[-1]), '&', round(e_inf[-1], 3), '&', round(e_inf_mean[-1], 3), '$\pm$', round(e_inf_std[-1], 3), '&', round(abs(e_inf[-1] - e_inf_mean[-1])/e_inf[-1], 3))
-print('\t\\end{tabular}\n\t\\caption{$\\epsilon_{\\infty}$}\n\t\\label{tab:e_inf_' + error_analisis + '}')
-print('\\end{table}')
-print()
-
-print('\\begin{table}[H]')
-print('\t\\centering\n\t\\begin{tabular}{rrrr}')
-print('\t\t$d_{sim}\ (\mu m)$ & pDr (dB) & $\\tau\ (fs) (sim)$ & $\\tau\ (fs) (fit)$ & $\\frac{\Delta\\tau}{\\tau}$ \\\\')
-for i in range(d_mat.size - 1):
-    print('\t\t' + str(round(d_mat[i], 1)), '&',  abs(d_mat_pDr[i]), '&', round(tau[i]*1e15, 3), '&', round(tau_mean[i]*1e15, 3), '$\pm$', round(tau_std[i]*1e15, 3), '&', round(abs(tau[i] - tau_mean[i])/tau[i], 3), '\\\\')
-print('\t\t' + str(round(d_mat[-1], 1)), '&',  abs(d_mat_pDr[-1]), '&', round(tau[-1]*1e15, 3), '&', round(tau_mean[-1]*1e15, 3), '$\pm$', round(tau_std[-1]*1e15, 3), '&', round(abs(tau[-1] - tau_mean[-1])/tau[-1], 3))
-print('\t\\end{tabular}\n\t\\caption{$\\tau$}\n\t\\label{tab:tau_' + error_analisis + '}')
-print('\\end{table}')
-
-print('\\begin{figure}[H]')
-print('\t\\centering')
-print('\t\\begin{subfigure}[t]{0.5\\textwidth}')
-print('\t\t\\centering')
-print('\t\t\\includegraphics[scale=0.35]{n_fit_' + error_analisis + '.png}')
-print('\t\t\\caption{Refractive index}')
-print('\t\t\\label{fig:n_fit_' + error_analisis + '}')
-print('\t\\end{subfigure}%')
-print('\t~')
-print('\t\\begin{subfigure}[t]{0.5\\textwidth}')
-print('\t\t\\centering')
-print('\t\t\\includegraphics[scale=0.35]{k_fit_' + error_analisis + '.png}')
-print('\t\t\\caption{Extinction coefficient}')
-print('\t\t\\label{fig:k_fit_' + error_analisis + '}')
-print('\t\\end{subfigure}')
-print('\t\\caption{Resulting refractive index for $\\epsilon_s$, $\\epsilon_{\\infty}$ and $\\tau$ used in the trace simulations}')
-print('\t\\label{fig:optical_params_' + error_analisis + '}')
-print('\\end{figure}')
-
-print('\\begin{figure}[H]')
-print('\t\\centering')
-print('\t\\includegraphics[scale=0.75]{d_mat_fit_' + error_analisis + '.png}')
-print('\t\\caption{Fitted values for thicknesses.}')
-print('\t\\label{fig:d_mat_fit_' + error_analisis + '}')
-print('\\end{figure}')
-
-show()
+# quit()
+# 
+# print('\\begin{table}[H]')
+# print('\t\\centering\n\t\\begin{tabular}{rrrr}')
+# print('\t\t$d_{sim}\ (\mu m)$ & pDr (dB) & $\epsilon_{s}\ (sim)$ & $\epsilon_{s}\ (fit)$ & $\\frac{\Delta\epsilon_{s}}{\epsilon_{s}}$ \\\\')
+# for i in range(d_mat.size - 1):
+#     print('\t\t' + str(round(d_mat[i], 1)), '&',  abs(d_mat_pDr[i]), '&', round(e_s[i], 3), '&', round(e_s_mean[i], 3), '$\pm$', round(e_s_std[i], 3), '&', round(abs(e_s[i] - e_s_mean[i])/e_s[i], 3), '\\\\')
+# print('\t\t' + str(round(d_mat[-1], 1)), '&',  abs(d_mat_pDr[-1]), '&', round(e_s[-1], 3), '&', round(e_s_mean[-1], 3), '$\pm$', round(e_s_std[-1], 3), '&', round(abs(e_s[-1] - e_s_mean[-1])/e_s[-1], 3))
+# print('\t\\end{tabular}\n\t\\caption{$\\epsilon_s$}\n\t\\label{tab:e_s_' + error_analisis + '}')
+# print('\\end{table}')
+# print()
+#
+# print('\\begin{table}[H]')
+# print('\t\\centering\n\t\\begin{tabular}{rrrr}')
+# print('\t\t$d_{sim}\ (\\mu m)$ & pDr (dB) & $\\epsilon_{\\infty}\ (sim)$ & $\epsilon_{\\infty}\ (fit)$ & $\\frac{\Delta\epsilon_{\inf}}{\epsilon_{\inf}}$ \\\\')
+# for i in range(d_mat.size - 1):
+#     print('\t\t' + str(round(d_mat[i], 1)), '&',  abs(d_mat_pDr[i]), '&', round(e_inf[i], 3), '&', round(e_inf_mean[i], 3), '$\pm$', round(e_inf_std[i], 3), '&', round(abs(e_inf[i] - e_inf_mean[i])/e_inf[i], 3), '\\\\')
+# print('\t\t' + str(round(d_mat[-1], 1)), '&',  abs(d_mat_pDr[-1]), '&', round(e_inf[-1], 3), '&', round(e_inf_mean[-1], 3), '$\pm$', round(e_inf_std[-1], 3), '&', round(abs(e_inf[-1] - e_inf_mean[-1])/e_inf[-1], 3))
+# print('\t\\end{tabular}\n\t\\caption{$\\epsilon_{\\infty}$}\n\t\\label{tab:e_inf_' + error_analisis + '}')
+# print('\\end{table}')
+# print()
+#
+# print('\\begin{table}[H]')
+# print('\t\\centering\n\t\\begin{tabular}{rrrr}')
+# print('\t\t$d_{sim}\ (\mu m)$ & pDr (dB) & $\\tau\ (fs) (sim)$ & $\\tau\ (fs) (fit)$ & $\\frac{\Delta\\tau}{\\tau}$ \\\\')
+# for i in range(d_mat.size - 1):
+#     print('\t\t' + str(round(d_mat[i], 1)), '&',  abs(d_mat_pDr[i]), '&', round(tau[i]*1e15, 3), '&', round(tau_mean[i]*1e15, 3), '$\pm$', round(tau_std[i]*1e15, 3), '&', round(abs(tau[i] - tau_mean[i])/tau[i], 3), '\\\\')
+# print('\t\t' + str(round(d_mat[-1], 1)), '&',  abs(d_mat_pDr[-1]), '&', round(tau[-1]*1e15, 3), '&', round(tau_mean[-1]*1e15, 3), '$\pm$', round(tau_std[-1]*1e15, 3), '&', round(abs(tau[-1] - tau_mean[-1])/tau[-1], 3))
+# print('\t\\end{tabular}\n\t\\caption{$\\tau$}\n\t\\label{tab:tau_' + error_analisis + '}')
+# print('\\end{table}')
+#
+# print('\\begin{figure}[H]')
+# print('\t\\centering')
+# print('\t\\begin{subfigure}[t]{0.5\\textwidth}')
+# print('\t\t\\centering')
+# print('\t\t\\includegraphics[scale=0.35]{n_fit_' + error_analisis + '.png}')
+# print('\t\t\\caption{Refractive index}')
+# print('\t\t\\label{fig:n_fit_' + error_analisis + '}')
+# print('\t\\end{subfigure}%')
+# print('\t~')
+# print('\t\\begin{subfigure}[t]{0.5\\textwidth}')
+# print('\t\t\\centering')
+# print('\t\t\\includegraphics[scale=0.35]{k_fit_' + error_analisis + '.png}')
+# print('\t\t\\caption{Extinction coefficient}')
+# print('\t\t\\label{fig:k_fit_' + error_analisis + '}')
+# print('\t\\end{subfigure}')
+# print('\t\\caption{Resulting refractive index for $\\epsilon_s$, $\\epsilon_{\\infty}$ and $\\tau$ used in the trace simulations}')
+# print('\t\\label{fig:optical_params_' + error_analisis + '}')
+# print('\\end{figure}')
+#
+# print('\\begin{figure}[H]')
+# print('\t\\centering')
+# print('\t\\includegraphics[scale=0.75]{d_mat_fit_' + error_analisis + '.png}')
+# print('\t\\caption{Fitted values for thicknesses.}')
+# print('\t\\label{fig:d_mat_fit_' + error_analisis + '}')
+# print('\\end{figure}')
+#
+# show()
