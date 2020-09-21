@@ -161,7 +161,7 @@ if __name__ == '__main__':
             res = differential_evolution(cost_function,
                                          k_bounds,
                                          args=(E_sim, E_ref_w, f_ref),
-                                         popsize=30,
+                                         # popsize=30,
                                          # maxiter=3000,
                                          updating='deferred',
                                          workers=-1,
