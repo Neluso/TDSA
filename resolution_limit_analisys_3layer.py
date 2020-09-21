@@ -210,7 +210,7 @@ if __name__ == '__main__':
                 print('Time since start (mm:ss):', strftime('%M:%S', gmtime(secs0)))
             else:
                 print('Time since start (hh:mm:ss):', strftime('%H:%M:%S', gmtime(secs0)))
-    
+
             d_air_fit.append(res.x[0] * 1e6)
             e_s_fit_i.append(res.x[1])
             e_inf_fit_i.append(res.x[2])
