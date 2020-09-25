@@ -107,7 +107,7 @@ def sim_refs():
     
     # for ns_floor in [-90, -70, -60, -40, -30, -20, -10]:
     # for ns_floor in [-90, -60, -30, -10]:
-    for ns_floor in [-90, -60, -40]:
+    for ns_floor in [-60]:  # -90, -60, -40]:
         num_traces = 10
         trace_statitics = zeros(E_sim_ref.shape)
         trace_statitics2 = zeros(E_sim_ref2.shape)

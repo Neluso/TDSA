@@ -187,7 +187,7 @@ d_mat_mean60 = list()
 d_mat_mean90 = list()
 
 
-error_analisis = '3_layer'
+error_analisis = '3_layer_1_100_'
 
 
 fig1 = figure(1)
@@ -224,7 +224,7 @@ for i in range(d_mat_i.size):
         line40 = Line2D([0], [0], color='orange', ls='', marker='v')
         lmda40.append(lmda[i])
         if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
-            d_mat_mean10.append(d_mat_mean_i[i])
+            d_mat_mean40.append(d_mat_mean_i[i])
     elif pDr[i] == -50:
         ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
                     ls='', marker='1', capsize=2, lw=1, c='red')
@@ -256,12 +256,143 @@ ylabel(r'$d_{fit}\ (\mu m)$')
 legend()  # loc='upper left')
 # custom_lines = [line_expected, line10, line20, line30, line40, line50, line60]
 # ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50, -60])
-custom_lines = [line_expected, line40, line60, line90]
-ax.legend(custom_lines, ['sim', -40, -60, -90])
-savefig('./output/d_mat_fit_' + error_analisis + '.png')
+custom_lines = [line_expected, line60]
+ax.legend(custom_lines, ['sim',-60])
+savefig('./output/d_mat_fit_i_' + error_analisis + '.png')
 # show()
 # quit()
+fig1 = figure(2)
+ax = axes()
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.plot(d_mat_i, d_mat_i, '--', c='black', label='expected')
+line_expected = Line2D([0], [0], color='black', ls='--')
+for i in range(d_mat_i.size):
+    if pDr[i] == -10:
+        ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
+                    ls='', marker='.', capsize=2, lw=1, c='purple')
+        line10 = Line2D([0], [0], color='purple', ls='', marker='.')
+        lmda10.append(lmda[i])
+        if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
+            d_mat_mean10.append(d_mat_mean_i[i])
+    elif pDr[i] == -20:
+        ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
+                    ls='', marker='+', capsize=2, lw=1, c='blue')
+        line20 = Line2D([0], [0], color='blue', ls='', marker='+')
+        lmda20.append(lmda[i])
+        if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
+            d_mat_mean10.append(d_mat_mean_i[i])
+    elif pDr[i] == -30:
+        ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
+                    ls='', marker='^', capsize=2, lw=1, c='green')
+        line30 = Line2D([0], [0], color='green', ls='', marker='^')
+        lmda30.append(lmda[i])
+        if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
+            d_mat_mean10.append(d_mat_mean_i[i])
+    elif pDr[i] == -40:
+        ax.errorbar(d_mat_m[i], d_mat_mean_m[i], yerr=d_mat_std_m[i],
+                    ls='', marker='v', capsize=2, lw=1, c='orange')
+        line40 = Line2D([0], [0], color='orange', ls='', marker='v')
+        lmda40.append(lmda[i])
+        if abs(d_mat_m[i] - d_mat_mean_m[i]) / d_mat_m[i] > 0.1:
+            d_mat_mean40.append(d_mat_mean_m[i])
+    elif pDr[i] == -50:
+        ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
+                    ls='', marker='1', capsize=2, lw=1, c='red')
+        line50 = Line2D([0], [0], color='red', ls='', marker='1')
+        lmda50.append(lmda[i])
+        if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
+            d_mat_mean10.append(d_mat_mean_i[i])
+    elif pDr[i] == -60:
+            ax.errorbar(d_mat_m[i], d_mat_mean_m[i], yerr=d_mat_std_m[i],
+                        ls='', marker='1', capsize=2, lw=1, c='pink')
+            line60 = Line2D([0], [0], color='pink', ls='', marker='2')
+            lmda60.append(lmda[i])
+            if abs(d_mat_m[i] - d_mat_mean_m[i]) / d_mat_m[i] > 0.1:
+                d_mat_mean60.append(d_mat_mean_m[i])
+    elif pDr[i] == -90:
+        ax.errorbar(d_mat_m[i], d_mat_mean_m[i], yerr=d_mat_std_m[i],
+                    ls='', marker='+', capsize=2, lw=1, c='blue')
+        line90 = Line2D([0], [0], color='blue', ls='', marker='+')
+        lmda90.append(lmda[i])
+        if abs(d_mat_m[i] - d_mat_mean_m[i]) / d_mat_m[i] > 0.1:
+            d_mat_mean90.append(d_mat_mean_m[i])
+# for i in range(d_mat.size):
+#     ax.annotate('(' + str(d_mat_pDr[i]) + ', ' + str(round(d_mat_mean[i], 1)) + ')',
+#                 (d_mat[i], d_mat_mean[i])
+#                 )
+xlabel(r'$d_{sim}\ (\mu m)$')
+ylabel(r'$d_{fit}\ (\mu m)$')
+# xlim([d_mat[0], d_mat[-1]])
+legend()  # loc='upper left')
+# custom_lines = [line_expected, line10, line20, line30, line40, line50, line60]
+# ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50, -60])
+custom_lines = [line_expected, line60]
+ax.legend(custom_lines, ['sim',-60])
+savefig('./output/d_mat_fit_m_' + error_analisis + '.png')
 
+fig1 = figure(3)
+ax = axes()
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.plot(d_mat_i, d_mat_i, '--', c='black', label='expected')
+line_expected = Line2D([0], [0], color='black', ls='--')
+for i in range(d_mat_i.size):
+    if pDr[i] == -10:
+        ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
+                    ls='', marker='.', capsize=2, lw=1, c='purple')
+        line10 = Line2D([0], [0], color='purple', ls='', marker='.')
+        lmda10.append(lmda[i])
+        if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
+            d_mat_mean10.append(d_mat_mean_i[i])
+    elif pDr[i] == -20:
+        ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
+                    ls='', marker='+', capsize=2, lw=1, c='blue')
+        line20 = Line2D([0], [0], color='blue', ls='', marker='+')
+        lmda20.append(lmda[i])
+        if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
+            d_mat_mean10.append(d_mat_mean_i[i])
+    elif pDr[i] == -30:
+        ax.errorbar(d_mat_i[i], d_mat_mean_i[i], yerr=d_mat_std_i[i],
+                    ls='', marker='^', capsize=2, lw=1, c='green')
+        line30 = Line2D([0], [0], color='green', ls='', marker='^')
+        lmda30.append(lmda[i])
+        if abs(d_mat_i[i] - d_mat_mean_i[i]) / d_mat_i[i] > 0.1:
+            d_mat_mean10.append(d_mat_mean_i[i])
+    elif pDr[i] == -40:
+        ax.errorbar(d_mat_o[i], d_mat_mean_o[i], yerr=d_mat_std_o[i],
+                    ls='', marker='v', capsize=2, lw=1, c='orange')
+        line40 = Line2D([0], [0], color='orange', ls='', marker='v')
+        lmda40.append(lmda[i])
+        if abs(d_mat_o[i] - d_mat_mean_o[i]) / d_mat_o[i] > 0.1:
+            d_mat_mean40.append(d_mat_mean_o[i])
+    elif pDr[i] == -60:
+            ax.errorbar(d_mat_o[i], d_mat_mean_o[i], yerr=d_mat_std_o[i],
+                        ls='', marker='1', capsize=2, lw=1, c='pink')
+            line60 = Line2D([0], [0], color='pink', ls='', marker='2')
+            lmda60.append(lmda[i])
+            if abs(d_mat_o[i] - d_mat_mean_o[i]) / d_mat_o[i] > 0.1:
+                d_mat_mean60.append(d_mat_mean_o[i])
+    elif pDr[i] == -90:
+        ax.errorbar(d_mat_i[i], d_mat_mean_o[i], yerr=d_mat_std_o[i],
+                    ls='', marker='+', capsize=2, lw=1, c='blue')
+        line90 = Line2D([0], [0], color='blue', ls='', marker='+')
+        lmda90.append(lmda[i])
+        if abs(d_mat_o[i] - d_mat_mean_o[i]) / d_mat_o[i] > 0.1:
+            d_mat_mean90.append(d_mat_mean_o[i])
+# for i in range(d_mat.size):
+#     ax.annotate('(' + str(d_mat_pDr[i]) + ', ' + str(round(d_mat_mean[i], 1)) + ')',
+#                 (d_mat[i], d_mat_mean[i])
+#                 )
+xlabel(r'$d_{sim}\ (\mu m)$')
+ylabel(r'$d_{fit}\ (\mu m)$')
+# xlim([d_mat[0], d_mat[-1]])
+legend()  # loc='upper left')
+# custom_lines = [line_expected, line10, line20, line30, line40, line50, line60]
+# ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50, -60])
+custom_lines = [line_expected, line60]
+ax.legend(custom_lines, ['sim', -60])
+savefig('./output/d_mat_fit_o_' + error_analisis + '.png')
 # figure(33)
 # ax = axes()
 # # ax.set_xscale('log')

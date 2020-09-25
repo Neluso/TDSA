@@ -101,34 +101,53 @@ def sim_traces():
         ns_level = ref_file.split('_')[0]
         
         # material data
-        e_s_sim_i = 1.4**2
-        e_inf_sim_i = 1.8**2
-        tau_sim_i = 5e-14
+        # e_s_sim_i = 1.4**2
+        # e_inf_sim_i = 1.5**2
+        # tau_sim_i = 5e-15
+        # n_sim_i, k_sim_i = nk_from_eps(e_s_sim_i, e_inf_sim_i, tau_sim_i, f_ref)
+        # e_s_sim_m = 1.45 ** 2
+        # e_inf_sim_m = 1.40 ** 2
+        # tau_sim_m = 5e-15
+        # n_sim_m, k_sim_m = nk_from_eps(e_s_sim_m, e_inf_sim_m, tau_sim_m, f_ref)
+        # e_s_sim_o = 1.55 ** 2
+        # e_inf_sim_o = 1.5 ** 2
+        # tau_sim_o = 5e-15
+        # n_sim_o, k_sim_o = nk_from_eps(e_s_sim_o, e_inf_sim_o, tau_sim_o, f_ref)
+        
+        e_s_sim_i = 1.55 ** 2
+        e_inf_sim_i = 1.55 ** 2
+        tau_sim_i = 1e-14
         n_sim_i, k_sim_i = nk_from_eps(e_s_sim_i, e_inf_sim_i, tau_sim_i, f_ref)
-        e_s_sim_m = 1.6 ** 2
-        e_inf_sim_m = 1.8 ** 2
-        tau_sim_m = 5e-14
+        e_s_sim_m = 1.56 ** 2
+        e_inf_sim_m = 1.56 ** 2
+        tau_sim_m = 1e-14
         n_sim_m, k_sim_m = nk_from_eps(e_s_sim_m, e_inf_sim_m, tau_sim_m, f_ref)
-        e_s_sim_o = 1.4 ** 2
-        e_inf_sim_o = 1.6 ** 2
-        tau_sim_o = 5e-14
+        e_s_sim_o = 1.55 ** 2
+        e_inf_sim_o = 1.55 ** 2
+        tau_sim_o = 1e-14
         n_sim_o, k_sim_o = nk_from_eps(e_s_sim_o, e_inf_sim_o, tau_sim_o, f_ref)
         
         f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0, 1)
         f_ref *= 1e-12  # THz
         figure()
-        plot(f_ref, n_sim_i, f_ref, n_sim_o)
+        plot(f_ref, n_sim_i, label='inner')
+        plot(f_ref, n_sim_m, label='mid')
+        plot(f_ref, n_sim_o, label='outer')
         xlabel(r'$f\ (THz)$')
         # xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
         # ylim([0.9 * n_sim[f_min_idx], 1.1 * n_sim[f_max_idx]])
+        legend()
         savefig('./output/n_sim.png')
         close()
         
         figure()
-        plot(f_ref, k_sim_i, f_ref, k_sim_o)
+        plot(f_ref, k_sim_i, label='inner')
+        plot(f_ref, k_sim_m, label='mid')
+        plot(f_ref, k_sim_o, label='outer')
         xlabel(r'$f\ (THz)$')
         # xlim([f_ref[f_min_idx], f_ref[f_max_idx]])
         # ylim([k_sim[f_min_idx], k_sim[f_max_idx]])
+        legend()
         savefig('./output/k_sim.png')
         close()
         # plot(t_ref*1e12, - E_ref, label='ref')
@@ -143,6 +162,7 @@ def sim_traces():
         # for d_mat in [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100]:
         # for d_mat in [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e2, 1e3, 1.1e3]:
         # for d_mat in [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e2, 1e3]:
+        # for d_mat in [1e-1, 1e-0.75, 1e-0.5, 1e-0.25, 1e0, 1e0.25, 1e0.5, 1e, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
         
         f_ref *= 1e12  # Hz
         for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
