@@ -1,5 +1,6 @@
 from TDSA import *
 from resolution_limit_ref_sim import sim_refs
+from scipy.interpolate import Akima1DInterpolator, interp1d
 
 
 deg_in = 0  # incidence angle in degrees
@@ -101,31 +102,49 @@ def sim_traces():
         ns_level = ref_file.split('_')[0]
         
         # material data
-        # e_s_sim_i = 1.4**2
-        # e_inf_sim_i = 1.5**2
-        # tau_sim_i = 5e-15
+        e_s_sim_i = 1.6**2
+        e_inf_sim_i = 3.0**2
+        tau_sim_i = 2e-15
+        n_sim_i, k_sim_i = nk_from_eps(e_s_sim_i, e_inf_sim_i, tau_sim_i, f_ref)
+        e_s_sim_m = 1.65 ** 2
+        e_inf_sim_m = 3.0 ** 2
+        tau_sim_m = 2e-15
+        n_sim_m, k_sim_m = nk_from_eps(e_s_sim_m, e_inf_sim_m, tau_sim_m, f_ref)
+        e_s_sim_o = 1.65 ** 2
+        e_inf_sim_o = 1.0 ** 2
+        tau_sim_o = 2e-15
+        n_sim_o, k_sim_o = nk_from_eps(e_s_sim_o, e_inf_sim_o, tau_sim_o, f_ref)
+        
+        f_aux, n_aux = read_1file('./output/materials/n_Loctite_480.csv')
+        
+        n_interp = interp1d(f_aux, n_aux, fill_value=(n_aux[0], n_aux[-1]))
+        # n_interp = Akima1DInterpolator(f_aux, n_aux)
+        f_ref *= 1e-12
+        print(f_aux, f_ref)
+        plot(f_ref, n_interp(f_ref))
+        show()
+        quit()
+        
+        # e_s_sim_i = 1.55 ** 2
+        # e_inf_sim_i = 1.55 ** 2
+        # tau_sim_i = 1e-14
         # n_sim_i, k_sim_i = nk_from_eps(e_s_sim_i, e_inf_sim_i, tau_sim_i, f_ref)
-        # e_s_sim_m = 1.45 ** 2
-        # e_inf_sim_m = 1.40 ** 2
-        # tau_sim_m = 5e-15
+        # e_s_sim_m = 1.56 ** 2
+        # e_inf_sim_m = 1.56 ** 2
+        # tau_sim_m = 1e-14
         # n_sim_m, k_sim_m = nk_from_eps(e_s_sim_m, e_inf_sim_m, tau_sim_m, f_ref)
         # e_s_sim_o = 1.55 ** 2
-        # e_inf_sim_o = 1.5 ** 2
-        # tau_sim_o = 5e-15
+        # e_inf_sim_o = 1.55 ** 2
+        # tau_sim_o = 1e-14
         # n_sim_o, k_sim_o = nk_from_eps(e_s_sim_o, e_inf_sim_o, tau_sim_o, f_ref)
         
-        e_s_sim_i = 1.55 ** 2
-        e_inf_sim_i = 1.55 ** 2
-        tau_sim_i = 1e-14
-        n_sim_i, k_sim_i = nk_from_eps(e_s_sim_i, e_inf_sim_i, tau_sim_i, f_ref)
-        e_s_sim_m = 1.56 ** 2
-        e_inf_sim_m = 1.56 ** 2
-        tau_sim_m = 1e-14
-        n_sim_m, k_sim_m = nk_from_eps(e_s_sim_m, e_inf_sim_m, tau_sim_m, f_ref)
-        e_s_sim_o = 1.55 ** 2
-        e_inf_sim_o = 1.55 ** 2
-        tau_sim_o = 1e-14
-        n_sim_o, k_sim_o = nk_from_eps(e_s_sim_o, e_inf_sim_o, tau_sim_o, f_ref)
+        # material data 2.0
+        # figure()
+        # n_aux = ones(f_ref.size)
+        # k_aux = arange(f_ref.size) / f_ref.size
+        # plot(f_ref, k_aux)
+        # show()
+        # quit()
         
         f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0, 1)
         f_ref *= 1e-12  # THz
@@ -149,7 +168,10 @@ def sim_traces():
         # ylim([k_sim[f_min_idx], k_sim[f_max_idx]])
         legend()
         savefig('./output/k_sim.png')
+        # show()
+        # quit()
         close()
+        
         # plot(t_ref*1e12, - E_ref, label='ref')
         
         # plot(f_ref*1e12, unwrap(angle(E_ref_w)), label='ref')
@@ -163,9 +185,10 @@ def sim_traces():
         # for d_mat in [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e2, 1e3, 1.1e3]:
         # for d_mat in [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e2, 1e3]:
         # for d_mat in [1e-1, 1e-0.75, 1e-0.5, 1e-0.25, 1e0, 1e0.25, 1e0.5, 1e, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
+        # for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
         
         f_ref *= 1e12  # Hz
-        for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
+        for d_mat in [0.1, 10**-0.5, 1, 10**0.5, 10, 10**1.5, 100, 10**2.5]:
             
             print()
             print('Simulating for', d_mat, 'um')
