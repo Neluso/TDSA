@@ -114,16 +114,32 @@ def sim_traces():
         e_inf_sim_o = 1.0 ** 2
         tau_sim_o = 2e-15
         n_sim_o, k_sim_o = nk_from_eps(e_s_sim_o, e_inf_sim_o, tau_sim_o, f_ref)
-        
-        f_aux, n_aux = read_1file('./output/materials/n_Loctite_480.csv')
-        
-        n_interp = interp1d(f_aux, n_aux, fill_value=(n_aux[0], n_aux[-1]))
-        # n_interp = Akima1DInterpolator(f_aux, n_aux)
-        f_ref *= 1e-12
-        print(f_aux, f_ref)
-        plot(f_ref, n_interp(f_ref))
-        show()
-        quit()
+
+        # # internal layer
+        # f_ref *= 1e-12
+        # f_aux, n_aux = read_1file('./output/materials/n_Loctite_480.csv')
+        # f_aux2, alpha_aux = read_1file('./output/materials/alpha_Loctite_480.csv')
+        # n_interp = interp1d(f_aux, n_aux, bounds_error=False, fill_value=(n_aux[0], n_aux[-1]))
+        # alpha_interp = interp1d(f_aux2, alpha_aux, bounds_error=False, fill_value=(n_aux[0], n_aux[-1]))
+        # n_sim_i = n_interp(f_ref)
+        # k_sim_i = alpha_interp(f_ref) * c_0 / (4 * pi * f_ref * 1e10)
+        # # mid layer
+        # f_aux, n_aux = read_1file('./output/materials/n_Loctite_3295.csv')
+        # f_aux2, alpha_aux = read_1file('./output/materials/alpha_Loctite_3295.csv')
+        # n_interp = interp1d(f_aux, n_aux, bounds_error=False, fill_value=(n_aux[0], n_aux[-1]))
+        # alpha_interp = interp1d(f_aux2, alpha_aux, bounds_error=False, fill_value=(n_aux[0], n_aux[-1]))
+        # n_sim_o = n_interp(f_ref)
+        # k_sim_o = alpha_interp(f_ref) * c_0 / (4 * pi * f_ref * 1e10)
+        # # outer layer
+        # f_aux, n_aux = read_1file('./output/materials/n_Teromix_6700.csv')
+        # f_aux2, alpha_aux = read_1file('./output/materials/alpha_Teromix_6700.csv')
+        # n_interp = interp1d(f_aux, n_aux, bounds_error=False, fill_value=(n_aux[0], n_aux[-1]))
+        # alpha_interp = interp1d(f_aux2, alpha_aux, bounds_error=False, fill_value=(n_aux[0], n_aux[-1]))
+        # n_sim_o = n_interp(f_ref)
+        # k_sim_o = alpha_interp(f_ref) * c_0 / (4 * pi * f_ref * 1e10)
+        # # show()
+        # # quit()
+        # f_ref *= 1e12
         
         # e_s_sim_i = 1.55 ** 2
         # e_inf_sim_i = 1.55 ** 2
@@ -188,7 +204,7 @@ def sim_traces():
         # for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
         
         f_ref *= 1e12  # Hz
-        for d_mat in [0.1, 10**-0.5, 1, 10**0.5, 10, 10**1.5, 100, 10**2.5]:
+        for d_mat in [0.01, 10**-1.5, 0.1, 10**-0.5, 1, 10**0.5, 10, 10**1.5, 100, 10**2.5]:
             
             print()
             print('Simulating for', d_mat, 'um')

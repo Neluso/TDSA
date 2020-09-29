@@ -192,7 +192,7 @@ if __name__ == '__main__':
         
         f_ref *= 1e12  # Hz
         f_sim *= 1e12  # Hz
-        num_statistics = 2
+        num_statistics = 5
         for i in range(num_statistics):
             print('Fitting', i + 1, 'of', num_statistics, 'for', d_mat, 'um at', ns_level.split('.')[0], 'dB')
             t1 = time_ns()
