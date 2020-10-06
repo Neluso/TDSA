@@ -41,6 +41,37 @@ def self_unwrap(t_sam, E_sam):
 
 
 for i in range(3):
+    t_ref, E_ref = read_1file('./data_bank/' + str(i + 1) + 'a_descongelació/ref1.txt')
+    t_sam, E_sam = read_1file('./data_bank/' + str(i + 1) + 'a_descongelació/sam1.txt')
+    t_ref *= 1e-12
+    t_sam *= 1e-12
+    f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
+    if i == 0:
+        E_sam_w_max = max(abs(E_sam_w))
+    n_1a, alpha_1a, n_avg_1a = jepsen_index(t_ref, E_ref, t_sam, E_sam, 3.7e-3)
+    figure(1)
+    plot(f_sam * 1e-12, n_1a, label=str(i + 1), lw=0.5)
+    figure(2)
+    plot(f_sam * 1e-12, alpha_1a * 1e-2, label=str(i + 1), lw=0.5)
+figure(1)
+xlim([0.1, 1.2])
+ylim([0.9, 2])
+xlabel(r'$f\ (THz)$')
+ylabel(r'n')
+legend()
+savefig('./n_unfreeze_all.png')
+clf()
+figure(2)
+xlim([0.1, 1.2])
+ylim([0, 50])
+xlabel(r'$f\ (THz)$')
+ylabel(r'$\alpha\ (cm^{-1})$')
+legend()
+savefig('./alpha_unfreeze_all.png')
+clf()
+    
+
+for i in range(3):
     t_ref, E_ref = read_1file('./data_bank/ref_sec_2_' + str(i + 1) + '.txt')
     t_sam, E_sam = read_1file('./data_bank/sam_sec_2_' + str(i + 1) + '.txt')
     
@@ -78,6 +109,23 @@ plot(f_sam * 1e-12, n_baj_mean / 3, label='48h', lw=0.5)
 figure(2)
 plot(f_sam * 1e-12, 1e-2 * alpha_baj_mean / 3, label='48h', lw=0.5)
 
+for i in range(3):
+    t_ref, E_ref = read_1file('./data_bank/ref_sec_4_' + str(i + 1) + '.txt')
+    t_sam, E_sam = read_1file('./data_bank/sam_sec_4_' + str(i + 1) + '.txt')
+    t_ref *= 1e-12
+    t_sam *= 1e-12
+    f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
+    if i == 0:
+        n_baj_mean = zeros(f_sam.size)
+        alpha_baj_mean = zeros(f_sam.size)
+    thickness = 0.37e-3  # m --- 370 um
+    n_baj_aux, alpha_baj_aux, n_baj_avg_aux = jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness)
+    n_baj_mean += n_baj_aux
+    alpha_baj_mean += alpha_baj_aux
+figure(1)
+plot(f_sam * 1e-12, n_baj_mean / 3, label='120h', lw=0.5)
+figure(2)
+plot(f_sam * 1e-12, 1e-2 * alpha_baj_mean / 3, label='120h', lw=0.5)
 figure(1)
 xlim([0.1, 1.6])
 ylim([0.9, 2.1])
@@ -104,7 +152,7 @@ for i in range(7):
     f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
     if i == 0:
         E_sam_w_max = max(abs(E_sam_w))
-    n_1a, alpha_1a, n_avg_1a = jepsen_index(t_ref, E_ref, t_sam, E_sam, 3.3e-3)
+    n_1a, alpha_1a, n_avg_1a = jepsen_index(t_ref, E_ref, t_sam, E_sam, 3.7e-3)
     figure(1)
     plot(f_sam * 1e-12, n_1a, label=str(i + 1), lw=0.5)
     figure(2)
@@ -127,7 +175,7 @@ savefig('./alpha_unfreeze_1.png')
 clf()
 
 
-for i in range(7, 10):
+for i in range(3):
     t_ref, E_ref = read_1file('./data_bank/2a_descongelació/ref' + str(i + 1) + '.txt')
     t_sam, E_sam = read_1file('./data_bank/2a_descongelació/sam' + str(i + 1) + '.txt')
     t_ref *= 1e-12
@@ -136,11 +184,11 @@ for i in range(7, 10):
     f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
     if i == 0:
         E_sam_w_max = max(abs(E_sam_w))
-    n_1a, alpha_1a, n_avg_1a = jepsen_index(t_ref, E_ref, t_sam, E_sam, 3.3e-3)
+    n_2a, alpha_2a, n_avg_2a = jepsen_index(t_ref, E_ref, t_sam, E_sam, 3.7e-3)
     figure(3)
-    plot(f_sam * 1e-12, n_1a, label=str(i + 1), lw=0.5)
+    plot(f_sam * 1e-12, n_2a, label=str(i + 1), lw=0.5)
     figure(4)
-    plot(f_sam * 1e-12, alpha_1a * 1e-2, label=str(i + 1), lw=0.5)
+    plot(f_sam * 1e-12, alpha_2a * 1e-2, label=str(i + 1), lw=0.5)
 figure(3)
 xlim([0.1, 1.2])
 ylim([0.9, 3.5])
@@ -156,6 +204,37 @@ xlabel(r'$f\ (THz)$')
 ylabel(r'$\alpha\ (cm^{-1})$')
 legend()
 savefig('./alpha_unfreeze_2.png')
+clf()
+
+for i in range(3):
+    t_ref, E_ref = read_1file('./data_bank/3a_descongelació/ref' + str(i + 1) + '.txt')
+    t_sam, E_sam = read_1file('./data_bank/3a_descongelació/sam' + str(i + 1) + '.txt')
+    t_ref *= 1e-12
+    t_sam *= 1e-12
+    # E_sam = zero_padding(E_sam, 0, E_sam.size)
+    f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
+    if i == 0:
+        E_sam_w_max = max(abs(E_sam_w))
+    n_3a, alpha_3a, n_avg_3a = jepsen_index(t_ref, E_ref, t_sam, E_sam, 3.7e-3)
+    figure(5)
+    plot(f_sam * 1e-12, n_3a, label=str(i + 1), lw=0.5)
+    figure(6)
+    plot(f_sam * 1e-12, alpha_3a * 1e-2, label=str(i + 1), lw=0.5)
+figure(5)
+xlim([0.1, 1.2])
+ylim([0.9, 3.5])
+xlabel(r'$f\ (THz)$')
+ylabel(r'n')
+legend()
+savefig('./n_unfreeze_3.png')
+clf()
+figure(6)
+xlim([0.1, 1.2])
+ylim([0, 80])
+xlabel(r'$f\ (THz)$')
+ylabel(r'$\alpha\ (cm^{-1})$')
+legend()
+savefig('./alpha_unfreeze_3.png')
 clf()
 
 
@@ -176,4 +255,22 @@ plot(time_points, toDb_0(E_sam_w_power), lw=0.5)
 xlabel(r'$\Delta t\ (min)$')
 ylabel(r'$T\ (dB)$')
 savefig('./evol_T.png')
+clf()
+time_points = list()
+E_sam_w_power = list()
+for i in range(10):
+    try:
+        t_sam, E_sam = read_1file('./data_bank/descong_invivo_sec/' + str(i + 1) + '.txt')
+    except:
+        continue
+    f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
+    time_points.append(i)
+    E_sam_w_power.append(abs(dot(E_sam_w, conjugate(E_sam_w))))
+time_points = array(time_points)
+E_sam_w_power = array(E_sam_w_power)
+figure(1)
+plot(time_points, toDb_0(E_sam_w_power), lw=0.5)
+xlabel(r'$\Delta t\ (min)$')
+ylabel(r'$T\ (dB)$')
+savefig('./evol_T_dry.png')
 clf()
