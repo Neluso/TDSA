@@ -144,21 +144,21 @@ if __name__ == '__main__':
         # plot(f_sim, toDb_0(E_sim_w))
         # plot(f_sim, m * f_sim + b)
         
-        k_bounds = [  # 1% uncertainty in optical paramaters
-            (-1e-12, 1e-12),  # d_air
-            (0.99 * e_s_sim_i, 1.01 * e_s_sim_i),  # e_s
-            (0.99 * e_inf_sim_i, 1.01 * e_inf_sim_i),  # e_inf
-            (0.99 * tau_sim_i, 1.01 * tau_sim_i),  # tau
-            (0.01e-6, 500e-6),  # d_mat
-            (0.99 * e_s_sim_m, 1.01 * e_s_sim_m),  # e_s
-            (0.99 * e_inf_sim_m, 1.01 * e_inf_sim_m),  # e_inf
-            (0.99 * tau_sim_m, 1.01 * tau_sim_m),  # tau
-            (0.01e-6, 500e-6),  # d_mat
-            (0.99 * e_s_sim_o, 1.01 * e_s_sim_o),  # e_s
-            (0.99 * e_inf_sim_o, 1.01 * e_inf_sim_o),  # e_inf
-            (0.99 * tau_sim_o, 1.01 * tau_sim_o),  # tau
-            (0.01e-6, 500e-6)  # d_mat
-        ]
+        # k_bounds = [  # 1% uncertainty in optical paramaters
+        #     (-1e-12, 1e-12),  # d_air
+        #     (0.99 * e_s_sim_i, 1.01 * e_s_sim_i),  # e_s
+        #     (0.99 * e_inf_sim_i, 1.01 * e_inf_sim_i),  # e_inf
+        #     (0.99 * tau_sim_i, 1.01 * tau_sim_i),  # tau
+        #     (0.01e-6, 1000e-6),  # d_mat
+        #     (0.99 * e_s_sim_m, 1.01 * e_s_sim_m),  # e_s
+        #     (0.99 * e_inf_sim_m, 1.01 * e_inf_sim_m),  # e_inf
+        #     (0.99 * tau_sim_m, 1.01 * tau_sim_m),  # tau
+        #     (0.01e-6, 1000e-6),  # d_mat
+        #     (0.99 * e_s_sim_o, 1.01 * e_s_sim_o),  # e_s
+        #     (0.99 * e_inf_sim_o, 1.01 * e_inf_sim_o),  # e_inf
+        #     (0.99 * tau_sim_o, 1.01 * tau_sim_o),  # tau
+        #     (0.01e-6, 1000e-6)  # d_mat
+        # ]
         
         # k_bounds = [  # 2% uncertainty in optical paramaters
         #     (-1e-12, 1e-12),  # d_air
@@ -176,21 +176,21 @@ if __name__ == '__main__':
         #     (0.01e-6, 500e-6)  # d_mat
         # ]
 
-        # k_bounds = [  # 5% uncertainty in optical paramaters
-        #     (-1e-12, 1e-12),  # d_air
-        #     (0.95 * e_s_sim_i, 1.05 * e_s_sim_i),  # e_s
-        #     (0.95 * e_inf_sim_i, 1.05 * e_inf_sim_i),  # e_inf
-        #     (0.95 * tau_sim_i, 1.05 * tau_sim_i),  # tau
-        #     (0.01e-6, 500e-6),  # d_mat
-        #     (0.95 * e_s_sim_m, 1.05 * e_s_sim_m),  # e_s
-        #     (0.95 * e_inf_sim_m, 1.05 * e_inf_sim_m),  # e_inf
-        #     (0.95 * tau_sim_m, 1.05 * tau_sim_m),  # tau
-        #     (0.01e-6, 500e-6),  # d_mat
-        #     (0.95 * e_s_sim_o, 1.05 * e_s_sim_o),  # e_s
-        #     (0.95 * e_inf_sim_o, 1.05 * e_inf_sim_o),  # e_inf
-        #     (0.95 * tau_sim_o, 1.05 * tau_sim_o),  # tau
-        #     (0.01e-6, 500e-6)  # d_mat
-        # ]
+        k_bounds = [  # 5% uncertainty in optical paramaters
+            (-1e-12, 1e-12),  # d_air
+            (0.95 * e_s_sim_i, 1.05 * e_s_sim_i),  # e_s
+            (0.95 * e_inf_sim_i, 1.05 * e_inf_sim_i),  # e_inf
+            (0.95 * tau_sim_i, 1.05 * tau_sim_i),  # tau
+            (0.01e-6, 500e-6),  # d_mat
+            (0.95 * e_s_sim_m, 1.05 * e_s_sim_m),  # e_s
+            (0.95 * e_inf_sim_m, 1.05 * e_inf_sim_m),  # e_inf
+            (0.95 * tau_sim_m, 1.05 * tau_sim_m),  # tau
+            (0.01e-6, 500e-6),  # d_mat
+            (0.95 * e_s_sim_o, 1.05 * e_s_sim_o),  # e_s
+            (0.95 * e_inf_sim_o, 1.05 * e_inf_sim_o),  # e_inf
+            (0.95 * tau_sim_o, 1.05 * tau_sim_o),  # tau
+            (0.01e-6, 500e-6)  # d_mat
+        ]
         
         # k_bounds = [  # 10% uncertainty in optical paramaters
         #     (-1e-12, 1e-12),  # d_air
@@ -240,7 +240,7 @@ if __name__ == '__main__':
         
         f_ref *= 1e12  # Hz
         f_sim *= 1e12  # Hz
-        num_statistics = 5
+        num_statistics = 10
         for i in range(num_statistics):
             print('Fitting', i + 1, 'of', num_statistics, 'for', d_mat, 'um at', ns_level.split('.')[0], 'dB')
             t1 = time_ns()

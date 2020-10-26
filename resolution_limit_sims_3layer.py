@@ -102,18 +102,24 @@ def sim_traces():
         ns_level = ref_file.split('_')[0]
         
         # material data
-        e_s_sim_i = 1.6**2
-        e_inf_sim_i = 3.0**2
-        tau_sim_i = 2e-15
+        e_s_sim_i = 1.5**2
+        e_inf_sim_i = 1.5**2
+        tau_sim_i = 1e-13
         n_sim_i, k_sim_i = nk_from_eps(e_s_sim_i, e_inf_sim_i, tau_sim_i, f_ref)
-        e_s_sim_m = 1.65 ** 2
-        e_inf_sim_m = 3.0 ** 2
-        tau_sim_m = 2e-15
+        e_s_sim_m = 1.65**2
+        e_inf_sim_m = 1.65**2
+        tau_sim_m = 1e-13
         n_sim_m, k_sim_m = nk_from_eps(e_s_sim_m, e_inf_sim_m, tau_sim_m, f_ref)
-        e_s_sim_o = 1.65 ** 2
-        e_inf_sim_o = 1.0 ** 2
-        tau_sim_o = 2e-15
+        e_s_sim_o = 1.5**2
+        e_inf_sim_o = 1.5**2
+        tau_sim_o = 1e-13
         n_sim_o, k_sim_o = nk_from_eps(e_s_sim_o, e_inf_sim_o, tau_sim_o, f_ref)
+
+        f_15_idx = where(f_ref <= 1.5e12)[0][-1]  # f index at 1.5 THz
+        print('disp_i =', abs(n_sim_i[0] - n_sim_i[f_15_idx]) / 1.5)
+        print('disp_m =', abs(n_sim_m[0] - n_sim_m[f_15_idx]) / 1.5)
+        print('disp_o =', abs(n_sim_o[0] - n_sim_o[f_15_idx]) / 1.5)
+
 
         # # internal layer
         # f_ref *= 1e-12
@@ -202,9 +208,10 @@ def sim_traces():
         # for d_mat in [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e2, 1e3]:
         # for d_mat in [1e-1, 1e-0.75, 1e-0.5, 1e-0.25, 1e0, 1e0.25, 1e0.5, 1e, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
         # for d_mat in [0.1, 0.2, 0.3, 0.4, 0.5, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]:
+        # for d_mat in [0.01, 10**-1.5, 0.1, 10**-0.5, 1, 10**0.5, 10, 10**1.5, 100, 10**2.5]:
         
         f_ref *= 1e12  # Hz
-        for d_mat in [0.01, 10**-1.5, 0.1, 10**-0.5, 1, 10**0.5, 10, 10**1.5, 100, 10**2.5]:
+        for d_mat in pow(10, arange(-2, 3, 0.25)):
             
             print()
             print('Simulating for', d_mat, 'um')

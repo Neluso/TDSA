@@ -75,7 +75,12 @@ pDr = list()
 
 # rows = list()
 
-with open('./output/resolution_limit.csv', 'r') as f:
+sample_dir = 'test_1'
+error_dir = '1%_2'
+
+sample_dir = sample_dir + '/' + error_dir
+
+with open('./output/simulation_results/' + sample_dir + '/resolution_limit.csv', 'r') as f:
     reader = csv.reader(f)
     for row in reader:
         
@@ -187,7 +192,7 @@ d_mat_mean60 = list()
 d_mat_mean90 = list()
 
 
-error_analisis = '3_layer_1_100_'
+error_analisis = '3_layer'
 
 
 fig1 = figure(1)
@@ -258,7 +263,7 @@ legend()  # loc='upper left')
 # ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50, -60])
 custom_lines = [line_expected, line60]
 ax.legend(custom_lines, ['sim',-60])
-savefig('./output/d_mat_fit_i_' + error_analisis + '.png')
+savefig('./output/simulation_results/' + sample_dir + '/d_mat_fit_i_' + error_analisis + '.png')
 # show()
 # quit()
 fig1 = figure(2)
@@ -329,7 +334,7 @@ legend()  # loc='upper left')
 # ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50, -60])
 custom_lines = [line_expected, line60]
 ax.legend(custom_lines, ['sim',-60])
-savefig('./output/d_mat_fit_m_' + error_analisis + '.png')
+savefig('./output/simulation_results/' + sample_dir + '/d_mat_fit_m_' + error_analisis + '.png')
 
 fig1 = figure(3)
 ax = axes()
@@ -392,7 +397,7 @@ legend()  # loc='upper left')
 # ax.legend(custom_lines, ['sim', -10, -20, -30, -40, -50, -60])
 custom_lines = [line_expected, line60]
 ax.legend(custom_lines, ['sim', -60])
-savefig('./output/d_mat_fit_o_' + error_analisis + '.png')
+savefig('./output/simulation_results/' + sample_dir + '/d_mat_fit_o_' + error_analisis + '.png')
 # figure(33)
 # ax = axes()
 # # ax.set_xscale('log')

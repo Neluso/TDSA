@@ -142,5 +142,5 @@ def sim_refs():
         write_data(times, 100 * trace_statitics / num_traces, str(ns_floor) + '_ref', out_dir)  # THz
 
 
-# sim_refs()
-# show()
+sim_refs()
+show()
