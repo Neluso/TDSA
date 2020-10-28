@@ -16,7 +16,7 @@ def theta(n):
 def ct2(n_l, n_l_1):
     n_l *= cos(theta(n_l))
     n_l_1 *= cos(theta(n_l_1))
-    return 4 * n_l * n_l_1 / (n_l + n_l_1)**2
+    return 4 * n_l * n_l_1 / (n_l + n_l_1) ** 2
 
 
 def cr_l_1_l(n_l, n_l_1):  # from n_l-1 to n_l
@@ -78,11 +78,11 @@ def cost_function(params, *args):
     n_o, k_o = nk_from_eps(e_s_o, e_inf_o, tau_o, freqs)  # debye model
     H_teo = H_sim(freqs, n_i, k_i, thick_i, n_m, k_m, thick_m, n_o, k_o, thick_o, d_air)
     E_teo = irfft(H_teo * E_ref_w)
-    return sum((E_sam - E_teo)**2)
+    return sum((E_sam - E_teo) ** 2)
 
 
 def espectral_guess(freq, amp, sigma, f0, sqr_pw):
-    return amp * (10**(- ((freq - f0) / (2 * sigma))**2))
+    return amp * (10 ** (- ((freq - f0) / (2 * sigma)) ** 2))
 
 
 def smooth(M, span):
@@ -120,7 +120,7 @@ if __name__ == '__main__':
         t_ref, E_ref = read_1file(in_refs + ns_level_file)  # t_ref in ps
         f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)  # f_ref in THz
         
-        d_mat_str, e_s_sim_i_str, e_inf_sim_i_str, tau_sim_i_str, e_s_sim_m_str, e_inf_sim_m_str, tau_sim_m_str,\
+        d_mat_str, e_s_sim_i_str, e_inf_sim_i_str, tau_sim_i_str, e_s_sim_m_str, e_inf_sim_m_str, tau_sim_m_str, \
         e_s_sim_o_str, e_inf_sim_o_str, tau_sim_o_str, pDr_ref = file_i[:-4].split('_')
         
         d_mat = float(d_mat_str)
@@ -128,7 +128,7 @@ if __name__ == '__main__':
         e_s_sim_i = float(e_s_sim_i_str)
         e_inf_sim_i = float(e_inf_sim_i_str)
         tau_sim_i = float(tau_sim_i_str)
-
+        
         e_s_sim_m = float(e_s_sim_m_str)
         e_inf_sim_m = float(e_inf_sim_m_str)
         tau_sim_m = float(tau_sim_m_str)
@@ -137,7 +137,7 @@ if __name__ == '__main__':
         e_inf_sim_o = float(e_inf_sim_o_str)
         tau_sim_o = float(tau_sim_o_str)
         
-        f_min_idx, f_max_idx = f_min_max_idx(f_sim*1e12, 0.35, 1.5)
+        f_min_idx, f_max_idx = f_min_max_idx(f_sim * 1e12, 0.35, 1.5)
         p1 = polyfit(f_sim[f_min_idx:f_max_idx], toDb_0(E_sim_w[f_min_idx:f_max_idx]), 1)
         m, b = p1[0], p1[1]
         f_cutoff = (float(ns_level.split('.')[0]) - b) / m  # THz
@@ -175,7 +175,7 @@ if __name__ == '__main__':
         #     (0.98 * tau_sim_o, 1.02 * tau_sim_o),  # tau
         #     (0.01e-6, 1000e-6)  # d_mat
         # ]
-
+        
         # k_bounds = [  # 5% uncertainty in optical paramaters
         #     (-1e-12, 1e-12),  # d_air
         #     (0.95 * e_s_sim_i, 1.05 * e_s_sim_i),  # e_s
@@ -207,7 +207,7 @@ if __name__ == '__main__':
         #     (0.9 * tau_sim_o, 1.1 * tau_sim_o),  # tau
         #     (0.01e-6, 1000e-6)  # d_mat
         # ]
-
+        
         # k_bounds = [  # 20% uncertainty in optical paramaters
         #     (-1e-12, 1e-12),  # d_air
         #     (0.8 * e_s_sim_i, 1.2 * e_s_sim_i),  # e_s
@@ -227,7 +227,7 @@ if __name__ == '__main__':
         for k_bound in k_bounds:
             k_bounds_constraint.append(Bounds(k_bound[0], k_bound[1], keep_feasible=True))
         # k_bounds_constraint = tuple(k_bounds_constraint)
-
+        
         d_air_fit = list()
         e_s_fit_i = list()
         e_inf_fit_i = list()
@@ -264,7 +264,8 @@ if __name__ == '__main__':
             n_sim_i, k_sim_i = nk_from_eps(res.x[1], res.x[2], res.x[3], f_sim)
             n_sim_m, k_sim_m = nk_from_eps(res.x[5], res.x[6], res.x[7], f_sim)
             n_sim_o, k_sim_o = nk_from_eps(res.x[9], res.x[10], res.x[11], f_sim)
-            H_fit = H_sim(f_sim, n_sim_i, k_sim_i, res.x[4], n_sim_i, k_sim_i, res.x[8], n_sim_o, k_sim_o, res.x[12], res.x[0])
+            H_fit = H_sim(f_sim, n_sim_i, k_sim_i, res.x[4], n_sim_i, k_sim_i, res.x[8], n_sim_o, k_sim_o, res.x[12],
+                          res.x[0])
             # plot(t_sim, E_sim)
             # plot(t_sim, irfft(H_fit * E_ref_w))
             # show()
@@ -280,7 +281,7 @@ if __name__ == '__main__':
                 print('Time since start (mm:ss):', strftime('%M:%S', gmtime(secs0)))
             else:
                 print('Time since start (hh:mm:ss):', strftime('%H:%M:%S', gmtime(secs0)))
-
+            
             d_air_fit.append(res.x[0] * 1e6)
             e_s_fit_i.append(res.x[1])
             e_inf_fit_i.append(res.x[2])
@@ -294,7 +295,7 @@ if __name__ == '__main__':
             e_inf_fit_o.append(res.x[10])
             tau_fit_o.append(res.x[11])
             d_mat_fit_o.append(res.x[12] * 1e6)
-    
+        
         d_air_fit = array(d_air_fit)
         d_mat_fit_i = array(d_mat_fit_i)
         e_s_fit_i = array(e_s_fit_i)
@@ -308,7 +309,7 @@ if __name__ == '__main__':
         e_s_fit_o = array(e_s_fit_o)
         e_inf_fit_o = array(e_inf_fit_o)
         tau_fit_o = array(tau_fit_o)
-    
+        
         print('Saving simulation data for', d_mat, 'um')
         data = str(d_mat) + ',' + str(mean(d_mat_fit_i)) + ',' + str(std(d_mat_fit_i)) + ','
         data += str(e_s_sim_i) + ',' + str(mean(e_s_fit_i)) + ',' + str(std(e_s_fit_i)) + ','
@@ -324,7 +325,7 @@ if __name__ == '__main__':
         data += str(tau_sim_o) + ',' + str(mean(tau_fit_o)) + ',' + str(std(tau_fit_o)) + ','
         data += '0.0,' + str(mean(d_air_fit)) + ',' + str(std(d_air_fit)) + ','
         data += str(f_cutoff) + ',' + str(pDr_ref) + '\n'
-    
+        
         wh.write(data)
         t3 = time_ns()
         secs0 = (t3 - t0) * 1e-9
