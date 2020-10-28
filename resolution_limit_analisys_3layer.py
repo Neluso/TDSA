@@ -1,6 +1,6 @@
 from TDSA import *
 import os
-from scipy.optimize import differential_evolution, curve_fit
+from scipy.optimize import differential_evolution, curve_fit, Bounds
 
 deg_in = 0  # incidence angle in degrees
 snell_sin = n_air * sin(deg_in * pi / 180)
@@ -144,68 +144,68 @@ if __name__ == '__main__':
         # plot(f_sim, toDb_0(E_sim_w))
         # plot(f_sim, m * f_sim + b)
         
-        # k_bounds = [  # 1% uncertainty in optical paramaters
-        #     (-1e-12, 1e-12),  # d_air
-        #     (0.99 * e_s_sim_i, 1.01 * e_s_sim_i),  # e_s
-        #     (0.99 * e_inf_sim_i, 1.01 * e_inf_sim_i),  # e_inf
-        #     (0.99 * tau_sim_i, 1.01 * tau_sim_i),  # tau
-        #     (0.01e-6, 1000e-6),  # d_mat
-        #     (0.99 * e_s_sim_m, 1.01 * e_s_sim_m),  # e_s
-        #     (0.99 * e_inf_sim_m, 1.01 * e_inf_sim_m),  # e_inf
-        #     (0.99 * tau_sim_m, 1.01 * tau_sim_m),  # tau
-        #     (0.01e-6, 1000e-6),  # d_mat
-        #     (0.99 * e_s_sim_o, 1.01 * e_s_sim_o),  # e_s
-        #     (0.99 * e_inf_sim_o, 1.01 * e_inf_sim_o),  # e_inf
-        #     (0.99 * tau_sim_o, 1.01 * tau_sim_o),  # tau
-        #     (0.01e-6, 1000e-6)  # d_mat
-        # ]
+        k_bounds = [  # 1% uncertainty in optical paramaters
+            (-1e-12, 1e-12),  # d_air
+            (0.99 * e_s_sim_i, 1.01 * e_s_sim_i),  # e_s
+            (0.99 * e_inf_sim_i, 1.01 * e_inf_sim_i),  # e_inf
+            (0.99 * tau_sim_i, 1.01 * tau_sim_i),  # tau
+            (0.01e-6, 1000e-6),  # d_mat
+            (0.99 * e_s_sim_m, 1.01 * e_s_sim_m),  # e_s
+            (0.99 * e_inf_sim_m, 1.01 * e_inf_sim_m),  # e_inf
+            (0.99 * tau_sim_m, 1.01 * tau_sim_m),  # tau
+            (0.01e-6, 1000e-6),  # d_mat
+            (0.99 * e_s_sim_o, 1.01 * e_s_sim_o),  # e_s
+            (0.99 * e_inf_sim_o, 1.01 * e_inf_sim_o),  # e_inf
+            (0.99 * tau_sim_o, 1.01 * tau_sim_o),  # tau
+            (0.01e-6, 1000e-6)  # d_mat
+        ]
         
         # k_bounds = [  # 2% uncertainty in optical paramaters
         #     (-1e-12, 1e-12),  # d_air
         #     (0.98 * e_s_sim_i, 1.02 * e_s_sim_i),  # e_s
         #     (0.98 * e_inf_sim_i, 1.02 * e_inf_sim_i),  # e_inf
         #     (0.98 * tau_sim_i, 1.02 * tau_sim_i),  # tau
-        #     (0.01e-6, 500e-6),  # d_mat
+        #     (0.01e-6, 1000e-6),  # d_mat
         #     (0.98 * e_s_sim_m, 1.02 * e_s_sim_m),  # e_s
         #     (0.98 * e_inf_sim_m, 1.02 * e_inf_sim_m),  # e_inf
         #     (0.98 * tau_sim_m, 1.02 * tau_sim_m),  # tau
-        #     (0.01e-6, 500e-6),  # d_mat
+        #     (0.01e-6, 1000e-6),  # d_mat
         #     (0.98 * e_s_sim_o, 1.02 * e_s_sim_o),  # e_s
         #     (0.98 * e_inf_sim_o, 1.02 * e_inf_sim_o),  # e_inf
         #     (0.98 * tau_sim_o, 1.02 * tau_sim_o),  # tau
-        #     (0.01e-6, 500e-6)  # d_mat
+        #     (0.01e-6, 1000e-6)  # d_mat
         # ]
 
-        k_bounds = [  # 5% uncertainty in optical paramaters
-            (-1e-12, 1e-12),  # d_air
-            (0.95 * e_s_sim_i, 1.05 * e_s_sim_i),  # e_s
-            (0.95 * e_inf_sim_i, 1.05 * e_inf_sim_i),  # e_inf
-            (0.95 * tau_sim_i, 1.05 * tau_sim_i),  # tau
-            (0.01e-6, 500e-6),  # d_mat
-            (0.95 * e_s_sim_m, 1.05 * e_s_sim_m),  # e_s
-            (0.95 * e_inf_sim_m, 1.05 * e_inf_sim_m),  # e_inf
-            (0.95 * tau_sim_m, 1.05 * tau_sim_m),  # tau
-            (0.01e-6, 500e-6),  # d_mat
-            (0.95 * e_s_sim_o, 1.05 * e_s_sim_o),  # e_s
-            (0.95 * e_inf_sim_o, 1.05 * e_inf_sim_o),  # e_inf
-            (0.95 * tau_sim_o, 1.05 * tau_sim_o),  # tau
-            (0.01e-6, 500e-6)  # d_mat
-        ]
+        # k_bounds = [  # 5% uncertainty in optical paramaters
+        #     (-1e-12, 1e-12),  # d_air
+        #     (0.95 * e_s_sim_i, 1.05 * e_s_sim_i),  # e_s
+        #     (0.95 * e_inf_sim_i, 1.05 * e_inf_sim_i),  # e_inf
+        #     (0.95 * tau_sim_i, 1.05 * tau_sim_i),  # tau
+        #     (0.01e-6, 1000e-6),  # d_mat
+        #     (0.95 * e_s_sim_m, 1.05 * e_s_sim_m),  # e_s
+        #     (0.95 * e_inf_sim_m, 1.05 * e_inf_sim_m),  # e_inf
+        #     (0.95 * tau_sim_m, 1.05 * tau_sim_m),  # tau
+        #     (0.01e-6, 1000e-6),  # d_mat
+        #     (0.95 * e_s_sim_o, 1.05 * e_s_sim_o),  # e_s
+        #     (0.95 * e_inf_sim_o, 1.05 * e_inf_sim_o),  # e_inf
+        #     (0.95 * tau_sim_o, 1.05 * tau_sim_o),  # tau
+        #     (0.01e-6, 1000e-6)  # d_mat
+        # ]
         
         # k_bounds = [  # 10% uncertainty in optical paramaters
         #     (-1e-12, 1e-12),  # d_air
         #     (0.9 * e_s_sim_i, 1.1 * e_s_sim_i),  # e_s
         #     (0.9 * e_inf_sim_i, 1.1 * e_inf_sim_i),  # e_inf
         #     (0.9 * tau_sim_i, 1.1 * tau_sim_i),  # tau
-        #     (0.01e-6, 500e-6),  # d_mat
+        #     (0.01e-6, 1000e-6),  # d_mat
         #     (0.9 * e_s_sim_m, 1.1 * e_s_sim_m),  # e_s
         #     (0.9 * e_inf_sim_m, 1.1 * e_inf_sim_m),  # e_inf
         #     (0.9 * tau_sim_m, 1.1 * tau_sim_m),  # tau
-        #     (0.01e-6, 500e-6),  # d_mat
+        #     (0.01e-6, 1000e-6),  # d_mat
         #     (0.9 * e_s_sim_o, 1.1 * e_s_sim_o),  # e_s
         #     (0.9 * e_inf_sim_o, 1.1 * e_inf_sim_o),  # e_inf
         #     (0.9 * tau_sim_o, 1.1 * tau_sim_o),  # tau
-        #     (0.01e-6, 500e-6)  # d_mat
+        #     (0.01e-6, 1000e-6)  # d_mat
         # ]
 
         # k_bounds = [  # 20% uncertainty in optical paramaters
@@ -213,17 +213,21 @@ if __name__ == '__main__':
         #     (0.8 * e_s_sim_i, 1.2 * e_s_sim_i),  # e_s
         #     (0.8 * e_inf_sim_i, 1.2 * e_inf_sim_i),  # e_inf
         #     (0.8 * tau_sim_i, 1.2 * tau_sim_i),  # tau
-        #     (0.01e-6, 500e-6),  # d_mat
+        #     (0.01e-6, 1000e-6),  # d_mat
         #     (0.8 * e_s_sim_m, 1.2 * e_s_sim_m),  # e_s
         #     (0.8 * e_inf_sim_m, 1.2 * e_inf_sim_m),  # e_inf
         #     (0.8 * tau_sim_m, 1.2 * tau_sim_m),  # tau
-        #     (0.01e-6, 500e-6),  # d_mat
+        #     (0.01e-6, 1000e-6),  # d_mat
         #     (0.8 * e_s_sim_o, 1.2 * e_s_sim_o),  # e_s
         #     (0.8 * e_inf_sim_o, 1.2 * e_inf_sim_o),  # e_inf
         #     (0.8 * tau_sim_o, 1.2 * tau_sim_o),  # tau
-        #     (0.01e-6, 500e-6)  # d_mat
+        #     (0.01e-6, 1000e-6)  # d_mat
         # ]
-        
+        k_bounds_constraint = list()
+        for k_bound in k_bounds:
+            k_bounds_constraint.append(Bounds(k_bound[0], k_bound[1], keep_feasible=True))
+        # k_bounds_constraint = tuple(k_bounds_constraint)
+
         d_air_fit = list()
         e_s_fit_i = list()
         e_inf_fit_i = list()
@@ -252,10 +256,11 @@ if __name__ == '__main__':
                                          updating='deferred',
                                          workers=-1,
                                          disp=True,  # step cost_function value
+                                         # constraints=tuple(k_bounds_constraint),
                                          polish=True
                                          )
             t2 = time_ns()
-            print(res)
+            print(res.x[4] * 1e6)
             n_sim_i, k_sim_i = nk_from_eps(res.x[1], res.x[2], res.x[3], f_sim)
             n_sim_m, k_sim_m = nk_from_eps(res.x[5], res.x[6], res.x[7], f_sim)
             n_sim_o, k_sim_o = nk_from_eps(res.x[9], res.x[10], res.x[11], f_sim)

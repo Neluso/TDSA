@@ -106,8 +106,8 @@ def sim_traces():
         e_inf_sim_i = 1.5**2
         tau_sim_i = 1e-13
         n_sim_i, k_sim_i = nk_from_eps(e_s_sim_i, e_inf_sim_i, tau_sim_i, f_ref)
-        e_s_sim_m = 1.65**2
-        e_inf_sim_m = 1.65**2
+        e_s_sim_m = 1.55**2
+        e_inf_sim_m = 1.55**2
         tau_sim_m = 1e-13
         n_sim_m, k_sim_m = nk_from_eps(e_s_sim_m, e_inf_sim_m, tau_sim_m, f_ref)
         e_s_sim_o = 1.5**2
