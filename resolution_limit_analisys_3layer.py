@@ -1,6 +1,6 @@
 from TDSA import *
 import os
-from scipy.optimize import differential_evolution, curve_fit, Bounds
+from scipy.optimize import differential_evolution, curve_fit, LinearConstraint, Bounds
 
 deg_in = 0  # incidence angle in degrees
 snell_sin = n_air * sin(deg_in * pi / 180)
@@ -223,10 +223,16 @@ if __name__ == '__main__':
         #     (0.8 * tau_sim_o, 1.2 * tau_sim_o),  # tau
         #     (0.01e-6, 1000e-6)  # d_mat
         # ]
-        k_bounds_constraint = list()
-        for k_bound in k_bounds:
-            k_bounds_constraint.append(Bounds(k_bound[0], k_bound[1], keep_feasible=True))
-        # k_bounds_constraint = tuple(k_bounds_constraint)
+        
+        # constr_mat = zeros((len(k_bounds),len(k_bounds)))
+        # for i in range(len(k_bounds)):
+        #     if i not in (4, 8, 12):
+        #         constr_mat[i, i] = 1
+        # # print(constr_mat)
+        # # quit()
+        # k_bounds_constraint = LinearConstraint(constr_mat, array(k_bounds)[:, 0], array(k_bounds)[:, 1])
+        
+        k_bounds = Bounds(array(k_bounds)[:, 0], array(k_bounds)[:, 1])
         
         d_air_fit = list()
         e_s_fit_i = list()
@@ -256,8 +262,8 @@ if __name__ == '__main__':
                                          updating='deferred',
                                          workers=-1,
                                          disp=True,  # step cost_function value
-                                         # constraints=tuple(k_bounds_constraint),
-                                         polish=True
+                                         constraints=k_bounds,  # _constraint,
+                                         polish=False
                                          )
             t2 = time_ns()
             print(res.x[4] * 1e6)

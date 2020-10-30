@@ -75,8 +75,8 @@ pDr = list()
 
 # rows = list()
 
-sample_dir = 'test_2'
-error_dir = '10%'
+sample_dir = 'test_0'
+error_dir = '1%'
 
 sample_dir = sample_dir + '/' + error_dir
 

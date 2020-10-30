@@ -33,9 +33,11 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):
     nSamp_pow = nextpow2(nSamp)
 
     # Step 1: Finding the centre of the pulse to get t_0ref and t_0sam
-    pos_t_0ref = centre_loc(E_ref)
+    # pos_t_0ref = centre_loc(E_ref)
+    # pos_t_0sam = centre_loc(E_ref)
+    pos_t_0ref = centroid_E2(t_ref, E_ref)
+    pos_t_0sam = centroid_E2(t_sam, E_sam)
     t_0ref = t_ref[pos_t_0ref]
-    pos_t_0sam = centre_loc(E_ref)
     t_0sam = t_ref[pos_t_0sam]
     n_avg = 1 + (t_0sam - t_0ref) * c_0 / thickness
 
@@ -61,10 +63,17 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):
     coefs = polyfit(f_ref[f_min_idx:f_max_idx], delta_phi_0_red[f_min_idx:f_max_idx], 2)
 
     delta_phi_0 = delta_phi_0_red - 2 * pi * ones(delta_phi_0_red.size) * int(coefs[2] / (2 * pi))
-    delta_phi = abs(delta_phi_0 + (phi_0_sam - phi_0_ref))
+    delta_phi = abs(delta_phi_0 - (phi_0_sam - phi_0_ref))
+
+    # figure()
+    # plot(f_ref, delta_phi_0_red)
+    # plot(f_ref, delta_phi)
+    # show()
+    # quit()
     
     # Step 6.1: Obtaining the refractive index
     n = refractive_index(f_ref, delta_phi, thickness)
+    
     T_fk = zeros(n.size)
     T_fk[-1] = (2 * thickness / c_0) * abs(n[0] - n_avg)
     for i in range(n.size - 1):

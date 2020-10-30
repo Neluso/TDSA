@@ -34,6 +34,12 @@ def centre_loc(E_data):  # finds the pulse centre  based on pulse maximum of abs
     return t_0_pos
 
 
+def centroid_E2(t_val, E_val):  # t_centroid
+    t_centroid = sum(t_val * abs(E_val)**2) / sum(abs(E_val)**2)
+    t_idx = where(t_val <= t_centroid)[0]
+    return t_idx[-1]
+
+
 def noise_floor(freq, E_data, f_lim):
     f_lim_idx = where(freq >= f_lim)[0][0]
     p = polyfit(freq[f_lim_idx:], E_data[f_lim_idx:], 1)
