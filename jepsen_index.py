@@ -58,7 +58,7 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):
     delta_phi_0_red = unwrap(phi_0_sam_red - phi_0_ref_red)
     
     # Step 5: Fit the unwrapped phase to a linear function and offset the phase
-    f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0.2, 0.4)
+    f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0.15, 0.45)
     fit_order = 1
     coefs = polyfit(f_ref[f_min_idx:f_max_idx], delta_phi_0_red[f_min_idx:f_max_idx], fit_order)
     
