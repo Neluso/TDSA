@@ -55,23 +55,18 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):
     phi_0_sam_red = angle(phi_0_sam_red)
     
     # Step 4: Unwrap the reduced phase difference
-    delta_phi_0_red = abs(unwrap(phi_0_sam_red - phi_0_ref_red))
+    delta_phi_0_red = unwrap(phi_0_sam_red - phi_0_ref_red)
     
-    # Step 5: Fit the unwrapped phase to a linear function
-    f_min_idx, f_max_idx = f_min_max_idx(f_ref)
-
-    coefs = polyfit(f_ref[f_min_idx:f_max_idx], delta_phi_0_red[f_min_idx:f_max_idx], 2)
-
-    delta_phi_0 = delta_phi_0_red - 2 * pi * ones(delta_phi_0_red.size) * int(coefs[2] / (2 * pi))
-    delta_phi = abs(delta_phi_0 - (phi_0_sam - phi_0_ref))
-
-    # figure()
-    # plot(f_ref, delta_phi_0_red)
-    # plot(f_ref, delta_phi)
-    # show()
-    # quit()
+    # Step 5: Fit the unwrapped phase to a linear function and offset the phase
+    f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0.2, 0.4)
+    fit_order = 1
+    coefs = polyfit(f_ref[f_min_idx:f_max_idx], delta_phi_0_red[f_min_idx:f_max_idx], fit_order)
     
-    # Step 6.1: Obtaining the refractive index
+    # Step 6: Undo phase reduction
+    delta_phi_0 = delta_phi_0_red - 2 * pi * ones(delta_phi_0_red.size) * round(coefs[fit_order] / (2 * pi), 0)
+    delta_phi = abs(delta_phi_0 + (phi_0_sam - phi_0_ref))
+    
+    # Step 7.1: Obtaining the refractive index
     n = refractive_index(f_ref, delta_phi, thickness)
     
     T_fk = zeros(n.size)
@@ -79,7 +74,7 @@ def jepsen_index(t_ref, E_ref, t_sam, E_sam, thickness):
     for i in range(n.size - 1):
         T_fk[i] = (2 * thickness / c_0) * abs(n[i] - n_avg + i * (n[i + 1] - n[i]))
 
-    # Step 6.2: Obtaining the absorption coefficient in m^-1
+    # Step 7.2: Obtaining the absorption coefficient in m^-1
     alpha_f = alpha_w(n, abs(H_w), thickness)
 
     return n, alpha_f, n_avg
