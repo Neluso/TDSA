@@ -27,15 +27,16 @@ def self_unwrap(t_sam, E_sam):
     return unwrap(phi_sam_0_red)
 
 
-for i in range(4):
+for i in range(5):
     thick = open('./cold_chain_break/' + str(i + 1) + 'a_bajoqueta_rotura/thickness.txt')
     thick = float(thick.read())
     # thick = 3  # mm
-    for j in range(3):
+    for j in range(4):
         try:
             t_ref, E_ref = read_1file(
                 './cold_chain_break/' + str(i + 1) + 'a_bajoqueta_rotura/rotura_' + str(j + 1) + '/ref1.txt')
-            t_sam, E_sam = read_1file('./cold_chain_break/' + str(i + 1) + 'a_bajoqueta_rotura/rotura_' + str(j + 1) + '/sam1.txt')
+            t_sam, E_sam = read_1file(
+                './cold_chain_break/' + str(i + 1) + 'a_bajoqueta_rotura/rotura_' + str(j + 1) + '/sam1.txt')
         except:
             continue
         
@@ -52,13 +53,24 @@ for i in range(4):
         f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
         n_1a, alpha_1a, n_avg_1a = jepsen_index(t_ref, E_ref, t_sam, E_sam, thick*1e-3)
         figure(2 * i + 1)
-        plot(f_sam * 1e-12, n_1a, label=str(j + 1) + r' $n_{avg}=$' + str(n_avg_1a), lw=0.5)
+        title('Sample ' + str(i+1))
+        line_style = '-'
+        if j == 1:
+            line_style = '--'
+        elif j == 2:
+            line_style = '-.'
+        elif j == 3:
+            line_style = ':'
+        plot(f_sam * 1e-12, n_1a, line_style, label=str(j + 1) + r' $n_{avg}=$' + str(round(n_avg_1a, 2)), lw=1)
         xlim([0.1, 1.2])
         ylim([1, 2.5])
         legend()
+        savefig('./cold_chain_break/output/n_sample_' + str(i+1))
         figure(2 * (i + 1))
-        plot(f_sam * 1e-12, alpha_1a * 1e-2, label=str(j + 1), lw=0.5)
+        title('Sample ' + str(i+1))
+        plot(f_sam * 1e-12, alpha_1a * 1e-2, line_style, label=str(j + 1), lw=1)
         xlim([0.1, 1.2])
         ylim([0, 55])
         legend()
+        savefig('./cold_chain_break/output/alpha_sample_' + str(i + 1))
 show()
