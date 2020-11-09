@@ -43,34 +43,11 @@ for i in range(5):
         t_ref *= 1e-12
         t_sam *= 1e-12
 
-        delta_t_ref = mean(diff(t_ref))
-        enlargement = 2 * E_ref.size
-        E_ref = zero_padding(E_ref, 0, enlargement)
-        t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
-        E_sam = zero_padding(E_sam, 0, enlargement)
-        t_sam = concatenate((t_sam, t_sam[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
-        
+        f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
         f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
-        n_1a, alpha_1a, n_avg_1a = jepsen_index(t_ref, E_ref, t_sam, E_sam, thick*1e-3)
-        figure(2 * i + 1)
-        title('Sample ' + str(i+1))
-        line_style = '-'
-        if j == 1:
-            line_style = '--'
-        elif j == 2:
-            line_style = '-.'
-        elif j == 3:
-            line_style = ':'
-        plot(f_sam * 1e-12, n_1a, line_style, label=str(j + 1) + r' $n_{avg}=$' + str(round(n_avg_1a, 2)), lw=1)
-        xlim([0.1, 1.2])
-        ylim([1, 2.5])
-        legend()
-        savefig('./cold_chain_break/output/n_sample_' + str(i+1))
-        figure(2 * (i + 1))
-        title('Sample ' + str(i+1))
-        plot(f_sam * 1e-12, alpha_1a * 1e-2, line_style, label=str(j + 1), lw=1)
-        xlim([0.1, 1.2])
-        ylim([0, 55])
-        legend()
-        savefig('./cold_chain_break/output/alpha_sample_' + str(i + 1))
-show()
+
+        H_w = E_sam_w / E_ref_w
+
+        plot(f_ref, gradient(gradient(abs(H_w))))
+
+        show()
