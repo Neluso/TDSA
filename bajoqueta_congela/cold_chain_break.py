@@ -30,7 +30,7 @@ def self_unwrap(t_sam, E_sam):
 for i in range(5):
     thick = open('./cold_chain_break/' + str(i + 1) + 'a_bajoqueta_rotura/thickness.txt')
     thick = float(thick.read())
-    thick = 1e3  # mm
+    # thick = 1e3  # mm
     for j in range(4):
         try:
             t_ref, E_ref = read_1file(
