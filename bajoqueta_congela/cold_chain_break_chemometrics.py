@@ -1,5 +1,5 @@
 from TDSA import *
-from scipy.stats import t
+from scipy.stats import t, expon, norm
 from scipy.optimize import curve_fit
 
 
@@ -35,7 +35,11 @@ def self_unwrap(t_sam, E_sam):
     return unwrap(phi_sam_0_red)
 
 
-for i in range(5):
+def data_fit(x, mu, sigma):
+    return norm.pdf(x, mu, sigma)
+
+
+for i in range(4):
     thick = open('./cold_chain_break/' + str(i + 1) + 'a_bajoqueta_rotura/thickness.txt')
     thick = float(thick.read())
     # thick = 1e3  # mm
@@ -61,44 +65,46 @@ for i in range(5):
         f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
         f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
         
-        f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0.15, 1.2)
+        f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0.15, 0.85)
 
         H_w = E_sam_w / E_ref_w
         H_w = H_w[f_min_idx:f_max_idx]
+        f_ref = f_ref[f_min_idx:f_max_idx]
+        E_ref_w = E_ref_w[f_min_idx:f_max_idx]
+        filt_ref = abs(E_ref_w)/max(abs(E_ref_w))
+        # plot(f_ref * 1e-12, filt_ref)
+        # show()
+        # quit()
+        
         gH_w = gradient(H_w)
-        gaH_w = gradient(abs(H_w))
+        aH_w = abs(H_w)
+        gaH_w = gradient(aH_w)
         ggH_w = gradient(gH_w)
         ggaH_w = gradient(gaH_w)
         gagH_w = gradient(abs(gH_w))
+        aggH_w = abs(ggH_w)
 
         phi_unwrapped = jepsen_unwrap(t_ref, E_ref, t_sam, E_sam)
         gPhi = gradient(phi_unwrapped)
+        agPhi = abs(gPhi)
         ggPhi = gradient(gPhi)
-        bins_numb = int(gPhi.size/50)
+        aggPhi = abs(ggPhi)
         
-        hist_data = ggPhi
+        hist_data = gPhi[f_min_idx:f_max_idx]
         
-        hist_data_obj = histogram(hist_data, bins=bins_numb)
-        hist_count_array = hist_data_obj[0] / hist_data.size
-        print(hist_data_obj)
-        hist_integral = list()
-        for k in range(hist_data.size):
-            hist_integral.append(sum(hist_count_array[:k]))
-        hist_integral = array(hist_count_array)
-        bin_width = mean(diff(hist_data_obj[1]))
-        bin_vals = (hist_data_obj[1][-1] - hist_data_obj[1][0]) * arange(hist_integral.size) / hist_integral.size + hist_data_obj[1][0]
-        plot(bin_vals, hist_integral)
-        show()
-        quit()
+        bins_numb = int(hist_data.size / 2)
         
-        figure(i + 1)
-        hist(hist_data,
-             # bins='auto',
-             bins=bins_numb,
-             density=True
-             )
-        print('Descongelació', j + 1, round(mean(hist_data), 5), round(std(hist_data), 5))
+        hist_data_obj = histogram(hist_data, bins=bins_numb, )
+        figure(10 + i)
+        hist(hist_data + 1*j, bins=bins_numb, label=r'$\sigma =$' + str(round(std(hist_data), 4)))
+        legend()
+        savefig('./cold_chain_break/output/hist_' + str(i + 1) + '.png')
 
-    show()
-    # quit()
-    print()
+        figure(i + 1)
+        title('Mostra ' + str(i + 1))
+        plot(f_ref, hist_data + 1*j, label=r'$\sigma =$' + str(round(std(hist_data), 4)))  # round(popt[1], 4)))
+        legend()
+        savefig('./cold_chain_break/output/phase_' + str(i + 1) + '.png')
+        
+
+# show()
