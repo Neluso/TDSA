@@ -39,7 +39,10 @@ def data_fit(x, mu, sigma):
     return norm.pdf(x, mu, sigma)
 
 
-for i in range(4):
+sigmas = list()
+descong = list()
+
+for i in range(5):
     thick = open('./cold_chain_break/' + str(i + 1) + 'a_bajoqueta_rotura/thickness.txt')
     thick = float(thick.read())
     # thick = 1e3  # mm
@@ -94,17 +97,30 @@ for i in range(4):
         
         bins_numb = int(hist_data.size / 2)
         
-        hist_data_obj = histogram(hist_data, bins=bins_numb, )
+        hist_data_obj = histogram(hist_data, bins=bins_numb)
+
+        sigmas.append(round(std(hist_data), 4))
+        descong.append(j + 1)
+
         figure(10 + i)
         hist(hist_data + 1*j, bins=bins_numb, label=r'$\sigma =$' + str(round(std(hist_data), 4)))
         legend()
         savefig('./cold_chain_break/output/hist_' + str(i + 1) + '.png')
+        close()
 
         figure(i + 1)
         title('Mostra ' + str(i + 1))
         plot(f_ref, hist_data + 1*j, label=r'$\sigma =$' + str(round(std(hist_data), 4)))  # round(popt[1], 4)))
         legend()
         savefig('./cold_chain_break/output/phase_' + str(i + 1) + '.png')
-        
+        close()
 
-# show()
+
+descong = array(descong)
+sigmas = array(sigmas)
+p = polyfit(descong, sigmas, 1)
+figure()
+plot(descong, sigmas, '.')
+plot(descong, p[0] * descong + p[1])
+
+show()
