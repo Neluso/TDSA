@@ -3,30 +3,6 @@ from scipy.stats import t, expon, norm
 from scipy.optimize import curve_fit
 
 
-# def centroid_E2(t_val, E_val):  # t_centroid
-#     t_centroid = sum(t_val * abs(E_val)**2) / sum(abs(E_val)**2)
-#     t_idx = where(t_val <= t_centroid)[0]
-#     return t_idx[-1]
-
-
-# def jepsen_unwrap(t_ref, E_ref, t_sam, E_sam):
-#     t_ref_0 = centroid_E2(t_ref, E_ref)
-#     t_sam_0 = centroid_E2(t_sam, E_sam)
-#     f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
-#     f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
-#     phi_0_ref = 2 * pi * f_ref * t_ref_0
-#     phi_0_sam = 2 * pi * f_sam * t_sam_0
-#     phi_ref_0_red = angle(E_ref_w * exp(-1j * phi_0_ref))
-#     phi_sam_0_red = angle(E_sam_w * exp(-1j * phi_0_sam))
-#     delta_phi_0_red = unwrap(phi_sam_0_red - phi_ref_0_red)
-#     f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0.15, 0.35)
-#     fit_order = 1
-#     coefs = polyfit(f_ref[f_min_idx:f_max_idx], delta_phi_0_red[f_min_idx:f_max_idx], fit_order)
-#     delta_phi_0 = delta_phi_0_red - 2 * pi * ones(delta_phi_0_red.size) * round(coefs[fit_order] / (2 * pi), 0)
-#     delta_phi = abs(delta_phi_0 + (phi_0_sam - phi_0_ref))
-#     return delta_phi
-
-
 def self_unwrap(t_sam, E_sam):
     t_sam_0 = centroid_E2(t_sam, E_sam)
     f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
@@ -42,7 +18,8 @@ def data_fit(x, mu, sigma):
 sigmas = list()
 descong = list()
 
-for i in range(5):
+for i in range(8):
+    # if i+1 == 5 or i+1 == 6: continue
     thick = open('./cold_chain_break/' + str(i + 1) + 'a_bajoqueta_rotura/thickness.txt')
     thick = float(thick.read())
     # thick = 1e3  # mm
@@ -81,6 +58,7 @@ for i in range(5):
         
         gH_w = gradient(H_w)
         aH_w = abs(H_w)
+        agH_w = abs(gH_w)
         gaH_w = gradient(aH_w)
         ggH_w = gradient(gH_w)
         ggaH_w = gradient(gaH_w)
@@ -91,9 +69,11 @@ for i in range(5):
         gPhi = gradient(phi_unwrapped)
         agPhi = abs(gPhi)
         ggPhi = gradient(gPhi)
+        gagPhi = gradient(agPhi)
         aggPhi = abs(ggPhi)
         
-        hist_data = gPhi[f_min_idx:f_max_idx]
+        hist_data = gPhi[f_min_idx:f_max_idx]  # gPhi
+        # hist_data = aggH_w
         
         bins_numb = int(hist_data.size / 2)
         
@@ -118,9 +98,11 @@ for i in range(5):
 
 descong = array(descong)
 sigmas = array(sigmas)
-p = polyfit(descong, sigmas, 1)
+# sigmas = toDb(sigmas)
+p = polyfit(descong, sigmas, 2)
 figure()
 plot(descong, sigmas, '.')
-plot(descong, p[0] * descong + p[1])
+# plot(descong, p[0] * descong + p[1])
+plot(arange(1, 5), p[0] * arange(1, 5)**2 + p[1] * arange(1, 5) + p[2])
 
 show()
