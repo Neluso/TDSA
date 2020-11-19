@@ -45,7 +45,8 @@ for i in range(8):
         f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
         f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
         
-        f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0.15, 0.85)
+        # f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0.15, 0.85)
+        f_min_idx, f_max_idx = f_min_max_idx(f_ref, 0.25, 0.35)
 
         H_w = E_sam_w / E_ref_w
         H_w = H_w[f_min_idx:f_max_idx]
@@ -72,7 +73,7 @@ for i in range(8):
         gagPhi = gradient(agPhi)
         aggPhi = abs(ggPhi)
         
-        hist_data = gPhi[f_min_idx:f_max_idx]  # gPhi
+        hist_data = ggPhi[f_min_idx:f_max_idx]  # gPhi
         # hist_data = aggH_w
         
         bins_numb = int(hist_data.size / 2)
@@ -81,6 +82,15 @@ for i in range(8):
 
         sigmas.append(round(std(hist_data), 4))
         descong.append(j + 1)
+        
+        # figure(1993)
+        # if i == 0:
+        #     colr = 'blue'
+        # elif i ==1:
+        #     colr = 'orange'
+        # elif i ==2:
+        #     colr = ''
+        # plot(j + 1, round(std(hist_data), 4), '.', label=str(i + 1), color=colr)
 
         figure(10 + i)
         hist(hist_data + 1*j, bins=bins_numb, label=r'$\sigma =$' + str(round(std(hist_data), 4)))
@@ -99,10 +109,11 @@ for i in range(8):
 descong = array(descong)
 sigmas = array(sigmas)
 # sigmas = toDb(sigmas)
-p = polyfit(descong, sigmas, 2)
-figure()
+p2 = polyfit(descong, sigmas, 2)
+p1 = polyfit(descong, sigmas, 1)
+figure(1993)
 plot(descong, sigmas, '.')
-# plot(descong, p[0] * descong + p[1])
-plot(arange(1, 5), p[0] * arange(1, 5)**2 + p[1] * arange(1, 5) + p[2])
-
+plot(descong, p1[0] * descong + p1[1])
+plot(arange(1, 5), p2[0] * arange(1, 5)**2 + p2[1] * arange(1, 5) + p2[2])
+# legend()
 show()
