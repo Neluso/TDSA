@@ -76,7 +76,7 @@ pDr = list()
 # rows = list()
 
 sample_dir = 'test_0'
-error_dir = '1%'
+error_dir = '5%'
 
 sample_dir = sample_dir + '/' + error_dir
 
@@ -398,6 +398,65 @@ legend()  # loc='upper left')
 custom_lines = [line_expected, line60]
 ax.legend(custom_lines, ['sim', -60])
 savefig('./output/simulation_results/' + sample_dir + '/d_mat_fit_o_' + error_analisis + '.png')
+
+t_ref, E_ref = read_1file('./output/refs/-60_ref.txt')
+t_ref *= 1e-12
+f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
+n_i, k_i = nk_from_eps(mean(e_s_i), mean(e_inf_i), mean(tau_i), f_ref)
+n_i_mean, k_i_mean = nk_from_eps(mean(e_s_mean_i), mean(e_inf_mean_i), mean(tau_mean_i), f_ref)
+n_i_std, k_i_std = nk_from_eps(mean(e_s_std_i), mean(e_inf_std_i), mean(tau_std_i), f_ref)
+n_m, k_m = nk_from_eps(mean(e_s_m), mean(e_inf_m), mean(tau_m), f_ref)
+n_m_mean, k_m_mean = nk_from_eps(mean(e_s_mean_m), mean(e_inf_mean_m), mean(tau_mean_m), f_ref)
+n_m_std, k_m_std = nk_from_eps(mean(e_s_std_m), mean(e_inf_std_m), mean(tau_std_m), f_ref)
+n_o, k_o = nk_from_eps(mean(e_s_o), mean(e_inf_o), mean(tau_o), f_ref)
+n_o_mean, k_o_mean = nk_from_eps(mean(e_s_mean_o), mean(e_inf_mean_o), mean(tau_mean_o), f_ref)
+n_o_std, k_o_std = nk_from_eps(mean(e_s_std_o), mean(e_inf_std_o), mean(tau_std_o), f_ref)
+
+f_min_idx, f_max_idx = f_min_max_idx(f_ref)
+f_ref *= 1e-12
+
+figure(11)
+ax = axes()
+# ax.set_xscale('log')
+# ax.set_yscale('log')
+ax.plot(f_ref, n_i, '-', c='black', label='expected')
+ax.plot(f_ref, n_i_mean)
+# ax.plot(f_ref[f_min_idx:f_max_idx], n_i[f_min_idx:f_max_idx], '-', c='black', label='expected')
+# ax.plot(f_ref[f_min_idx:f_max_idx], n_i_mean[f_min_idx:f_max_idx])
+# ax.errorbar(f_ref[f_min_idx:f_max_idx], n_i_mean[f_min_idx:f_max_idx], yerr=n_i_std[f_min_idx:f_max_idx])
+figure(12)
+ax = axes()
+# ax.set_xscale('log')
+# ax.set_yscale('log')
+ax.plot(f_ref[f_min_idx:f_max_idx], k_i[f_min_idx:f_max_idx], '-', c='black', label='expected')
+ax.errorbar(f_ref[f_min_idx:f_max_idx], k_i_mean[f_min_idx:f_max_idx], yerr=k_i_std[f_min_idx:f_max_idx])
+figure(21)
+ax = axes()
+# ax.set_xscale('log')
+# ax.set_yscale('log')
+ax.plot(f_ref[f_min_idx:f_max_idx], n_m[f_min_idx:f_max_idx], '-', c='black', label='expected')
+ax.errorbar(f_ref[f_min_idx:f_max_idx], n_m_mean[f_min_idx:f_max_idx], yerr=n_m_std[f_min_idx:f_max_idx])
+figure(22)
+ax = axes()
+# ax.set_xscale('log')
+# ax.set_yscale('log')
+ax.plot(f_ref[f_min_idx:f_max_idx], k_m[f_min_idx:f_max_idx], '-', c='black', label='expected')
+ax.errorbar(f_ref[f_min_idx:f_max_idx], k_m_mean[f_min_idx:f_max_idx], yerr=k_m_std[f_min_idx:f_max_idx])
+figure(31)
+ax = axes()
+# ax.set_xscale('log')
+# ax.set_yscale('log')
+ax.plot(f_ref[f_min_idx:f_max_idx], n_o[f_min_idx:f_max_idx], '-', c='black', label='expected')
+ax.errorbar(f_ref[f_min_idx:f_max_idx], n_o_mean[f_min_idx:f_max_idx], yerr=n_o_std[f_min_idx:f_max_idx])
+figure(32)
+ax = axes()
+# ax.set_xscale('log')
+# ax.set_yscale('log')
+ax.plot(f_ref[f_min_idx:f_max_idx], k_o[f_min_idx:f_max_idx], '-', c='black', label='expected')
+ax.errorbar(f_ref[f_min_idx:f_max_idx], k_o_mean[f_min_idx:f_max_idx], yerr=k_o_std[f_min_idx:f_max_idx])
+show()
+
+
 # figure(33)
 # ax = axes()
 # # ax.set_xscale('log')

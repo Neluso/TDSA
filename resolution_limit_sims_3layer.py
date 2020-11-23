@@ -103,15 +103,15 @@ def sim_traces():
         
         # material data
         e_s_sim_i = 1.5**2
-        e_inf_sim_i = 1.5**2
+        e_inf_sim_i = 1.7**2
         tau_sim_i = 1e-13
         n_sim_i, k_sim_i = nk_from_eps(e_s_sim_i, e_inf_sim_i, tau_sim_i, f_ref)
-        e_s_sim_m = 1.55**2
-        e_inf_sim_m = 1.55**2
+        e_s_sim_m = 1.51**2
+        e_inf_sim_m = 1.71**2
         tau_sim_m = 1e-13
         n_sim_m, k_sim_m = nk_from_eps(e_s_sim_m, e_inf_sim_m, tau_sim_m, f_ref)
         e_s_sim_o = 1.5**2
-        e_inf_sim_o = 1.5**2
+        e_inf_sim_o = 1.7**2
         tau_sim_o = 1e-13
         n_sim_o, k_sim_o = nk_from_eps(e_s_sim_o, e_inf_sim_o, tau_sim_o, f_ref)
 
@@ -119,6 +119,11 @@ def sim_traces():
         print('disp_i =', abs(n_sim_i[0] - n_sim_i[f_15_idx]) / 1.5)
         print('disp_m =', abs(n_sim_m[0] - n_sim_m[f_15_idx]) / 1.5)
         print('disp_o =', abs(n_sim_o[0] - n_sim_o[f_15_idx]) / 1.5)
+
+        print('contr_im =', abs(n_sim_i[0] - n_sim_m[0]))
+        print('contr_mo =', abs(n_sim_m[0] - n_sim_o[0]))
+
+        # quit()
 
 
         # # internal layer
@@ -211,7 +216,7 @@ def sim_traces():
         # for d_mat in [0.01, 10**-1.5, 0.1, 10**-0.5, 1, 10**0.5, 10, 10**1.5, 100, 10**2.5]:
         
         f_ref *= 1e12  # Hz
-        for d_mat in pow(10, arange(-1, 3, 1/3)):
+        for d_mat in pow(10, arange(-1, 3, 1/2)):  # 1/3
             
             print()
             print('Simulating for', d_mat, 'um')
