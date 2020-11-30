@@ -34,9 +34,8 @@ def cr(ni, nt):  # from n_l-1 to n_l
 def phase_factor(n, k, thick, freq):  # theta in radians
     omg = 2 * pi * freq
     thick *= cos(theta(n))
-    phi_n = omg * thick / c_0
-    phi_k = omg * thick / c_0
-    return exp(- 1j * phi_n) * exp(- k * phi_k)
+    phi = omg * thick / c_0
+    return exp(- 1j * n * phi) * exp(- k * phi)
 
 
 def epsilon(e_s, e_inf, tau, freq):  # Debye model

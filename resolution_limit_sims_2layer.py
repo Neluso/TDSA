@@ -29,7 +29,7 @@ def phase_factor(n, k, thick, freq):  # theta in radians
     omg = 2 * pi * freq
     thick *= cos(theta(n))
     phi = 2 * omg * thick / c_0
-    return exp(- 1j * phi) * exp(- k * phi)
+    return exp(- 1j * n * phi) * exp(- k * phi)
 
 
 def epsilon(e_s, e_inf, tau, freq):  # Debye model
