@@ -1,6 +1,6 @@
 from TDSA import *
 
-for i in range(3):
+for i in range(1):
     t_ref, E_ref = read_1file('./data/er_caba/v2/ref' + str(i+1) + '_1.txt')
     t_sam, E_sam = read_1file('./data/er_caba/v2/sam' + str(i+1) + '_1.txt')
     
@@ -29,11 +29,11 @@ for i in range(3):
     f_sam *= 1e-12
     
     figure(1)
-    # if i == 0:
-    #     plot(f_ref[f_min_idx:f_max_idx], prettyfy(E_ref_w, amax(abs(E_ref_w)))[f_min_idx:f_max_idx], label='ref')
+    if i == 0:
+        plot(f_ref, prettyfy(E_ref_w, amax(abs(E_ref_w))), label='ref')
     plot(f_sam, prettyfy(E_sam_w, amax(abs(E_ref_w))), label='sam')
     xlabel('f (THz)')
-    # legend()
+    legend()
     
     figure(2)
     plot(f_ref[f_min_idx:f_max_idx], absH_w[f_min_idx:f_max_idx])
