@@ -46,11 +46,11 @@ t_ref *= 1e-12
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 # [1, 2, 10, 50, 100, 1000]:
 for N_grid in [10, 50]:
-    D_adiab = 1e-5  # 10 um
-    n_1 = 1.4 + 1j * 0.03
-    thick_1 = 1e-4 - D_adiab/2  # 100 um
-    n_2 = 1.6 + 1j * 0.03
-    thick_2 = 1e-4 - D_adiab/2  # 100 um
+    D_adiab = 0.5e-3  # 10 um
+    n_1 = 1.3 + 1j * 0.03
+    thick_1 = 0.5e-3  # - D_adiab/2  # 100 um
+    n_2 = 3.6 + 1j * 0.03
+    thick_2 = 0.5e-3  # - D_adiab/2  # 100 um
     m = (n_2 - n_1) / D_adiab
     b = n_1
     # N_grid = 10
