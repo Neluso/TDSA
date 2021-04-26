@@ -45,12 +45,12 @@ t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange
 t_ref *= 1e-12
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 # [1, 2, 10, 50, 100, 1000]:
-for N_grid in [10, 50]:
-    D_adiab = 0.5e-3  # 10 um
-    n_1 = 1.3 + 1j * 0.03
-    thick_1 = 0.5e-3  # - D_adiab/2  # 100 um
-    n_2 = 3.6 + 1j * 0.03
-    thick_2 = 0.5e-3  # - D_adiab/2  # 100 um
+for N_grid in [2, 1000]:
+    D_adiab = 1e-4  # 100 um
+    n_1 = 1.4 + 1j * 0.03
+    thick_1 = 5e-4 - D_adiab/2  # 1000 um
+    n_2 = 1.6 + 1j * 0.03
+    thick_2 = 5e-4 - D_adiab/2  # 1000 um
     m = (n_2 - n_1) / D_adiab
     b = n_1
     # N_grid = 10
@@ -129,24 +129,26 @@ for N_grid in [10, 50]:
     # plot(f_ref * 1e-12, abs(H_r))
     # plot(f_ref * 1e-12, abs(H_t))
 
-H_r_2lay = - M_21 / M_22 * phi_air
-H_t_2lay = (M_11 - M_12 * M_21 / M_22) * phi_air
+H_r_2lay = - N_21 / N_22 * phi_air
+H_t_2lay = (N_11 - N_12 * N_21 / N_22) * phi_air
 
-E_sim_r_2lay = irfft(H_r * E_ref_w)
-E_sim_t_2lay = irfft(H_t * E_ref_w)
-E_sim_r_w_2lay = H_r * E_ref_w
-E_sim_t_w_2lay = H_t * E_ref_w
+E_sim_r_2lay = irfft(H_r_2lay * E_ref_w)
+E_sim_t_2lay = irfft(H_t_2lay * E_ref_w)
+E_sim_r_w_2lay = H_r_2lay * E_ref_w
+E_sim_t_w_2lay = H_t_2lay * E_ref_w
 angle_r_2lay = jepsen_unwrap(t_ref, E_ref, t_ref, E_sim_r_2lay)
 angle_t_2lay = jepsen_unwrap(t_ref, E_ref, t_ref, E_sim_t_2lay)
 
 figure(1)
-# plot(t_ref * 1e12, E_ref, '--', label='ref', lw=1)
+plot(t_ref * 1e12, E_ref, '--', label='ref', lw=1)
 title('R wave')
 plot(t_ref * 1e12, E_sim_r_2lay, label='2_lay', lw=1)
+
 legend()
 figure(2)
 title('T wave')
-plot(t_ref * 1e12, E_sim_t_2lay, label='2_lay', lw=1)
+plot(t_ref * 1e12, E_ref, '--', label='ref', lw=1)
+plot(t_ref * 1e12, - E_sim_t_2lay, label='2_lay', lw=1)
 legend()
 figure(3)
 # plot(t_ref * 1e12, E_ref, '--', label='ref', lw=1)
@@ -157,5 +159,12 @@ figure(4)
 title('T wave')
 plot(f_ref * 1e-12, angle_t_2lay, label='2_lay', lw=1)
 legend()
+
+# figure(5)
+# plot(arange(1251), real(fft.rfft(abs(H_r_2lay))), label='real_fft_abs', lw=1)
+# plot(arange(1251), imag(fft.rfft(abs(H_r_2lay))), label='imag_fft_abs', lw=1)
+# plot(arange(1251), abs(fft.rfft(abs(H_r_2lay))), label='abs_fft_abs', lw=1)
+# plot(arange(1251), abs(fft.rfft(H_r_2lay)), label='abs_fft', lw=1)
+# legend()
 
 show()
