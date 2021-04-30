@@ -39,17 +39,16 @@ def f_n_1(n_1, n_2, D_adiab, d):
 def get_H(M_mat):
     M_11 = M_mat[:, 0, 0]
     M_21 = M_mat[:, 1, 0]
-    M_12 = M_mat[:, 0, 1]
-    M_22 = M_mat[:, 1, 1]
-    H_r = - M_21 / M_22
-    H_t = (M_11 - M_12 * M_21 / M_22)
-    # H_t = 1 / M_11
+    # M_12 = M_mat[:, 0, 1]
+    # M_22 = M_mat[:, 1, 1]
+    H_r = M_21 / M_11
+    H_t = 1 / M_11
     return H_r, H_t
 
 
 t_ref, E_ref = read_1file('./data/demo_data/ref.txt')
 delta_t_ref = mean(diff(t_ref))
-enlargement = 1 * E_ref.size
+enlargement = 2 * E_ref.size
 ref_pulse_idx = centre_loc(E_ref)
 E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
@@ -79,24 +78,21 @@ for N_grid in [2, 50]:
     N_i = list()
 
     for freq in f_ref:
-        m_in = dot(P_i(n_adiab[0], d_adiab[0], freq), D_i_j(n_air, n_adiab[0]))
-        n_mat_in = dot(P_i(n_1, thick_1, freq), D_i_j(n_air, n_1))
+        m_in = dot(D_i_j(n_air, n_adiab[0]), P_i(n_adiab[0], d_adiab[0], freq))
+        n_mat_in = dot(D_i_j(n_air, n_1), P_i(n_1, thick_1, freq))
         m_i = m_in
         for i in range(N_grid):
             n_i = n_adiab[i]
             n_i_1 = n_adiab[i + 1]
             d_i = d_adiab[i + 1]
-            m_j = dot(P_i(n_i, d_i, freq), D_i_j(n_i, n_i_1))
-            m_i = dot(m_j, m_i)
-        n_i = n_adiab[-2]
-        n_i_1 = n_adiab[-1]
-        d_i = d_adiab[-1]
-        m_j = dot(P_i(n_i, d_i, freq), D_i_j(n_i, n_i_1))
-        n_mat_j = dot(P_i(n_2, thick_2, freq), D_i_j(n_1, n_2))
-        n_mat_i = dot(n_mat_j, n_mat_in)
-        m_i = dot(m_j, m_i)
-        n_mat_i = dot(D_i_j(n_2, n_air), n_mat_i)
-        m_i = dot(D_i_j(n_i_1, n_air), m_i)
+            m_j = dot(D_i_j(n_i, n_i_1), P_i(n_i, d_i, freq))
+            m_i = dot(m_i, m_j)
+        m_j = dot(D_i_j(n_adiab[-2], n_adiab[-1]), P_i(n_adiab[-1], d_adiab[-1], freq))
+        m_i = dot(m_i, m_j)
+        m_i = dot(m_i, D_i_j(n_adiab[-1], n_air))
+        n_mat_j = dot(D_i_j(n_1, n_2), P_i(n_2, thick_2, freq))
+        n_mat_i = dot(n_mat_in, n_mat_j)
+        n_mat_i = dot(n_mat_i, D_i_j(n_2, n_air))
         M_i.append(m_i)
         N_i.append(n_mat_i)
 
@@ -106,7 +102,6 @@ for N_grid in [2, 50]:
     H_r, H_t = get_H(M_i)
     H_r *= phi_air
     H_t *= phi_air
-    # H_t *= phi_air
 
     E_sim_r = irfft(H_r * E_ref_w)
     E_sim_t = irfft(H_t * E_ref_w)
@@ -119,24 +114,23 @@ for N_grid in [2, 50]:
     title('R wave')
     plot(t_ref * 1e12, E_sim_r, label=str(N_grid), lw=1)
     legend()
-    figure(2)
-    title('T wave')
-    plot(t_ref * 1e12, E_sim_t, label=str(N_grid), lw=1)
-    legend()
-    figure(3)
-    title('R wave')
-    plot(f_ref * 1e-12, angle_r, label=str(N_grid), lw=1)
-    legend()
-    figure(4)
-    title('T wave')
-    plot(f_ref * 1e-12, angle_t, label=str(N_grid), lw=1)
-    legend()
+    # figure(2)
+    # title('T wave')
+    # plot(t_ref * 1e12, E_sim_t, label=str(N_grid), lw=1)
+    # legend()
+    # figure(3)
+    # title('R wave')
+    # plot(f_ref * 1e-12, angle_r, label=str(N_grid), lw=1)
+    # legend()
+    # figure(4)
+    # title('T wave')
+    # plot(f_ref * 1e-12, angle_t, label=str(N_grid), lw=1)
+    # legend()
 
 
 H_r_2lay, H_t_2lay = get_H(N_i)
 H_r_2lay *= phi_air
 H_t_2lay *= phi_air
-# H_t_2lay *= phi_air
 
 E_sim_r_2lay = irfft(H_r_2lay * E_ref_w)
 E_sim_t_2lay = irfft(H_t_2lay * E_ref_w)
@@ -146,24 +140,24 @@ angle_r_2lay = jepsen_unwrap(t_ref, E_ref, t_ref, E_sim_r_2lay)
 angle_t_2lay = jepsen_unwrap(t_ref, E_ref, t_ref, E_sim_t_2lay)
 
 figure(1)
-# plot(t_ref * 1e12, E_ref, '--', label='ref', lw=1)
+plot(t_ref * 1e12, E_ref, '--', label='ref', lw=1)
 title('R wave')
 plot(t_ref * 1e12, E_sim_r_2lay, label='2_lay', lw=1)
 legend()
-
-figure(2)
-title('T wave')
-plot(t_ref * 1e12, E_ref, '--', label='ref', lw=1)
-plot(t_ref * 1e12, E_sim_t_2lay, label='2_lay', lw=1)
-legend()
-figure(3)
+#
+# figure(2)
+# title('T wave')
 # plot(t_ref * 1e12, E_ref, '--', label='ref', lw=1)
-title('R wave')
-plot(f_ref * 1e-12, angle_r_2lay, label='2_lay', lw=1)
-legend()
-figure(4)
-title('T wave')
-plot(f_ref * 1e-12, angle_t_2lay, label='2_lay', lw=1)
-legend()
+# plot(t_ref * 1e12, E_sim_t_2lay, label='2_lay', lw=1)
+# legend()
+# figure(3)
+# # plot(t_ref * 1e12, E_ref, '--', label='ref', lw=1)
+# title('R wave')
+# plot(f_ref * 1e-12, angle_r_2lay, label='2_lay', lw=1)
+# legend()
+# figure(4)
+# title('T wave')
+# plot(f_ref * 1e-12, angle_t_2lay, label='2_lay', lw=1)
+# legend()
 
 show()
