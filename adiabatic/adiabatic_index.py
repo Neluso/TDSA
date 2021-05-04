@@ -46,7 +46,7 @@ def get_H(M_mat):
     return H_r, H_t
 
 
-t_ref, E_ref = read_1file('./data/demo_data/ref.txt')
+t_ref, E_ref = read_1file('../data/demo_data/ref.txt')
 delta_t_ref = mean(diff(t_ref))
 enlargement = 2 * E_ref.size
 ref_pulse_idx = centre_loc(E_ref)
