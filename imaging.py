@@ -26,7 +26,8 @@ def imaging(show_plots, hor_offset, ver_offset, resolution, temp_window):
     progress_bar.grid(row=1, column=1)
     popup.pack_slaves()
 
-    t_ref, E_ref, is_error = read_data('./imaging_data/ref.txt')  # support/matrix without T-Ink (THz-Ink: i.e. lactose)
+    t_ref, E_ref = read_1file('./imaging_data/ref.txt')  # support/matrix without T-Ink (THz-Ink: i.e. lactose)
+    is_error = False
     if is_error:
         return 0
     
@@ -65,7 +66,7 @@ def imaging(show_plots, hor_offset, ver_offset, resolution, temp_window):
         popup.update()
         progress_bar['value'] += 1
         if file != 'ref.txt':
-            t_sam, E_sam, is_error = read_data('./imaging_data/' + file)
+            t_sam, E_sam = read_1file('./imaging_data/' + file)
             if is_error:
                 messagebox.showerror('Error opening ' + file)
                 continue
@@ -95,6 +96,7 @@ def imaging(show_plots, hor_offset, ver_offset, resolution, temp_window):
             if col_pos > col_max:
                 col_max = col_pos
             alpha = sum(H_w[f_min_idx:f_max_idx])  # non-dimensional --- sum(abs(E_sam)) / sum(abs(E_ref))
+            alpha = sum(E_sam**2)
             pixel_data.append((row_pos, col_pos, alpha))
     
     if row_max > 1:
