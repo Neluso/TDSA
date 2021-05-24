@@ -95,8 +95,18 @@ def imaging(show_plots, hor_offset, ver_offset, resolution, temp_window):
             col_pos = int(round((float(file.split('_')[3]) - offset[1]) / resolution))  # column position
             if col_pos > col_max:
                 col_max = col_pos
-            alpha = sum(H_w[f_min_idx:f_max_idx])  # non-dimensional --- sum(abs(E_sam)) / sum(abs(E_ref))
+            # alpha = sum(H_w[f_min_idx:f_max_idx])  # non-dimensional --- sum(abs(E_sam)) / sum(abs(E_ref))
             alpha = sum(E_sam**2)
+            # f_sam_idx = where(f_sam*1e-12 >= 0.3)[0]  # [0]
+            # print(f_sam)
+            # quit()
+            # print(file)
+            # print(f_sam_idx)
+            #
+            # alpha = E_sam_w[f_sam_idx]
+            # plot(f_sam, abs(E_sam_w))
+            # show()
+            # quit()
             pixel_data.append((row_pos, col_pos, alpha))
     
     if row_max > 1:
@@ -114,14 +124,14 @@ def imaging(show_plots, hor_offset, ver_offset, resolution, temp_window):
     row_length = row_max * resolution  # mm
     col_length = col_max * resolution  # mm
     figure(1)
-    imshow(data,
+    im_tom = imshow(data,
            cmap='bone',  # 'gray'
            origin='lower',
-           extent=(col_length + offset[1], offset[1], offset[0], row_length + offset[0])
+           extent=(offset[1], col_length + offset[1], offset[0], row_length + offset[0])
            )
     xlabel('mm')
     ylabel('mm')
-    colorbar()
+    # colorbar(im_tom, fraction=0.046, pad=0.04)
     popup.destroy()
     
     if not os.path.exists('./output/'):
