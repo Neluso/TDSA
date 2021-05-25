@@ -97,13 +97,13 @@ def imaging(show_plots, hor_offset, ver_offset, resolution, temp_window):
                 col_max = col_pos
             # alpha = sum(H_w[f_min_idx:f_max_idx])  # non-dimensional --- sum(abs(E_sam)) / sum(abs(E_ref))
             alpha = sum(E_sam**2)
-            # f_sam_idx = where(f_sam*1e-12 >= 0.3)[0]  # [0]
+            f_sam_idx = where(f_sam*1e-12 >= 0.8)[0][0]
             # print(f_sam)
             # quit()
             # print(file)
             # print(f_sam_idx)
             #
-            # alpha = E_sam_w[f_sam_idx]
+            alpha = E_sam_w[f_sam_idx]
             # plot(f_sam, abs(E_sam_w))
             # show()
             # quit()
