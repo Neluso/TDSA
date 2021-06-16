@@ -195,3 +195,16 @@ def SWT_denoising(E_data, level, threshold):
         filtered_coeffs.append((cA_mod, cD_aux))
 
     return pywt.iswt(array(filtered_coeffs), 'sym4')
+
+
+def smooth(M, span=3):
+    M_aux = M
+    p_max = M.size
+    for p in range(p_max):
+        if p - span < 0:
+            M_aux[p] = sum(M[:2 * p + 1]) / (2 * p + 1)
+        elif span < p - 1 < p_max - 1 - span:
+            M_aux[p] = sum(M[p - span:p + span]) / (2 * span + 1)
+        elif p + span > p_max - 1:
+            M_aux[p] = sum(M[2 * p - p_max - 1:p_max - 1]) / (2 * p_max - 2 * p - 1)
+    return M_aux
