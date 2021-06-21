@@ -7,6 +7,7 @@ snell_sin = n_air * sin(deg_in * pi / 180)
 n_subs = 1e20 - 0.0 * 1j  # substrate refractive index -- metal
 # n_subs = n_air_cplx
 
+
 # function definitions
 def theta(n):
     return arcsin(snell_sin / real(n))
@@ -40,11 +41,11 @@ def H_sim(freq, n_l, n_l_1, thick, H_subs):
     return H_i
 
 
-t_ref, E_ref = read_1file('ref3.txt')
-t_sam, E_sam = read_1file('sam3.txt')
+t_ref, E_ref = read_1file('ref1.txt')
+t_ref_lock, E_ref_lock = read_slow_data('ref1_lockin.txt')
+t_sam, E_sam = read_1file('sam1.txt')
+t_sam_lock, E_sam_lock = read_slow_data('sam1_lockin.txt')
 
-E_ref = smooth(E_ref, span=1)
-E_sam = smooth(E_sam, span=1)
 
 if t_ref.size < t_sam.size:
     E_sam = interp(t_ref, t_sam, E_sam)
@@ -52,11 +53,38 @@ elif t_sam.size < t_ref.size:
     E_ref = interp(t_sam, t_ref, E_ref)
 
 t_ref *= 1e-12
+t_ref_lock *= 1e-12
 t_sam *= 1e-12
+t_sam_lock *= 1e-12
+
+E_ref_lock = - smooth(E_ref_lock, span=1)
+E_sam_lock = smooth(E_sam_lock, span=1)
+
 
 
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
+f_ref_lock, E_ref_lock_w = fourier_analysis(t_ref_lock, E_ref_lock)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
+f_sam_lock, E_sam_lock_w = fourier_analysis(t_sam_lock, E_sam_lock)
+
+
+block_size = 200  # points
+block_freq = 1.2  # THz
+filt = ones(E_ref_w.shape)
+block_band = zeros(block_size)
+block_freq *= 1e12
+block_freq_idx = where(f_ref >= block_freq)[0][0]
+filt[block_freq_idx:block_freq_idx + block_size] = block_band
+
+
+# figure(1)
+# plot(irfft(E_ref_w))
+# plot(irfft(E_ref_w * filt))
+# # figure(2)
+# # plot(unwrap(angle(E_ref_w)))
+# # plot(unwrap(angle(E_sam_w)))
+# show()
+# quit()
 
 
 # if f_ref.size < f_sam.size:
@@ -71,22 +99,33 @@ f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
 
 
 H_w = E_sam_w / E_ref_w
+H_w_lock = E_sam_lock_w / E_ref_lock_w
+H_w_lock_corr = correlate(E_sam_lock, E_ref_lock, 'full')
+# plot(abs(H_w))
+# show()
+# quit()
+
+H_w_lock *= wiener_filter(E_ref_lock_w, beta=1e-9)
 
 
-# n_1 = 1.55
-# thick_1 = 750e-6
-# n_2 = 1.65
-# thick_2 = 750e-6
+n_1 = 1.55
+thick_1 = 750e-6
+n_2 = 1.65
+thick_2 = 750e-6
 
 
-# H_teo_no_adiab = cr_l_1_l(n_subs, n_2)
-# H_teo_no_adiab = H_sim(f_ref, n_2, n_1, thick_2, H_teo_no_adiab)
-# H_teo_no_adiab = H_sim(f_ref, n_1, n_air, thick_1, H_teo_no_adiab)
-# # H_teo_no_adiab *= phi_air
-# E_sim_nad = irfft(H_teo_no_adiab * E_ref_w)
+H_teo_no_adiab = cr_l_1_l(n_subs, n_2)
+H_teo_no_adiab = H_sim(f_ref_lock, n_2, n_1, thick_2, H_teo_no_adiab)
+H_teo_no_adiab = H_sim(f_ref_lock, n_1, n_air, thick_1, H_teo_no_adiab)
+# H_teo_no_adiab *= phi_air
+E_sim_nad = irfft(H_teo_no_adiab * E_ref_lock_w)
 # figure(1)
-plot(E_sam)
+# plot(E_ref_lock)
+# plot(E_sam_lock)
+# plot(E_sim_nad/ amax(abs(E_sim_nad)))
 # figure(2)
-plot(irfft(H_w))
 # plot(irfft(H_teo_no_adiab))
+plot(irfft(H_w_lock))
+# plot(H_w_lock_corr)
+# plot(correlate(E_sim_nad, E_ref_lock, 'full'))
 show()

@@ -4,8 +4,8 @@ from TDSA import *
 deg_in = 0  # incidence angle in degrees
 snell_sin = n_air * sin(deg_in * pi / 180)
 # n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
-n_subs = 1e20 - 0.0 * 1j  # substrate refractive index -- metal
-# n_subs = n_air_cplx
+# n_subs = 1e20 - 0.0 * 1j  # substrate refractive index -- metal
+n_subs = n_air_cplx
 
 
 # function definitions
@@ -26,6 +26,7 @@ def cr_l_1_l(n_l, n_l_1):  # from n_l-1 to n_l
 
 
 def phase_factor(n, thick, freq):  # theta in radians
+    n = real(n) - 1j * imag(n) * freq * 1e-12
     omg = 2 * pi * freq
     thick *= cos(theta(n))
     phi = 2 * omg * thick / c_0
@@ -33,6 +34,9 @@ def phase_factor(n, thick, freq):  # theta in radians
 
 
 def H_sim(freq, n_l, n_l_1, thick, H_subs):
+    # print(n_l, n_l_1)
+    n_l = real(n_l) - 1j * imag(n_l) * freq * 1e-12
+    n_l_1 = real(n_l_1) - 1j * imag(n_l_1) * freq * 1e-12
     H_i = H_subs  # cr_l_1_l(n_subs, n - 1j * k)
     rlm1l = cr_l_1_l(n_l, n_l_1)
     tt = ct2(n_l, n_l_1)
@@ -49,7 +53,8 @@ def f_n_1(n_1, n_2, D_adiab, d):
     # return m * d**3 / D_adiab**2 + b  # cubic transition
 
 
-t_ref, E_ref = read_1file('../data/demo_data/ref.txt')
+# t_ref, E_ref = read_1file('./ref_colorins.txt')
+t_ref, E_ref = read_1file('./ref.txt')
 # t_ref = arange(1, 5001) * 0.05e-12
 # f_carrier = 0.3e12  # 300 Ghz
 # E_ref = sin(2 * pi * t_ref * f_carrier)
@@ -64,11 +69,26 @@ E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
 t_ref *= 1e-12
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
+f_ref[0] = 1
+# print(f_ref * 1e-12)
+# quit()
 D_adiab = 2e-3  # 100 um
-n_1 = 1.45 - 1j * 0.03
-thick_1 = 2.5e-4  # - D_adiab/2  # 1000 um
-n_2 = 1.65 - 1j * 0.03
-thick_2 = 2.5e-4  # - D_adiab/2  # 1000 um
+n_1 = 1.45 - 1j * 0.03  # blau
+thick_1 = 1000e-6  # - D_adiab/2  # 1000 um
+n_2 = 1.55 - 1j * 0.06  # groc
+thick_2 = 1000e-6  # - D_adiab/2  # 1000 um
+
+
+freq_aux, n_b, n_b_std, alpha_b, alpha_b_std = read_from_1file('./blava.txt')
+n_b = interp(f_ref, freq_aux, n_b, left=n_b[0], right=n_b[-1])
+alpha_b = np.interp(f_ref, freq_aux, alpha_b, left=alpha_b[0], right=alpha_b[-1])
+k_b = 1e-10 * c_0 * alpha_b / (4 * pi * f_ref)
+
+
+freq_aux, n_g, n_g_std, alpha_g, alpha_g_std = read_from_1file('./groga.txt')
+n_g = interp(f_ref, freq_aux, n_g, left=n_g[0], right=n_g[-1])
+alpha_g = np.interp(f_ref, freq_aux, alpha_g, left=alpha_g[0], right=alpha_g[-1])
+k_g = 1e-10 * c_0 * alpha_g / (4 * pi * f_ref)
 # phi_air = phase_factor(n_air, - thick_1 - thick_2, f_ref)
 phi_air = 1
 m = (n_2 - n_1) / D_adiab
@@ -87,18 +107,27 @@ N_grid = 10
 # for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3]:  # 1000 és suficient per a simular adiabàtic
 # for D_adiab in [1e-6, 10**-5.5, 1e-5, 10**-4.5, 1e-4, 10**-3.5, 1e-3]:
 # for D_adiab in [1e-5, 10**-4.9, 10**-4.8, 10**-4.7, 10**-4.6, 10**-4.5, 10**-4.4, 10**-4.3, 10**-4.2, 10**-4.1, 1e-4, 10**-3.9, 10**-3.8, 10**-3.7, 10**-3.6, 10**-3.5, 10**-3.4, 10**-3.3, 10**-3.2, 10**-3.1, 1e-3]:
-for D_adiab in [1e-5, 1e-4, 2e-4]:  # , 1e-4, 1.5e-4]:  # , 1e-3]:  # 1000 és suficient per a simular adiabàtic
-    # # "d" adaptable, N_grid fixe
+for D_adiab in [1e-5, 1e-4, 5e-4]:  # , 1e-4, 1.5e-4]:  # , 1e-3]:  # 1000 és suficient per a simular adiabàtic
+    # "d" adaptable, N_grid fixe
     # d = D_adiab / N_grid
-    # # "d" fixe, N_grid adaptable
-    d = 1e-6  # amstrong o nm? --> 10 nm
+    # "d" fixe, N_grid adaptable
+    d = 1e-7  # 100 nm
     N_grid = int(D_adiab / d)
+    m = (n_2 - n_1) / D_adiab
+    b = n_1
+    n_adiab = [n_1]
+    for i in range(N_grid):
+        n_adiab.append(f_n_1(n_1, n_2, D_adiab, d * i))
+    n_adiab.append(n_2)
+    print(len(n_adiab))
+
+
     print(d * 1e6, 'um')
     print('Grid:', N_grid)
-    n_adiab = (arange(N_grid) + 0.5) * d
-    n_adiab = f_n_1(n_1, n_2, D_adiab, n_adiab)
-    n_adiab = append(n_1, n_adiab)
-    n_adiab = append(n_adiab, n_2)
+    # n_adiab = (arange(N_grid) + 0.5) * d
+    # n_adiab = f_n_1(n_1, n_2, D_adiab, n_adiab)
+    # n_adiab = append(n_1, n_adiab)
+    # n_adiab = append(n_adiab, n_2)
     # n_adiab *= 0.01 * (2 * random.rand(N_grid + 2) - 1)
     d_adiab = d * ones(N_grid)
     d_adiab = append(thick_1 - D_adiab / 2, d_adiab)
@@ -121,6 +150,8 @@ for D_adiab in [1e-5, 1e-4, 2e-4]:  # , 1e-4, 1.5e-4]:  # , 1e-3]:  # 1000 és s
 
     legend_Text = str(D_adiab * 1e6) + ' ' + 'um'
     figure(1)
+    # print(t_ref.size)
+    # quit()
     plot(t_ref * 1e12, E_sim_ad, label=legend_Text, lw=1)
     # figure(2)
     # plot(f_ref * 1e-12, toDb(H_teo_adiab * E_ref_w), label=legend_Text, lw=1)
@@ -157,8 +188,8 @@ legend()
 legend()
 figure(3)
 plot(t_ref, irfft(H_teo_no_adiab), '--', label='2_lay', lw=1)
-xlim([1, 4])
-ylim([-0.005, 0.001])
+# xlim([1, 4])
+# ylim([-0.005, 0.001])
 # # plot(t_ref * 1e12, abs(irfft(H_teo_eff_adiab)), '-.', label='2_lay_eff', lw=1)
 legend()
 # figure(4)
