@@ -3,8 +3,8 @@ from scipy import interpolate
 from scipy.signal import savgol_filter
 
 
-t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
-t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
+# t_ref, E_ref = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/ref metal wcoat_avg_f.txt')
+# t_sam, E_sam = read_1file('./data/muestras_airbus_boleto_176054_fecha_15_06_2018/metal_w_coat/sam metal wcoat1_avg_f.txt')
 # f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 # f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
 
@@ -35,7 +35,7 @@ def genetic_deno(t_ref, E_ref, t_sam, E_sam):
     num_pop = 200
     num_pop_cross = int(num_pop/2)
     num_pop_new = num_pop - num_pop_cross
-    max_iter = 500
+    max_iter = 200
     noise_level_cutoff = 2e-5  # noise level for iteration cutoff
     smoothing_span = 4
     smoothing_order = 1
