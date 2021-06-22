@@ -1,3 +1,5 @@
+import numpy as np
+
 import genetic_denoising
 from TDSA import *
 
@@ -110,10 +112,14 @@ filt[block_freq_idx:block_freq_idx + block_size] = block_band
 
 H_w = E_sam_w / E_ref_w
 H_w_lock = E_sam_lock_w / E_ref_lock_w
+
 # plot(E_ref_lock)
 # show()
 # quit()
 H_w_lock_corr = correlate(E_sam_lock, E_ref_lock[1000:1200], 'same')
+plot(H_w_lock_corr)
+show()
+quit()
 # plot(abs(H_w))
 # show()
 # quit()
@@ -139,6 +145,16 @@ H_w_lock_corr_nad = correlate(E_sim_nad, E_ref_lock[1000:1200], 'same')
 # t_sam, E_sam = read_1file('./celo_vid/sam1.txt')
 SNR = abs(E_ref_lock_w) / 0.02
 G = conjugate(H_w_lock) / (abs(H_w_lock)**2 + 1 / SNR)
+E_sam_aux = E_sam
+E_sim_aux = smooth(E_sam_aux, span=1000)
+plot(E_sam)
+plot(E_sim_aux, lw=0.8)
+show()
+h_t = irfft(H_w)
+for i in range(10):
+    print(np.dot(h_t, E_sam) / np.dot(h_t, E_sim_aux))
+    E_sim_aux = E_sim_aux * (np.dot(h_t, E_sam) / np.dot(h_t, E_sim_aux))
+    plot(E_sim_aux, lw=0.8)
 # plot(toDb(G * E_sam_lock_w))
 # plot(toDb(E_sam_lock_w))
 # plot(toDb(G))
@@ -154,6 +170,6 @@ G = conjugate(H_w_lock) / (abs(H_w_lock)**2 + 1 / SNR)
 # figure(2)
 # plot(irfft(H_teo_no_adiab))
 # plot(irfft(H_w_lock))  # / amax(abs(H_w_lock))))
-# plot(abs(H_w_lock_corr) / amax(abs(H_w_lock_corr)))
+# plot(H_w_lock_corr)
 # plot(correlate(E_sim_nad, E_ref_lock, 'full'))
 show()
