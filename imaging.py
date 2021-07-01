@@ -103,7 +103,7 @@ def imaging(show_plots, hor_offset, ver_offset, resolution, temp_window):
             # print(file)
             # print(f_sam_idx)
             #
-            alpha = E_sam_w[f_sam_idx]
+            # alpha = E_sam_w[f_sam_idx]
             # plot(f_sam, abs(E_sam_w))
             # show()
             # quit()

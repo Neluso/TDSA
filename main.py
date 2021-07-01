@@ -50,7 +50,7 @@ master_window.title('Time Domain Spectroscopy Analyzer (TDSA)')
 show_plots = BooleanVar()
 thickness = StringVar(master_window, value='0.2')  # mm
 hoffset = StringVar(master_window, value='0.0')  # mm
-voffset = StringVar(master_window, value='65.0')  # mm
+voffset = StringVar(master_window, value='50.0')  # mm
 resolution = StringVar(master_window, value='1.0')  # delta_mm
 temporal_window = StringVar(master_window, value='tukey')
 noise_floor_freq = StringVar(master_window, value='4')  # THz
