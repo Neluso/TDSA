@@ -8,7 +8,6 @@ from DSP_functions import *
 # from TDSA import *
 
 
-
 def refractive_index(frq, delta_phi, thick, n_environ):
     n = n_environ * ones(delta_phi.size)
     for i in range(delta_phi.size):
@@ -16,6 +15,14 @@ def refractive_index(frq, delta_phi, thick, n_environ):
             continue
         n[i] += c_0 * delta_phi[i] / (2 * pi * frq[i] * thick)
     return n
+
+
+def n_avg_calc(t_ref, E_ref, t_sam, E_sam, thickness):
+    pos_t_0ref = centroid_E2(t_ref, E_ref)
+    pos_t_0sam = centroid_E2(t_sam, E_sam)
+    t_0ref = t_ref[pos_t_0ref]
+    t_0sam = t_ref[pos_t_0sam]
+    return n_air + (t_0sam - t_0ref) * c_0 / thickness
 
 
 def n_quocient(ref_ind):
