@@ -5,7 +5,7 @@ deg_in = 0  # incidence angle in degrees
 snell_sin = n_air * sin(deg_in * pi / 180)
 # n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
 # n_subs = 1e20 - 0.0 * 1j  # substrate refractive index -- metal
-n_subs = n_air_cplx
+n_subs = 2.6  # n_air_cplx
 
 
 # function definitions
@@ -72,11 +72,11 @@ f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_ref[0] = 1
 # print(f_ref * 1e-12)
 # quit()
-D_adiab = 1e-3  # 100 um
+D_adiab = 50e-6  # 100 um
 n_1 = 1.45 - 1j * 0.03  # blau
-thick_1 = 1.5e-3  # - D_adiab/2  # 1000 um
+thick_1 = 5e-5  # - D_adiab/2  # 1000 um
 n_2 = 1.55 - 1j * 0.06  # groc
-thick_2 = 1.5e-3  # - D_adiab/2  # 1000 um
+thick_2 = 5e-5  # - D_adiab/2  # 1000 um
 
 
 freq_aux, n_b, n_b_std, alpha_b, alpha_b_std = read_from_1file('./blava.txt')
@@ -103,11 +103,11 @@ E_sim_nad = irfft(H_teo_no_adiab * E_ref_w)
 
 # [1, 2, 10, 50, 100, 1000]:
 # Building adiabatic samples
-N_grid = 3
+N_grid = 4
 # for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3]:  # 1000 és suficient per a simular adiabàtic
 # for D_adiab in [1e-6, 10**-5.5, 1e-5, 10**-4.5, 1e-4, 10**-3.5, 1e-3]:
 # for D_adiab in [1e-5, 10**-4.9, 10**-4.8, 10**-4.7, 10**-4.6, 10**-4.5, 10**-4.4, 10**-4.3, 10**-4.2, 10**-4.1, 1e-4, 10**-3.9, 10**-3.8, 10**-3.7, 10**-3.6, 10**-3.5, 10**-3.4, 10**-3.3, 10**-3.2, 10**-3.1, 1e-3]:
-for D_adiab in [1e-3]:   # , 1e-4, 5e-4]:  # , 1e-4, 1.5e-4]:  # , 1e-3]:  # 1000 és suficient per a simular adiabàtic
+for D_adiab in [200e-6]:   # , 1e-4, 5e-4]:  # , 1e-4, 1.5e-4]:  # , 1e-3]:  # 1000 és suficient per a simular adiabàtic
     # "d" adaptable, N_grid fixe
     d = D_adiab / N_grid
     # "d" fixe, N_grid adaptable
