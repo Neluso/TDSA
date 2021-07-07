@@ -29,13 +29,13 @@ def full_adiab_H_sim():
     return 0
 
 
-file_path = './20210705_mesures/20210705_adiabatic_acrilic/'
+file_path = './20210705_mesures/20210705_adiab_vidre_reflex/'
 sample_num = 1
 t_ref, E_ref = read_1file(file_path + 'ref' + str(sample_num) + '.txt')
 t_sam_ad, E_sam_ad = read_1file(file_path + 'adiab' + str(sample_num) + '.txt')
 t_sam_na, E_sam_na = read_1file(file_path + 'noad' + str(sample_num) + '.txt')
 delta_t_ref = mean(diff(t_ref))
-enlargement = 10 * E_ref.size
+enlargement = 0 * E_ref.size
 E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
 E_sam_ad = zero_padding(E_sam_ad, 0, enlargement)
@@ -65,10 +65,10 @@ xlim([0, 50])
 legend()
 savefig(file_path + str(sample_num) + 'traces.png')
 figure(2)
-plot(f_ref * 1e-12, abs(H_ad_w), label='adiab')
-plot(f_ref * 1e-12, abs(H_na_w), label='no-ad')
-xlim([0.05, 0.9])
-ylim([0, 2])
+plot(irfft(H_ad_w), label='adiab')
+plot(irfft(H_na_w), label='no-ad')
+# xlim([0.05, 0.9])
+# ylim([0, 2])
 legend()
 savefig(file_path + str(sample_num) + 'transfer_func.png')
 show()
