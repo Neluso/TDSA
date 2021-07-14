@@ -65,7 +65,7 @@ def full_H(freq, n_s, thick_s):
 t_ref, E_ref = read_1file('./20210628_adiabatic/ref2.txt')
 t_sam, E_sam = read_1file('./20210628_adiabatic/sam2.txt')
 delta_t_ref = mean(diff(t_ref))
-enlargement = 10 * E_ref.size
+enlargement = 0 * E_ref.size
 # ref_pulse_idx = centre_loc(E_ref)
 E_ref = zero_padding(E_ref, 0, enlargement)
 t_ref = concatenate((t_ref, t_ref[-1] * ones(enlargement) + delta_t_ref * arange(1, enlargement + 1)))
@@ -81,15 +81,16 @@ E_sam = smooth(E_sam, span=12)
 # plot(E_sam)
 f_ref, E_ref_w = fourier_analysis(t_ref, E_ref)
 f_sam, E_sam_w = fourier_analysis(t_sam, E_sam)
-n_1 = 1.55 - 1j * 0.01 * f_ref * 1e-12
-n_2 = 1.45 - 1j * 0.01 * f_ref * 1e-12
+n_1 = 1.55  # - 1j * 0.01 * f_ref * 1e-12
+n_2 = 1.45  # - 1j * 0.01 * f_ref * 1e-12
 n_s = [1.55, 1.525, 1.5, 1.475, 1.45]
 thick_s = [1000e-6, 330e-6, 330e-6, 330e-6, 1000e-6]
 
 
-plot(t_ref * 1e12, irfft(E_sam_w / E_ref_w * wiener_filter(E_ref_w, beta=1e-4)))
+# plot(t_ref * 1e12, irfft(E_sam_w / E_ref_w * wiener_filter(E_ref_w, beta=1e-4)))
 # plot(abs(E_sam_w / E_ref_w))
 H_teo = full_H(f_ref, n_s, thick_s)
+plot(abs(irfft(H_teo)), lw=1)
 # plot(abs(H_teo)) # * wiener_filter(E_ref_w, beta=1e-4)))
 # plot(E_ref / amax(abs(E_ref)))
 # plot(irfft(E_ref_w * full_H(f_ref, n_s, [100e-6, 33e-6, 33e-6, 33e-6, 100e-6])))
