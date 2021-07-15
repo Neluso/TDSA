@@ -56,7 +56,17 @@ def f_n_1(n_1, n_2, D_adiab, d):
 def path_p_num_plot(file_path, sample_num):
     t_ref, E_ref = read_1file(file_path + 'ref' + str(sample_num) + '.txt')
     E_ref = - E_ref
+    t_ref_aux, E_ref_aux = read_1file(file_path + 'ref' + str(sample_num + 1) + '.txt')
+    E_ref -= E_ref_aux
+    t_ref_aux, E_ref_aux = read_1file(file_path + 'ref' + str(sample_num + 2) + '.txt')
+    E_ref -= E_ref_aux
     t_sam_ad, E_sam_ad = read_1file(file_path + 'sam' + str(sample_num) + '.txt')
+    t_ref_aux, E_sam_ad_aux = read_1file(file_path + 'sam' + str(sample_num + 1) + '.txt')
+    E_sam_ad += E_sam_ad_aux
+    t_ref_aux, E_sam_ad_aux = read_1file(file_path + 'sam' + str(sample_num + 2) + '.txt')
+    E_sam_ad += E_sam_ad_aux
+    E_ref /= 3
+    E_sam_ad /= 3
     t_sam_nad, E_sam_nad = read_1file(file_path + 'sam' + str(sample_num) + '.txt')
     delta_t_ref = mean(diff(t_ref))
     enlargement = 0 * E_ref.size
@@ -76,7 +86,7 @@ def path_p_num_plot(file_path, sample_num):
     t_sam_nad *= 1e-12
     f_sam_nad, E_sam_nad_w = fourier_analysis(t_sam_nad, E_sam_nad)
     f_sam_nad[0] = 1
-    H_ad_w = E_sam_ad_w / E_ref_w
+    H_ad_w = abs(E_sam_ad_w) / abs(E_ref_w)
     # H_ad_w = E_ref_w / E_ref_w
     H_nad_w = E_sam_nad_w / E_ref_w
     # plot(f_ref * 1e-12, toDb(E_sam_w))
@@ -90,7 +100,7 @@ def path_p_num_plot(file_path, sample_num):
     # plot(t_sam_ad * 1e12, E_sam_ad / amax(abs(E_sam_ad)), lw=1)  # , label='sam')
     # plot(t_sam_ad * 1e12, E_sam_ad, lw=1, label='sam')
     # plot(t_ref * 1e12, E_ref / amax(abs(E_ref)), lw=1)
-    deconv_ad = irfft(H_ad_w * wiener_filter(E_ref_w, beta=0.01))**2
+    deconv_ad = irfft(H_ad_w * wiener_filter(E_ref_w, beta=0.01))
     plot(t_sam_ad * 1e12, roll(deconv_ad, centroid_E2(t_ref, E_ref)) / amax(abs(deconv_ad)), lw=1, label=r'$dcv^2$')
     # xlim([0, 50])
     # plot(t_sam_nad * 1e12, E_sam_nad / amax(abs(E_sam_nad)), lw=1)

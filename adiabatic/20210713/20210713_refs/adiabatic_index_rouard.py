@@ -177,12 +177,12 @@ for D_adiab in [1000e-6]:  # , 1e-4, 1.5e-4]:  # , 1e-3]:  # 1000 és suficient 
     H_teo_adiab *= phi_air
     E_sim_ad = irfft(H_teo_adiab * E_ref1_w)
     noise_fig = E_ref1_w / E_ref2_w
-    # plot(abs(irfft(H_teo_adiab * noise_fig)), lw=0.5, label='noisy')
     figure(time_ref)
+    plot(t_ref1 * 1e12, abs(irfft(H_teo_adiab * noise_fig)), lw=0.5, label='noisy')
     plot(t_ref1 * 1e12, abs(irfft(H_teo_adiab * noise_fig * wiener_filter(E_ref2_w, beta=1e-2))), lw=1, label='filt')
     plot(t_ref1 * 1e12, abs(irfft(H_teo_adiab)), lw=0.8, label='pure')
-    xlim([10, 25])
-    ylim([0, 0.002])
+    # xlim([10, 25])
+    # ylim([0, 0.002])
     legend()
 
 
