@@ -55,6 +55,10 @@ def f_n_1(n_1, n_2, D_adiab, d):
 
 # t_ref, E_ref = read_1file('./ref_colorins.txt')
 t_ref, E_ref = read_1file('./ref.txt')
+# plot(t_ref, E_ref)
+# print(E_ref.size)
+# show()
+# quit()
 # t_ref = arange(1, 5001) * 0.05e-12
 # f_carrier = 0.3e12  # 300 Ghz
 # E_ref = sin(2 * pi * t_ref * f_carrier)
@@ -74,21 +78,21 @@ f_ref[0] = 1
 # quit()
 D_adiab = 10e-6  # 100 um
 n_1 = 1.4  # - 1j * 0.03  # blau
-thick_1 = 200e-6  # - D_adiab/2  # 1000 um
+thick_1 = 500e-6  # - D_adiab/2  # 1000 um
 n_2 = 1.6  # - 1j * 0.06  # groc
-thick_2 = 200e-6  # - D_adiab/2  # 1000 um
+thick_2 = 500e-6  # - D_adiab/2  # 1000 um
 
 
-freq_aux, n_b, n_b_std, alpha_b, alpha_b_std = read_from_1file('./blava.txt')
-n_b = interp(f_ref, freq_aux, n_b, left=n_b[0], right=n_b[-1])
-alpha_b = np.interp(f_ref, freq_aux, alpha_b, left=alpha_b[0], right=alpha_b[-1])
-k_b = 1e-10 * c_0 * alpha_b / (4 * pi * f_ref)
-
-
-freq_aux, n_g, n_g_std, alpha_g, alpha_g_std = read_from_1file('./groga.txt')
-n_g = interp(f_ref, freq_aux, n_g, left=n_g[0], right=n_g[-1])
-alpha_g = np.interp(f_ref, freq_aux, alpha_g, left=alpha_g[0], right=alpha_g[-1])
-k_g = 1e-10 * c_0 * alpha_g / (4 * pi * f_ref)
+# freq_aux, n_b, n_b_std, alpha_b, alpha_b_std = read_from_1file('./blava.txt')
+# n_b = interp(f_ref, freq_aux, n_b, left=n_b[0], right=n_b[-1])
+# alpha_b = np.interp(f_ref, freq_aux, alpha_b, left=alpha_b[0], right=alpha_b[-1])
+# k_b = 1e-10 * c_0 * alpha_b / (4 * pi * f_ref)
+#
+#
+# freq_aux, n_g, n_g_std, alpha_g, alpha_g_std = read_from_1file('./groga.txt')
+# n_g = interp(f_ref, freq_aux, n_g, left=n_g[0], right=n_g[-1])
+# alpha_g = np.interp(f_ref, freq_aux, alpha_g, left=alpha_g[0], right=alpha_g[-1])
+# k_g = 1e-10 * c_0 * alpha_g / (4 * pi * f_ref)
 # phi_air = phase_factor(n_air, - thick_1 - thick_2, f_ref)
 phi_air = 1
 m = (n_2 - n_1) / D_adiab
@@ -107,11 +111,12 @@ N_grid = 1000
 # for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3]:  # 1000 és suficient per a simular adiabàtic
 # for D_adiab in [1e-6, 10**-5.5, 1e-5, 10**-4.5, 1e-4, 10**-3.5, 1e-3]:
 # for D_adiab in [1e-5, 10**-4.9, 10**-4.8, 10**-4.7, 10**-4.6, 10**-4.5, 10**-4.4, 10**-4.3, 10**-4.2, 10**-4.1, 1e-4, 10**-3.9, 10**-3.8, 10**-3.7, 10**-3.6, 10**-3.5, 10**-3.4, 10**-3.3, 10**-3.2, 10**-3.1, 1e-3]:
-for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3]:  # , 1e-5, 5e-4]:  # , 1e-4, 1.5e-4]:  # , 1e-3]:  # 1000 és suficient per a simular adiabàtic
+for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 3e-4]:  # , 1e-5, 5e-4]:  # , 1e-4, 1.5e-4]:  # , 1e-3]:  # 1000 és suficient per a simular adiabàtic
+    legend_Text = str(D_adiab * 1e6) + ' ' + 'um'
     # "d" adaptable, N_grid fixe
     # d = D_adiab / N_grid
     # "d" fixe, N_grid adaptable
-    d = 1e-7  # 100 nm
+    d = 1e-8  # 10 nm
     N_grid = int(D_adiab / d)
     m = (n_2 - n_1) / D_adiab
     b = n_1
@@ -119,8 +124,6 @@ for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3]:  # , 1e-5, 5e-4]:  # 
     for i in range(N_grid):
         n_adiab.append(f_n_1(n_1, n_2, D_adiab, d * i))
     n_adiab.append(n_2)
-    print(len(n_adiab))
-
 
     print(d * 1e6, 'um')
     print('Grid:', N_grid)
@@ -132,6 +135,13 @@ for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3]:  # , 1e-5, 5e-4]:  # 
     d_adiab = d * ones(N_grid)
     d_adiab = append(thick_1 - D_adiab / 2, d_adiab)
     d_adiab = append(d_adiab, thick_2 - D_adiab / 2)
+    d_adiab_sum = [d_adiab[0]]
+    for k in range(1, d_adiab.size):
+        d_adiab_sum.append(sum(d_adiab[0:k]))
+    d_adiab_sum = array(d_adiab_sum)
+    figure(10)
+    plot(d_adiab_sum, n_adiab, label=legend_Text)
+
     # d_adiab = append(thick_1, d_adiab)  # - D_adiab / 2, d_adiab)
     # d_adiab = append(d_adiab, thick_2)  # - D_adiab / 2)
 
@@ -148,7 +158,7 @@ for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3]:  # , 1e-5, 5e-4]:  # 
     H_teo_adiab *= phi_air
     E_sim_ad = irfft(H_teo_adiab * E_ref_w)
 
-    legend_Text = str(D_adiab * 1e6) + ' ' + 'um'
+
     figure(1)
     # print(t_ref.size)
     # quit()
@@ -176,7 +186,7 @@ figure(1)
 title('R wave')
 t_ref *= 1e12
 plot(t_ref, E_sim_nad, '--', label='2_lay', lw=1)
-plot(t_ref * 1e12, E_sim_effad, '-.', label='2_lay_eff', lw=1)
+# plot(t_ref * 1e12, E_sim_effad, '-.', label='2_lay_eff', lw=1)
 write_data(t_ref, E_sim_ad, 'adiab_2_lay_200_tran_10', './')
 write_data(t_ref, E_sim_nad, 'noad_2_lay_200', './')
 xlabel('t (ps)')
@@ -199,4 +209,6 @@ legend()
 # # figure(5)
 # # xlabel('D_adiab')
 # # ylabel('sum diff H')
+figure(10)
+legend()
 show()
