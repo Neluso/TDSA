@@ -4,8 +4,8 @@ from TDSA import *
 deg_in = 0  # incidence angle in degrees
 snell_sin = n_air * sin(deg_in * pi / 180)
 # n_subs = 1.17 - 0.0 * 1j  # substrate refractive index -- cork
-# n_subs = 1e20 - 0.0 * 1j  # substrate refractive index -- metal
-n_subs = 2.6  # n_air_cplx
+n_subs = 1e20 - 0.0 * 1j  # substrate refractive index -- metal
+# n_subs = n_air_cplx
 
 
 # function definitions
@@ -55,16 +55,25 @@ def f_n_1(n_1, n_2, D_adiab, d):
 
 # t_ref, E_ref = read_1file('./ref_colorins.txt')
 t_ref, E_ref = read_1file('./ref.txt')
+# figure(1)
+# plot(toDb_0(rfft(E_ref)))
+# figure(2)
 # plot(t_ref, E_ref)
 # print(E_ref.size)
 # show()
 # quit()
-# t_ref = arange(1, 5001) * 0.05e-12
-# f_carrier = 0.3e12  # 300 Ghz
-# E_ref = sin(2 * pi * t_ref * f_carrier)
-# E_ref *= exp(- (t_ref - 50e-12)**2 / (2e-12)**2)
-# t_ref *= 1e12
-
+t_ref = arange(1, 50001) * 0.001e-12
+f_carrier = 0.3e12  # 300 Ghz
+E_ref = 5 * sin(2 * pi * t_ref * f_carrier)
+E_ref *= exp(- (t_ref - 13e-12)**2 / (1e-12)**2)
+# E_ref += 0.009 * (2 * random.rand(E_ref.size) - 1)
+t_ref *= 1e12
+# figure(1)
+# plot(toDb_0(rfft(E_ref)))
+# figure(2)
+# plot(t_ref, E_ref)
+# show()
+# quit()
 
 delta_t_ref = mean(diff(t_ref))
 enlargement = 0 * E_ref.size
@@ -77,9 +86,9 @@ f_ref[0] = 1
 # print(f_ref * 1e-12)
 # quit()
 D_adiab = 10e-6  # 100 um
-n_1 = 1.4  # - 1j * 0.03  # blau
+n_1 = 1.6  # - 1j * 0.03  # blau
 thick_1 = 500e-6  # - D_adiab/2  # 1000 um
-n_2 = 1.6  # - 1j * 0.06  # groc
+n_2 = 1.8  # - 1j * 0.06  # groc
 thick_2 = 500e-6  # - D_adiab/2  # 1000 um
 
 
@@ -111,7 +120,7 @@ N_grid = 1000
 # for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3]:  # 1000 és suficient per a simular adiabàtic
 # for D_adiab in [1e-6, 10**-5.5, 1e-5, 10**-4.5, 1e-4, 10**-3.5, 1e-3]:
 # for D_adiab in [1e-5, 10**-4.9, 10**-4.8, 10**-4.7, 10**-4.6, 10**-4.5, 10**-4.4, 10**-4.3, 10**-4.2, 10**-4.1, 1e-4, 10**-3.9, 10**-3.8, 10**-3.7, 10**-3.6, 10**-3.5, 10**-3.4, 10**-3.3, 10**-3.2, 10**-3.1, 1e-3]:
-for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 3e-4]:  # , 1e-5, 5e-4]:  # , 1e-4, 1.5e-4]:  # , 1e-3]:  # 1000 és suficient per a simular adiabàtic
+for D_adiab in list(arange(1, 11) * 1e-6):  # , 1e-4, 1.5e-4]:  # , 1e-3]:  # 1000 és suficient per a simular adiabàtic
     legend_Text = str(D_adiab * 1e6) + ' ' + 'um'
     # "d" adaptable, N_grid fixe
     # d = D_adiab / N_grid
@@ -119,11 +128,16 @@ for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 3e-4]:  # , 1e-5, 5e-4]:  # , 1e-4
     d = 1e-8  # 10 nm
     N_grid = int(D_adiab / d)
     m = (n_2 - n_1) / D_adiab
+    print(m * 1e-3, 'RIU/mm')
     b = n_1
     n_adiab = [n_1]
+    n_adiab_sum = [n_1, n_1]
     for i in range(N_grid):
         n_adiab.append(f_n_1(n_1, n_2, D_adiab, d * i))
+        n_adiab_sum.append(f_n_1(n_1, n_2, D_adiab, d * i))
     n_adiab.append(n_2)
+    n_adiab_sum.append(n_2)
+    n_adiab_sum.append(n_2)
 
     print(d * 1e6, 'um')
     print('Grid:', N_grid)
@@ -135,12 +149,13 @@ for D_adiab in [1e-6, 5e-6, 1e-5, 5e-5, 1e-4, 3e-4]:  # , 1e-5, 5e-4]:  # , 1e-4
     d_adiab = d * ones(N_grid)
     d_adiab = append(thick_1 - D_adiab / 2, d_adiab)
     d_adiab = append(d_adiab, thick_2 - D_adiab / 2)
-    d_adiab_sum = [d_adiab[0]]
+    d_adiab_sum = [0, d_adiab[0]]
     for k in range(1, d_adiab.size):
         d_adiab_sum.append(sum(d_adiab[0:k]))
-    d_adiab_sum = array(d_adiab_sum)
+    d_adiab_sum.append(array(thick_1 + thick_2))
     figure(10)
-    plot(d_adiab_sum, n_adiab, label=legend_Text)
+    plot(array(d_adiab_sum) * 1e6, n_adiab_sum, label=legend_Text)
+
 
     # d_adiab = append(thick_1, d_adiab)  # - D_adiab / 2, d_adiab)
     # d_adiab = append(d_adiab, thick_2)  # - D_adiab / 2)
@@ -197,18 +212,27 @@ legend()
 # figure(2)
 # plot(f_ref * 1e-12, toDb(H_teo_eff_adiab * E_ref_w), '--', label='2_lay', lw=1)
 # plot(f_ref * 1e-12, abs(H_teo_eff_adiab), '-.', label='2_lay_eff', lw=1)
-legend()
+# legend()
 figure(3)
 plot(t_ref, irfft(H_teo_no_adiab), '--', label='2_lay', lw=1)
 # xlim([1, 4])
 # ylim([-0.005, 0.001])
 # # plot(t_ref * 1e12, abs(irfft(H_teo_eff_adiab)), '-.', label='2_lay_eff', lw=1)
 legend()
-# figure(4)
-# # legend()
+figure(4)
+plot(t_ref, abs(irfft(H_teo_no_adiab)), label='2_lay', lw=1)
+xlabel('t (ps)')
+ylabel(r'$|FFT^{-1}{H(\omega)}|$')
+xlim([3, 12])
+ylim([0, 0.08])
+legend()
 # # figure(5)
 # # xlabel('D_adiab')
 # # ylabel('sum diff H')
 figure(10)
+xlabel(r'd ($\mu m$)')
+ylabel('n')
+xlim([0, 1000])
+ylim([1.35, 1.65])
 legend()
 show()
