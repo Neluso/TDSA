@@ -1,4 +1,0 @@
-cork con pintura blanca, grosor por determinar
-
-ref metal cork = referencia metal
-sam cork wcoat reverse = parte del corcho sin pintura
